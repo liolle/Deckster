@@ -11,7 +11,6 @@ builder.Services.AddDataProtection()
 var app = builder.Build();
 
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
