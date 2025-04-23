@@ -21,6 +21,19 @@ services:
       - blazor.env
     networks:
       - deckster_net
+      - caddy_net    
+    volumes:
+      - ${SHARED_KEYS}:/data
+
+  deckster-api:
+    container_name: deckster-api
+    build:
+      context: ./
+      dockerfile: ./API.Dockerfile
+    env_file:
+      - api.env
+    networks:
+      - deckster_net
       - caddy_net
 
 networks:
