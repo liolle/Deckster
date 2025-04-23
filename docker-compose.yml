@@ -1,0 +1,30 @@
+services:
+  deckster-db:
+    container_name: deckster-db
+    build:
+      context: ./Database
+    env_file:
+      - api.env
+    ports:
+      - 1435:1433
+    networks:
+      - deckster_net
+    volumes:
+      - ${DB_VOLUME}:/var/opt/mssql
+
+  deckster-blazor:
+    container_name: deckster-blazor
+    build:
+      context: ./
+      dockerfile: ./Blazor.Dockerfile
+    env_file:
+      - blazor.env
+    networks:
+      - deckster_net
+      - caddy_net
+
+networks:
+  deckster_net:
+    external: true 
+  caddy_net:
+    external: true
