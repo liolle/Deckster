@@ -1,6 +1,5 @@
 
-namespace deckster.database.entities;
-
+namespace deckster.entities;
 
 public class CredentialEntity(string account_Id, string user_name, string password)
 {

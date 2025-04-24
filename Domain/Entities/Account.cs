@@ -1,4 +1,4 @@
-namespace deckster.database.entities; 
+namespace deckster.entities; 
 
 public class AccountEntity(string id, string provider, int user_Id, string provider_Id)
 {

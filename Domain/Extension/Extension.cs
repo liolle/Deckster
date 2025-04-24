@@ -1,4 +1,4 @@
-using deckster.database.entities;
+using deckster.entities;
 
 namespace deckster.extensions;
 
@@ -20,11 +20,9 @@ public static partial class EntityExtension
 // Helper methods
 public static partial class EntityExtension
 {
-
   private static string GenerateAccoutId(string prefix)
   {
     string gui = Guid.NewGuid().ToString().Replace("-","");
     return $"{prefix}{gui}";
   }
-
 }

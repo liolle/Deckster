@@ -1,8 +1,8 @@
 namespace deckster.database;
 
 using System.Data;
-using Microsoft.Data.SqlClient;
 using deckster.exceptions;
+using Microsoft.Data.SqlClient;
 
 public interface IDataContext {
   SqlConnection CreateConnection();

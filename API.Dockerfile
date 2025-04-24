@@ -2,9 +2,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS sdk
 
 FROM sdk AS build
 WORKDIR src
-COPY ./CQS ./CQS
+COPY ./Domain ./Domain
 ARG CACHE_BUSTER
-COPY ./Exceptions ./Exceptions
 COPY ./Database ./Database
 COPY ./API ./API
 

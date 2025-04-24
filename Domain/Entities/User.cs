@@ -1,4 +1,4 @@
-namespace deckster.database.entities;
+namespace deckster.entities;
 
 public class UserEntity (string id, string email,DateTime createdAt)
 {
