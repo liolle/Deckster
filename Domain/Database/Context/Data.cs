@@ -1,3 +1,4 @@
+
 namespace deckster.database;
 
 using System.Data;
@@ -6,6 +7,8 @@ using Microsoft.Data.SqlClient;
 
 public interface IDataContext {
   SqlConnection CreateConnection();
+  int ExecuteNonQuery(string query, SqlCommand cmd);
+  DataTable ExecuteQuery(string query, SqlCommand cmd);
 }
 
 public class DataContext(IConfiguration configuration) : IDataContext
@@ -14,28 +17,23 @@ public class DataContext(IConfiguration configuration) : IDataContext
 
   public SqlConnection CreateConnection()
   {
-    return new SqlConnection(_connectionString);
+    SqlConnection con = new SqlConnection(_connectionString);
+    return con; 
   }
 
-  public int ExecuteNonQuery(string query, SqlParameter[] parameters)
+  public int ExecuteNonQuery(string query, SqlCommand cmd)
   {
-    using SqlConnection conn = CreateConnection();
-    using SqlCommand cmd = new(query, conn);
-    cmd.Parameters.AddRange(parameters);
-    conn.Open();
+    cmd.Connection.Open();
     return cmd.ExecuteNonQuery(); 
   }
 
-  public DataTable ExecuteQuery(string query, SqlParameter[] parameters)
+  public DataTable ExecuteQuery(string query, SqlCommand cmd)
   {
-    using SqlConnection conn = CreateConnection();
-    using SqlCommand cmd = new(query, conn);
-    cmd.Parameters.AddRange(parameters);
-    conn.Open();
-
+    cmd.Connection.Open();
     using SqlDataAdapter adapter = new(cmd);
     DataTable resultTable = new();
     adapter.Fill(resultTable);
     return resultTable;
   }
 }
+

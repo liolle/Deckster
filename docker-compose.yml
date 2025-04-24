@@ -2,7 +2,7 @@ services:
   deckster-db:
     container_name: deckster-db
     build:
-      context: ./Database
+      context: ./Domain/Database
     env_file:
       - api.env
     ports:

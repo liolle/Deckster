@@ -4,7 +4,6 @@ FROM sdk AS build
 WORKDIR src
 COPY ./Domain ./Domain
 ARG CACHE_BUSTER
-COPY ./Database ./Database
 COPY ./API ./API
 
 WORKDIR API
