@@ -9,6 +9,7 @@ using deckster.database;
 using deckster.services;
 using deckster.services.commands;
 using deckster.cqs;
+using deckster.exceptions;
 
 namespace deckster.__Tests__;
 
@@ -40,25 +41,48 @@ public class AuthTest
     string storedProcName = "RegisterUserTransaction";
     using SqlConnection con = new();
 
-    // Mock the command that would be created in the Execute method
-
     _mockDataContext.Setup(s => s.CreateConnection()).Returns(() => con);
     _mockDataContext.Setup(s => s.ExecuteNonQuery(
           It.Is<string>(q => q == storedProcName),
           It.IsAny<SqlCommand>()
           )).Returns(1);
 
-    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=");
+    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=","");
 
-
+    //Act
     CommandResult result = _auth.Execute(command);
-
 
     // Assert
     Assert.True(result.IsSuccess);
     _mockHash.Verify(s=>s.HashPassword("SIMPLEtest55="),Times.Once);
     _mockDataContext.Verify(s=>s.CreateConnection(),Times.Once);
-
   }
+
+  [Fact]
+  [Description("Duplicate userName")]
+  public void RegisterDuplicateUserName()
+  {
+    // Arrange
+    string storedProcName = "RegisterUserTransaction";
+    using SqlConnection con = new();
+
+    _mockDataContext.Setup(s => s.ExecuteNonQuery(
+          It.Is<string>(q => q == storedProcName),
+          It.IsAny<SqlCommand>()
+          )).Returns(()=>throw new DuplicateFieldException(nameof(RegisterUserCommand.UserName)));
+
+    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=","Vista40");
+
+    //Act
+    CommandResult result = _auth.Execute(command);
+
+    // Assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.Exception);
+    Assert.IsType<DuplicateFieldException>(result.Exception);
+    _mockHash.Verify(s=>s.HashPassword("SIMPLEtest55="),Times.Once);
+    _mockDataContext.Verify(s=>s.CreateConnection(),Times.Once);
+  }
+
 }
 

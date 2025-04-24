@@ -27,7 +27,6 @@ public partial class AuthService
       int result = context.ExecuteNonQuery(query,cmd);
       if (result < 1)
       {
-      Console.WriteLine(result);
         return ICommandResult.Failure("User insertion failed.");
       }
 
@@ -35,7 +34,6 @@ public partial class AuthService
     }
     catch (Exception e)
     {
-      Console.WriteLine(e.Message);
       return ICommandResult.Failure("Server error",e);
     }
   }
