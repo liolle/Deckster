@@ -10,12 +10,12 @@ public enum ERROR_TYPES
 
 public class ApiError 
 {
-  public ERROR_TYPES Type { get; set; }
-  public object Value { get; set; }
+  public string Type { get; set; }
+  public Object? Value { get; set;  } 
 
-  public ApiError(ERROR_TYPES type, object value)
+  public ApiError(ERROR_TYPES type, object? value)
   {
-    Type = type;
+    Type = Enum.GetName(type) ?? "default";
     Value = value;
   }
 }
@@ -24,20 +24,21 @@ public interface IApiOutput
 {
   static IActionResult ResponseError(Exception e)
   {
+    Console.WriteLine(e.Message);
     switch (e)
     {
       case MissingConfigException ex:
-        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, null));
+        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default));
 
       case DuplicateFieldException ex:
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.DUPLICATE_FIELD, ex.Message));
 
       default:
-        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, null));
+        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default));
     }
   }
 
-  static IActionResult Reponse(object? obj)
+  static IActionResult Reponse(Object? obj)
   {
     if (obj is null)
     {

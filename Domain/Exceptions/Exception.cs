@@ -6,4 +6,9 @@ public class MissingConfigException(string config_key) : Exception($"Missing con
 
 public class DuplicateFieldException(string field_name) : Exception($"Unavailable field:\n - {field_name}")
 {
+  public string Field {get;init;} = field_name;
+}
+
+public class InvalidRequestModelException() : Exception($"Invalid Model:\n -")
+{
 }
