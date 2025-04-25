@@ -9,7 +9,18 @@ public class DuplicateFieldException(string field_name) : Exception($"Unavailabl
   public string Field {get;init;} = field_name;
 }
 
-public class InvalidRequestModelException(KeyValuePair<string, string[]?>[]? errors) : Exception($"Invalid Model:\n -")
+public class InvalidRequestModelException(KeyValuePair<string, string[]?>[]? errors) : Exception($"Invalid Model")
 {
   public KeyValuePair<string, string[]?>[]? Errors {get;init;} = errors;
 }
+
+public class NotFoundElementException(string key) : Exception($"Not found element:\n {key}")
+{
+    public string Key {get;init;} = key;
+}
+
+public class InvalidCredentialException():Exception("Invalid Connection Credentials")
+{
+}
+
+

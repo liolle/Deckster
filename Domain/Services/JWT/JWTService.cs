@@ -19,21 +19,18 @@ public class JwtService : IJWTService
   private readonly string _secretKey;
   private readonly string _issuer;
   private readonly string _audience;
+  private readonly string _expiry;
 
   public JwtService(IConfiguration configuration)
   {
-    string? jwt_key = configuration["JWT_KEY"] ?? throw new MissingConfigException("JWT_KEY");
-    string? jwt_issuer = configuration["JWT_ISSUER"] ?? throw new MissingConfigException("JWT_ISSUER");
-    string? jwt_audience = configuration["JWT_AUDIENCE"] ?? throw new MissingConfigException("JWT_AUDIENCE");
-
-    _secretKey = jwt_key;
-    _issuer = jwt_issuer;
-    _audience = jwt_audience;
+    _secretKey = configuration["JWT_KEY"] ?? throw new MissingConfigException("JWT_KEY");
+    _issuer = configuration["JWT_ISSUER"] ?? throw new MissingConfigException("JWT_ISSUER");
+    _audience = configuration["JWT_AUDIENCE"] ?? throw new MissingConfigException("JWT_AUDIENCE");
+    _expiry = configuration["JWT_EXPIRY"] ?? throw new MissingConfigException("JWT_EXPIRY");
   }
 
   public string Generate(List<Claim> claims)
   {
-
     // Standardized User info
     ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
     ClaimsPrincipal principal = new(identity);

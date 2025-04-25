@@ -4,9 +4,10 @@ using deckster.services.commands;
 using deckster.exceptions;
 using deckster.services;
 using deckster.cqs;
+using deckster.services.queries;
 namespace deckster.contollers;
 
-public class AuthController(IAuthService auth) : ControllerBase 
+public class AuthController(IAuthService auth,IConfiguration configuration) : ControllerBase 
 {
 
   [HttpPost]
@@ -45,5 +46,59 @@ public class AuthController(IAuthService auth) : ControllerBase
       return IApiOutput.ResponseError(e); 
     }
   }
+
+  [HttpPost]
+  [Route("login")]
+  public IActionResult Login([FromBody] CredentialLoginQuery query)
+  {
+
+    try
+    {
+      // Check Model 
+      if (!ModelState.IsValid){
+        var errors = ModelState
+          .Where(x => x.Value?.Errors.Count > 0)
+          .ToDictionary(
+              val => val.Key,
+              val => val.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
+              ).ToArray();
+        throw new InvalidRequestModelException(errors);
+      }
+
+      string token_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
+      string domain = configuration["DOMAIN"] ?? throw new MissingConfigException("DOMAIN");
+      string expiry = configuration["JWT_EXPIRY"] ?? throw new MissingConfigException("JWT_EXPIRY");
+
+      QueryResult<string> result =  auth.Execute(query);
+
+      if (!result.IsSuccess )
+      {
+        if (result.Exception is not null )
+        {
+          throw result.Exception;
+        }
+
+        return IApiOutput.Response(result.ErrorMessage);
+      }
+
+       CookieOptions cookieOptions = new()
+      {
+        HttpOnly = true,
+                 Domain = $"{domain}",
+                 Secure = true,
+                 SameSite = SameSiteMode.None,
+                 Expires = DateTime.UtcNow.AddMinutes(60)
+      };
+
+      Response.Cookies.Append(token_name, result.Result, cookieOptions);
+
+      return IApiOutput.Response(null);
+    }
+    catch (Exception e)
+    {
+      return IApiOutput.ResponseError(e); 
+    }
+  }
+
 }
 

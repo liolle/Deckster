@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 public interface IDataContext {
   SqlConnection CreateConnection();
   int ExecuteNonQuery(string query, SqlCommand cmd);
+  SqlDataReader ExecuteReader(string query, SqlCommand cmd);
   DataTable ExecuteQuery(string query, SqlCommand cmd);
 }
 
@@ -34,6 +35,12 @@ public class DataContext(IConfiguration configuration) : IDataContext
     DataTable resultTable = new();
     adapter.Fill(resultTable);
     return resultTable;
+  }
+
+  public SqlDataReader ExecuteReader(string query, SqlCommand cmd)
+  {
+    cmd.Connection.Open();
+    return cmd.ExecuteReader(); 
   }
 }
 
