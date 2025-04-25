@@ -5,6 +5,7 @@ using deckster.exceptions;
 using deckster.services;
 using deckster.cqs;
 using deckster.services.queries;
+using Microsoft.AspNetCore.Authorization;
 namespace deckster.contollers;
 
 public class AuthController(IAuthService auth,IConfiguration configuration) : ControllerBase 
@@ -98,6 +99,24 @@ public class AuthController(IAuthService auth,IConfiguration configuration) : Co
     {
       return IApiOutput.ResponseError(e); 
     }
+  }
+
+  [HttpPost]
+  [Route("logout")]
+  public IActionResult Logout()
+  {
+    try
+    {
+      string token_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
+      Response.Cookies.Delete(token_name);
+
+      return IApiOutput.Response(null);
+    }
+    catch (Exception e)
+    {
+      return IApiOutput.ResponseError(e); 
+    }
+
   }
 
 }
