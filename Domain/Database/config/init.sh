@@ -14,3 +14,4 @@ echo "Running setup"
 echo "Creating schemas"
 /opt/mssql-tools18/bin/sqlcmd -S $DB_HOST -U sa -P $SA_PASSWORD -N -C -i schema.sql
 echo "Creating Procedures"
+/opt/mssql-tools18/bin/sqlcmd -S $DB_HOST -U sa -P $SA_PASSWORD -N -C -i procedures.sql

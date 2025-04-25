@@ -10,6 +10,6 @@ public class HealthController : ControllerBase
   [Route("ping")]
   public IActionResult  Pong()
   {
-    return IApiOutput.Reponse("Pong");
+    return IApiOutput.Response("Pong");
   }
 }

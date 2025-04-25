@@ -5,7 +5,8 @@ public enum ERROR_TYPES
 {
   DEFAULT_ERROR,
   SERVER_ERROR,
-  DUPLICATE_FIELD
+  DUPLICATE_FIELD,
+  INVALID_MODEL
 }
 
 public class ApiError 
@@ -24,21 +25,16 @@ public interface IApiOutput
 {
   static IActionResult ResponseError(Exception e)
   {
-    Console.WriteLine(e.Message);
-    switch (e)
-    {
-      case MissingConfigException ex:
-        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default));
-
-      case DuplicateFieldException ex:
-        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.DUPLICATE_FIELD, ex.Message));
-
-      default:
-        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default));
+        return e switch
+        {
+            MissingConfigException ex => new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default)),
+            DuplicateFieldException ex => new BadRequestObjectResult(new ApiError(ERROR_TYPES.DUPLICATE_FIELD, ex.Field)),
+            InvalidRequestModelException ex => new BadRequestObjectResult(new ApiError(ERROR_TYPES.INVALID_MODEL, ex.Errors)),
+            _ => new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default)),
+        };
     }
-  }
 
-  static IActionResult Reponse(Object? obj)
+  static IActionResult Response(Object? obj)
   {
     if (obj is null)
     {

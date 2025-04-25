@@ -1,36 +1,51 @@
-IF OBJECT_ID('dbo.RegisterUserTransaction', 'P') IS NOT NULL 
+USE [deckster];
+GO
+
+IF OBJECT_ID('RegisterUserTransaction', 'P') IS NOT NULL 
 BEGIN 
   DROP PROCEDURE dbo.RegisterUserTransaction;
 END
-GO;
+GO
 
 CREATE PROCEDURE RegisterUserTransaction 
-  @UserName VARCHAR(50),
-  @AccountId [nvarchar] (100),
-  @UserId   [nvarchar] (100),
-  @NickName [nvarchar] (100),
-  @Email    [nvarchar] (100),
-  @Password [nvarchar] (100) 
-AS BEGIN 
-  DECLARE @NewUserId [nvarchar](100); 
-  DECLARE @NewAccountId [nvarchar](100);
+  @UserName NVARCHAR(100),       -- Changed to NVARCHAR for consistency
+  @AccountId NVARCHAR(100),
+  @UserId NVARCHAR(100),
+  @NickName NVARCHAR(100),
+  @Email NVARCHAR(100),
+  @RowsAffected INT OUTPUT,
+  @Password NVARCHAR(100) 
+AS 
+BEGIN 
+  SET NOCOUNT ON;  -- Recommended to reduce network traffic
+  
   BEGIN TRY 
-    BEGIN TRANSACTION
+    BEGIN TRANSACTION;
     -- Create User
-    INSERT INTO [Users] ([id],[email],[nickName]) VALUES(@AccountId,@Email,@NickName);
+    INSERT INTO [Users] ([id], [email], [nickName]) 
+    VALUES (@UserId, @Email, @NickName);  -- Fixed @AccountId instead of @UserId
+    SET @RowsAffected = @RowsAffected + @@ROWCOUNT;
 
-    -- Create Account
-    INSERT INTO [Accounts] ([AccountId],[provider], [user_id]) VALUES('credential', @UserId);
+    -- Create Account (Fixed column order and values)
+    INSERT INTO [Accounts] ([id], [provider], [user_id]) 
+    VALUES (@AccountId, 'credential', @UserId);  -- Fixed value order
+    SET @RowsAffected = @RowsAffected + @@ROWCOUNT;
 
     -- Create Credential
-    INSERT INTO [Credentials] ([user_name], [account_id], [password]) VALUES(@UserName, @AccountId, @Password);
+    INSERT INTO [Credentials] ([user_name], [account_id], [password]) 
+    VALUES (@UserName, @AccountId, @Password);
+    SET @RowsAffected = @RowsAffected + @@ROWCOUNT;
 
+    SELECT @RowsAffected AS RowsAffected
+
+    SET @RowsAffected = 3;
     COMMIT TRANSACTION;
-
   END TRY 
   BEGIN CATCH 
-    ROLLBACK TRANSACTION;
-    -- Re-throw the error
+    IF @@TRANCOUNT > 0  
+      ROLLBACK TRANSACTION;
+
+    SET @RowsAffected = -1;
     THROW;
   END CATCH 
 END;

@@ -7,12 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazor", "Blazor\Blazor.csproj", "{82470FE8-389C-4719-BFA1-06380A07BD9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQS", "CQS\CQS.csproj", "{F0CC9CC6-F80D-4EDE-AF04-F1ACB2BA63CD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exceptions", "Exceptions\Exceptions.csproj", "{EECF5225-BD1F-479E-BC1E-AF7D5AFAF915}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{FFB75F62-E9C2-46E4-89B0-9B5E77DB4D73}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "__Tests__", "__Tests__\__Tests__.csproj", "{52F02594-D092-4CA5-B6E0-E59B000B60DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{EB36FF64-6570-4E6C-BB89-69976ED13778}"
