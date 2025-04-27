@@ -1,0 +1,19 @@
+﻿@page "/"
+
+@using Blazor.Components.Navigation
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<div class="home-container">
+    <Navbar />
+    <div class="main">
+        <AuthorizeView>
+            <Authorized>
+
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</div>

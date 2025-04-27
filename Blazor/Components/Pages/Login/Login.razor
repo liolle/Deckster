@@ -1,0 +1,55 @@
+@page "/login"
+@using Blazor.models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="page-container">
+
+    <div class="main">
+
+        <div class="form-main">
+            <div class="link-container">
+                <div @onclick="GoToRegisterPage" class="link">
+                    <span>
+                        <span>Register</span>
+                        <span>&gt;</span>
+                    </span>
+                </div>
+            </div>
+            <EditForm Model="Model" OnValidSubmit="SubmitValidFrom">
+                <div class="form-container">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-element">
+                        <div class="form-input">
+                            <label>UserName</label>
+                            <InputText @bind-Value="Model.UserName" class="input" />
+                        </div>
+                        <div class="form-input-error">
+                            <ValidationMessage For="@(() => Model.UserName)" />
+                        </div>
+                    </div>
+
+                    <div class="form-element">
+                        <div class="form-input">
+                            <label>Password</label>
+                            <InputText type='Password' @bind-Value="Model.Password" class="input" />
+                        </div>
+                        <div class="form-input-error">
+                            <ValidationMessage For="@(() => Model.Password)" />
+                        </div>
+                    </div>
+
+                    <div class="btn-container">
+                        <button type="submit" class="btn">
+                            <span>Login</span>
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>

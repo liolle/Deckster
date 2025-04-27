@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using deckster.exceptions;
 using edllx.dotnet.csrf;
+using Microsoft.AspNetCore.DataProtection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -19,9 +20,14 @@ Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("deckster").PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration["SHARED_KEYS"] ?? "/data/keys"));
+
 //JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options=>{
+    .AddJwtBearer(options =>
+    {
         string jwt_key = configuration["JWT_KEY"] ?? throw new MissingConfigException("JWT_KEY");
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -50,11 +56,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-string front_host = configuration["FRONT_HOST"] ?? throw new MissingConfigException("FRONT_HOST") ;
+string front_host = configuration["FRONT_HOST"] ?? throw new MissingConfigException("FRONT_HOST");
 
 // Cors
-builder.Services.AddCors(options=>{
-    options.AddPolicy("AllowCredentials", policy=>{
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowCredentials", policy =>
+    {
         policy
         .WithOrigins([front_host])
         .AllowCredentials()
@@ -69,16 +77,16 @@ builder.Services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
 builder.Services.AddControllers();
 builder.Services.AddSingleton<CSRFService>();
 
-builder.Services.AddScoped<IDataContext,DataContext>();
-builder.Services.AddScoped<IJWTService,JwtService>();
-builder.Services.AddScoped<IHashService,HashService>();
-builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<IDataContext, DataContext>();
+builder.Services.AddScoped<IJWTService, JwtService>();
+builder.Services.AddScoped<IHashService, HashService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
 app.UseCors();
 app.UseAuthorization();
-app.UseCSRFApi();
+//app.UseCSRFApi();
 
 app.MapControllers();
 
