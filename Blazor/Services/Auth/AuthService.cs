@@ -6,7 +6,7 @@ namespace Blazor.services;
 public interface IAuthService
 {
     User? GetUser();
-    Task<bool> Register(RegisterModel model);
+    Task<RegisterResult> Register(RegisterModel model);
     Task<bool> CredentialLogin(LoginModel model);
     Task Logout();
 }
@@ -36,9 +36,11 @@ public class AuthService : IAuthService
         CurrentUser = response;
 
     }
-    public async Task<bool> Register(RegisterModel model)
+    public async Task<RegisterResult> Register(RegisterModel model)
     {
-        return await JS.InvokeAsync<bool>("register", model.UserName, model.Email, model.Password, model.NickName);
+        RegisterResult result = await JS.InvokeAsync<RegisterResult>("register", model.UserName, model.Password, model.Email, model.NickName);
+        Console.WriteLine($"{result.IsSuccess} : {result.ErrorMessage}");
+        return result;
     }
 
     public async Task<bool> CredentialLogin(LoginModel model)

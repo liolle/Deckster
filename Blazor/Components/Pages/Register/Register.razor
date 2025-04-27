@@ -1,0 +1,77 @@
+@page "/register"
+
+@using Blazor.models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager navigation
+
+<PageTitle>Register</PageTitle>
+
+<div class="page-container">
+
+    <div class="main">
+
+        <div class="form-main">
+            <div class="link-container">
+                <div @onclick="GoToLoginPage" class="link">
+                    <span>
+                        <span>&lt;</span>
+                        <span>Login</span>
+                    </span>
+                </div>
+            </div>
+            <EditForm class="form" Model="Model" OnValidSubmit="SubmitValidFrom">
+                <div class="form-container">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-element">
+                        <div class="form-input">
+                            <label>UserName:</label>
+                            <InputText @bind-Value="Model.UserName" class="input" />
+                        </div>
+                        <div class="form-input-error">
+                            <ValidationMessage For="@(() => Model.UserName)" />
+                        </div>
+                    </div>
+
+                    <div class="form-element">
+                        <div class="form-input">
+                            <label>NickName:</label>
+                            <InputText type='Nickname' @bind-Value="Model.NickName" class="input" />
+                        </div>
+                        <div class="form-input-error">
+                            <ValidationMessage For="@(() => Model.NickName)" />
+                        </div>
+                    </div>
+
+
+                    <div class="form-element">
+                        <div class="form-input">
+                            <label>Email:</label>
+                            <InputText type='Email' @bind-Value="Model.Email" class="input" />
+                        </div>
+                        <div class="form-input-error">
+                            <ValidationMessage For="@(() => Model.Email)" />
+                        </div>
+                    </div>
+
+
+                    <div class="form-element">
+                        <div class="form-input">
+                            <label>Password:</label>
+                            <InputText type='Password' @bind-Value="Model.Password" class="input" />
+                        </div>
+                        <div class="form-input-error">
+                            <ValidationMessage For="@(() => Model.Password)" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="">Register</button>
+                    </div>
+
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>

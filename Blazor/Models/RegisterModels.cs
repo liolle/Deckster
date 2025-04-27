@@ -28,5 +28,6 @@ public class RegisterModel
 
 public class RegisterResult
 {
-
+    public bool IsSuccess { get; set; }
+    public string ErrorMessage { get; set; } = "";
 }

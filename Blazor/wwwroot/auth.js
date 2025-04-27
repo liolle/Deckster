@@ -30,7 +30,7 @@ class APIRequest {
     // Return a bool so that i can redirect the user on success.
     // Assuming tha anything other than a 2xx is due to a connection credential
     // being wrong.
-    static async register(username, password, email) {
+    static async register(username, password, email, nickname) {
         const response = await fetch(`${APIRequest.URL}/register`, {
             method: "POST",
             credentials: 'include',
@@ -40,11 +40,15 @@ class APIRequest {
             body: JSON.stringify({
                 username: username,
                 password: password,
-                email: email
+                email: email,
+                nickname: nickname
             })
         });
 
-        return response.ok;
+        return {
+            IsSuccess: response.ok,
+            ErrorMessage: await response.text()
+        };
     }
 }
 
