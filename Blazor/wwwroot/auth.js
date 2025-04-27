@@ -53,9 +53,7 @@ class APIRequest {
 }
 
 window.setURL = (url) => {
-    console.log(url)
     APIRequest.URL = url
-    console.log(APIRequest.URL)
 }
 window.logout = () => APIRequest.logout();
 window.login = (username, password) => APIRequest.login(username, password);

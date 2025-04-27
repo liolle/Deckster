@@ -8,7 +8,7 @@ public interface IAuthService
     User? GetUser();
     Task<RegisterResult> Register(RegisterModel model);
     Task<bool> CredentialLogin(LoginModel model);
-    Task Logout();
+    Task<bool> Logout();
 }
 
 public class AuthService : IAuthService
@@ -19,7 +19,8 @@ public class AuthService : IAuthService
     private readonly IJSRuntime JS;
 
 
-    public AuthService(IJSRuntime jS, IConfiguration config)
+
+    public AuthService(IJSRuntime jS, IConfiguration config, ToastService toast)
     {
         JS = jS;
         string API_URL = config["API_URL"] ?? throw new Exception("Missing configuration API_URL");
@@ -30,16 +31,10 @@ public class AuthService : IAuthService
     {
         return CurrentUser;
     }
-    private async Task Auth()
-    {
-        var response = await JS.InvokeAsync<User>("auth");
-        CurrentUser = response;
 
-    }
     public async Task<RegisterResult> Register(RegisterModel model)
     {
         RegisterResult result = await JS.InvokeAsync<RegisterResult>("register", model.UserName, model.Password, model.Email, model.NickName);
-        Console.WriteLine($"{result.IsSuccess} : {result.ErrorMessage}");
         return result;
     }
 
@@ -48,8 +43,8 @@ public class AuthService : IAuthService
         return await JS.InvokeAsync<bool>("login", model.UserName, model.Password);
     }
 
-    public async Task Logout()
+    public async Task<bool> Logout()
     {
-        await JS.InvokeAsync<bool>("logout");
+        return await JS.InvokeAsync<bool>("logout");
     }
 }

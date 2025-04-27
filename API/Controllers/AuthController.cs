@@ -17,7 +17,6 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
   [EnableCors("AllowCredentials")]
   public IActionResult Register([FromBody] RegisterUserCommand command)
   {
-    Console.WriteLine("register");
     try
     {
       // Check Model 
@@ -57,7 +56,6 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
   [EnableCors("AllowCredentials")]
   public IActionResult Login([FromBody] CredentialLoginQuery query)
   {
-    Console.WriteLine("login");
     try
     {
       // Check Model 
@@ -103,26 +101,35 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
     }
     catch (Exception e)
     {
-      Console.WriteLine(e.Message);
       return IApiOutput.ResponseError(e);
     }
   }
 
-  [HttpPost]
+  [HttpGet]
   [Route("logout")]
+  [EnableCors("AllowCredentials")]
   public IActionResult Logout()
   {
-    Console.WriteLine("logout");
     try
     {
       string token_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
-      Response.Cookies.Delete(token_name);
+      string domain = configuration["DOMAIN"] ?? throw new MissingConfigException("DOMAIN");
+
+      CookieOptions cookieOptions = new()
+      {
+        HttpOnly = true,
+        Domain = $"{domain}",
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Expires = DateTime.Now.AddDays(-1)
+      };
+
+      Response.Cookies.Append(token_name, string.Empty, cookieOptions);
 
       return IApiOutput.Response(null);
     }
     catch (Exception e)
     {
-      Console.WriteLine(e.Message);
       return IApiOutput.ResponseError(e);
     }
   }

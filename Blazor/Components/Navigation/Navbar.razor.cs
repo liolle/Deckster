@@ -3,6 +3,7 @@ namespace Blazor.Components.Navigation;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Blazor.services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -13,11 +14,10 @@ public partial class Navbar : ComponentBase
     private NavigationManager? Navigation { get; set; }
     public bool IsConnected { get; set; }
 
+    //[Inject]
+    //private AuthenticationStateProvider? AuthProvider { get; set; }
     [Inject]
-    private AuthenticationStateProvider? AuthProvider { get; set; }
-
-    [Inject]
-    private IConfiguration? configuration { get; set; }
+    private IAuthService? Auth { get; set; }
 
     public string Page { get; private set; } = "";
 
@@ -29,9 +29,12 @@ public partial class Navbar : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.CompletedTask;
+        /*
         if (AuthProvider is null) { return; }
         AuthenticationState authState = await AuthProvider.GetAuthenticationStateAsync();
         ClaimsPrincipal user = authState.User;
+        */
     }
 
     private void SetPage()
@@ -56,8 +59,13 @@ public partial class Navbar : ComponentBase
         Navigation?.NavigateTo("/login");
     }
 
-    public void Logout()
+    public async Task Logout()
     {
-        Navigation?.Refresh();
+        if (Auth is null) { return; }
+
+        if (await Auth.Logout())
+        {
+            Navigation?.Refresh(true);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using Blazor.Components;
 using Blazor.services;
 using DotNetEnv;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -16,7 +17,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDataProtection()
     .SetApplicationName("deckster").PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration["SHARED_KEYS"] ?? "/data/keys"));
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ToastService>();
 
 var app = builder.Build();
 

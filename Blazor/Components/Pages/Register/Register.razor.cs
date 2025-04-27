@@ -15,16 +15,18 @@ public partial class Register : ComponentBase
     [Inject]
     private NavigationManager? Navigation { get; set; }
 
+    [Inject]
+    private ToastService? _toast { get; set; }
     private async Task SubmitValidFrom()
     {
         if (Service is null) { return; }
         RegisterResult result = await Service.Register(Model);
         if (!result.IsSuccess)
         {
-
+            _toast?.ShowToast(TOAST_TYPE.ERROR, result.ErrorMessage, 0);
             return;
         }
-        Navigation?.NavigateTo("/", true);
+        Navigation?.NavigateTo("/login", false, true);
     }
 
     public void GoToLoginPage()

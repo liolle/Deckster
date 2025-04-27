@@ -1,53 +1,51 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using Blazor.models;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
-namespace blazor.services;
+namespace Blazor.services;
 
-public class AuthProvider(IHttpContextAccessor httpContextAccessor) : AuthenticationStateProvider
+public class AuthProvider(IHttpContextAccessor httpContextAccessor, IConfiguration config) : AuthenticationStateProvider
 {
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        HttpContext? httpContext = httpContextAccessor.HttpContext;
-
-        if (httpContext is null)
+        try
         {
+            HttpContext? httpContext = httpContextAccessor.HttpContext ?? throw new Exception("Missing dependency HttpContextAccessor");
+            string COOKIE_NAME = config["AUTH_TOKEN_NAME"] ?? throw new Exception("Missing configuration: AUTH_TOKEN_NAME");
+            string accessToken = httpContext.Request.Cookies[COOKIE_NAME] ?? throw new Exception("Missing ACCESS_TOKEN");
+            ClaimsPrincipal principal = ValidateToken(accessToken);
+            await Task.CompletedTask;
+            return new AuthenticationState(principal);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
-
-        string? accessToken = httpContext.Request.Cookies["disney_battle_auth_token"];
-
-        if (accessToken is null)
-        {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        }
-
-        JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken jsonToken = handler.ReadJwtToken(accessToken);
-
-        string? email = jsonToken.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
-        string? nickname = jsonToken.Claims.FirstOrDefault(c => c.Type == "Nickname")?.Value;
-        string? id = jsonToken.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
-        string? provider = jsonToken.Claims.FirstOrDefault(c => c.Type == "Provider")?.Value;
-
-        if (email is null || id is null || provider is null || nickname is null)
-        {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        }
-
-        List<Claim> claims =
-          [
-          new (nameof(User.Id), id),
-          new (nameof(User.Email), email),
-          new (nameof(User.Nickname), nickname),
-          new ("Provider", provider),
-          ];
-
-        ClaimsIdentity identity = new(claims, "cookieAuth");
-
-        await Task.CompletedTask;
-        return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 
+    private ClaimsPrincipal ValidateToken(string token)
+    {
+
+        string jwt_key = config["JWT_KEY"] ?? throw new Exception("Missing configuration JWT_KEY");
+        TokenValidationParameters parameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config["JWT_ISSUER"],
+            ValidAudience = config["JWT_AUDIENCE"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt_key))
+        };
+
+        JwtSecurityTokenHandler handler = new();
+        JwtSecurityToken jsonToken = handler.ReadJwtToken(token);
+        ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out var validatedToken);
+
+        return principal;
+    }
 }

@@ -19,7 +19,7 @@ public partial class Login : ComponentBase
         if (Service is null) { return; }
         var result = await Service.CredentialLogin(Model);
         if (!result) { return; }
-        Navigation?.NavigateTo("/", true);
+        Navigation?.NavigateTo("/", true, true);
     }
 
     public void GoToRegisterPage()
