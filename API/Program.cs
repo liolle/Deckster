@@ -81,6 +81,7 @@ builder.Services.AddScoped<IDataContext, DataContext>();
 builder.Services.AddScoped<IJWTService, JwtService>();
 builder.Services.AddScoped<IHashService, HashService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICardService, CardService>();
 
 var app = builder.Build();
 

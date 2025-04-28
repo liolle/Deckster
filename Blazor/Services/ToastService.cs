@@ -19,10 +19,8 @@ public class ToastService
         OnShow.Invoke(type, message, timeout);
     }
 
-
     public void HideToast()
     {
         OnHide?.Invoke();
     }
-
 }

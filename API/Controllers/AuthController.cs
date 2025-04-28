@@ -5,7 +5,7 @@ using deckster.exceptions;
 using deckster.services;
 using deckster.cqs;
 using deckster.services.queries;
-using Microsoft.AspNetCore.Authorization;
+using deckster.extensions;
 using Microsoft.AspNetCore.Cors;
 namespace deckster.contollers;
 
@@ -19,18 +19,7 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
   {
     try
     {
-      // Check Model 
-      if (!ModelState.IsValid)
-      {
-        var errors = ModelState
-          .Where(x => x.Value?.Errors.Count > 0)
-          .ToDictionary(
-              val => val.Key,
-              val => val.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
-              ).ToArray();
-        throw new InvalidRequestModelException(errors);
-      }
-
+      this.validModelOrThrow();
       CommandResult result = auth.Execute(command);
 
       if (!result.IsSuccess)
@@ -58,17 +47,7 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
   {
     try
     {
-      // Check Model 
-      if (!ModelState.IsValid)
-      {
-        var errors = ModelState
-          .Where(x => x.Value?.Errors.Count > 0)
-          .ToDictionary(
-              val => val.Key,
-              val => val.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
-              ).ToArray();
-        throw new InvalidRequestModelException(errors);
-      }
+      this.validModelOrThrow();
 
       string token_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
       string domain = configuration["DOMAIN"] ?? throw new MissingConfigException("DOMAIN");

@@ -49,3 +49,44 @@ BEGIN
 
   PRINT 'Table Credentials created';
 END;
+
+IF OBJECT_ID('Decks', 'U') IS NULL
+BEGIN
+  CREATE TABLE [Decks] (
+    [id] [nvarchar] (100) NOT NULL,
+    [account_id] [nvarchar] (100) NOT NULL,
+    [name] [nvarchar] (100) NOT NULL,
+    CONSTRAINT PK_deck_id PRIMARY KEY ([id]),
+    CONSTRAINT FK_deck_account_id FOREIGN KEY ([account_id]) REFERENCES [Accounts] ([id]) ON DELETE CASCADE ON UPDATE CASCADE
+  );
+  PRINT 'Table Decks created';
+END
+
+IF OBJECT_ID('Cards', 'U') IS NULL
+BEGIN
+  CREATE TABLE [Cards] (
+    [id] [nvarchar](100) NOT NULL,
+    [name] [nvarchar](100) NOT NULL,
+    [cost] [int] CONSTRAINT DF_card_cost DEFAULT 0,
+    [defense] [int] CONSTRAINT DF_defense_cost DEFAULT 0,
+    [strength] [int] CONSTRAINT DF_strenght_cost DEFAULT 0,
+    [image] [nvarchar](500) NOT NULL
+    CONSTRAINT PK_card_id PRIMARY KEY ([id]),
+    CONSTRAINT U_card_name UNIQUE ([name])
+  );
+  PRINT 'Table Cards created';
+END
+
+IF OBJECT_ID('Decks_cards', 'U') IS NULL
+BEGIN
+  CREATE TABLE [Decks_cards] (
+    [deck_id] [nvarchar] (100) NOT NULL,
+    [card_id] [nvarchar] (100) NOT NULL,
+    [quatity] [int] NOT NULL
+
+    CONSTRAINT FK_deck_deck_id FOREIGN KEY ([deck_id]) REFERENCES [Decks] ([id]) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_deck_card_id FOREIGN KEY ([card_id]) REFERENCES [Cards] ([id]) ON DELETE CASCADE ON UPDATE CASCADE
+  );
+  
+  PRINT 'Table Decks_cards created';
+END
