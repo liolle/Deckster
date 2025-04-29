@@ -7,6 +7,7 @@ using deckster.services.queries;
 namespace deckster.services;
 public interface IAuthService:
 ICommandHandler<RegisterUserCommand>,
+ICommandHandler<PromoteAdminCommand>,
   IQueryHandler<CredentialLoginQuery,string>,
   IQueryHandler<UserFromUserNameQuery,CredentialInfoModel?>
 {

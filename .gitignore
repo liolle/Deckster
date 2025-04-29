@@ -8,6 +8,8 @@
 *.env
 data/
 
+Blazor/wwwroot/Assets/cards/
+
 # User-specific files
 *.rsuser
 *.suo

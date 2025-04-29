@@ -90,3 +90,19 @@ BEGIN
   
   PRINT 'Table Decks_cards created';
 END
+
+IF OBJECT_ID('Roles', 'U') IS NULL
+BEGIN
+  CREATE TABLE [Roles] (
+    [account_id] [nvarchar] (100) NOT NULL,
+    [role] [nvarchar] (100) NOT NULL
+
+    CONSTRAINT U_role_account_id  UNIQUE ([account_id],[role]),
+    CONSTRAINT FK_role_account_id FOREIGN KEY ([account_id]) REFERENCES [Accounts] ([id]) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT CK_role_role CHECK(
+      [role] = 'admin'  
+    )
+  );
+  
+  PRINT 'Table Roles created';
+END

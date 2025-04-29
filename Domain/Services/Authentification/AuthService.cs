@@ -75,7 +75,7 @@ public partial class AuthService
     }
   }
 
-  
+
   public QueryResult<string> Execute(CredentialLoginQuery query)
   {
     try
@@ -100,7 +100,7 @@ public partial class AuthService
   }
 
 
-    public QueryResult<CredentialInfoModel?> Execute(UserFromUserNameQuery query)
+  public QueryResult<CredentialInfoModel?> Execute(UserFromUserNameQuery query)
   {
     try
     {
@@ -112,11 +112,11 @@ public partial class AuthService
         u.nickname,
         u.created_at,
         cred.password
-        FROM [Accounts] acc
-        LEFT JOIN [Credentials] cred ON cred.account_id = acc.id 
-        LEFT JOIN [Users] u ON u.id = acc.user_id
-        WHERE cred.user_name = @UserName
-        ";
+          FROM [Accounts] acc
+          LEFT JOIN [Credentials] cred ON cred.account_id = acc.id 
+          LEFT JOIN [Users] u ON u.id = acc.user_id
+          WHERE cred.user_name = @UserName
+          ";
       using SqlCommand cmd = new(sql_query, conn);
       cmd.Parameters.AddWithValue("@UserName", query.UserName);
 
@@ -140,10 +140,39 @@ public partial class AuthService
     }
   }
 
-  
+  public CommandResult Execute(PromoteAdminCommand command)
+  {
+    try
+    {
+      using SqlConnection conn = context.CreateConnection();
+      string sql_query = @"
+        INSERT INTO [Roles]([account_id],[role])
+        VALUES(@AccountId,@Role)
+        ";
+
+      using SqlCommand cmd = new(sql_query, conn);
+      cmd.Parameters.AddWithValue("@AccountId", command.AccountId);
+      cmd.Parameters.AddWithValue("@Role","admin");
+
+      int res = context.ExecuteNonQuery(sql_query,cmd);
+
+      if(res<1){
+        return ICommandResult.Failure("Fail to assign role");
+      }
+
+      return ICommandResult.Success();
+    }
+    catch(SqlException e)
+    {
+      if (e.Message.Contains("FK_role_account_id"))
+      {
+        return ICommandResult.Failure("", new UnknownFieldException("account_id"));
+      }
+      return ICommandResult.Failure("", e);
+    }
+    catch (Exception e)
+    {
+      return ICommandResult.Failure("",e);
+    }
+  }
 }
-
-
-
-
-

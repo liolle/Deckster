@@ -7,7 +7,9 @@ public enum ERROR_TYPES
   SERVER_ERROR,
   DUPLICATE_FIELD,
   INVALID_MODEL,
-  INVALID_CREDENTIALS
+  INVALID_CREDENTIALS,
+  INVALID_HEADER,
+  UNKNOW_ACCOUNT
 }
 
 public class ApiError 
@@ -41,7 +43,13 @@ public interface IApiOutput
       case InvalidRequestModelException ex:
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.INVALID_MODEL, ex.Errors));
 
+      case InvalidHeaderException ex:
+        return new UnauthorizedObjectResult(new ApiError(ERROR_TYPES.INVALID_HEADER, ex.Key));
+
+      case UnknownFieldException ex:
+        return new UnauthorizedObjectResult(new ApiError(ERROR_TYPES.UNKNOW_ACCOUNT, ex.Field));
       default:
+        Console.WriteLine(e.Message);
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default));
     }
   }

@@ -112,5 +112,35 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
       return IApiOutput.ResponseError(e);
     }
   }
+
+  [HttpPost]
+  [Route("admin/promote")]
+  [EnableCors("AllowCredentials")]
+  public IActionResult PromoteAdmin([FromBody] PromoteAdminCommand command)
+  {
+    try
+    {
+      this.validModelOrThrow();
+      this.validSuperAdminOrThrow(configuration,Request.Headers["X-ADMIN"]);
+
+      CommandResult result = auth.Execute(command);
+
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null)
+        {
+          throw result.Exception;
+        }
+
+        return IApiOutput.Response(result.ErrorMessage);
+      }
+
+      return IApiOutput.Response(null);
+    }
+    catch (Exception e)
+    {
+      return IApiOutput.ResponseError(e);
+    }
+  }
 }
 

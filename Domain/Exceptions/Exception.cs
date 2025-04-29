@@ -9,6 +9,12 @@ public class DuplicateFieldException(string field_name) : Exception($"Unavailabl
   public string Field {get;init;} = field_name;
 }
 
+
+public class UnknownFieldException(string field_name) : Exception($"Unknown field:\n- {field_name}")
+{
+  public string Field {get;init;} = field_name;
+}
+
 public class InvalidRequestModelException(KeyValuePair<string, string[]?>[]? errors) : Exception($"Invalid Model")
 {
   public KeyValuePair<string, string[]?>[]? Errors {get;init;} = errors;
@@ -23,4 +29,9 @@ public class InvalidCredentialException():Exception("Invalid Connection Credenti
 {
 }
 
+public class InvalidHeaderException(string key):Exception($"Invalid Header\n - {key}")
+{
+  public string Key {get;init;} = key;
+
+}
 
