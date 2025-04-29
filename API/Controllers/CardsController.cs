@@ -14,6 +14,7 @@ public class CardsController(ICardService cards) : ControllerBase
   [HttpPost]
   [Route("card/add")]
   [EnableCors("AllowCredentials")]
+  [Authorize(Roles = "admin")]
   public IActionResult AddCard([FromBody] AddCardCommand command)
   {
     try
@@ -41,34 +42,9 @@ public class CardsController(ICardService cards) : ControllerBase
   }
 
   [HttpGet]
-  [Route("cardById")]
-  public IActionResult GetCard([FromQuery] string id)
-  {
-    return IApiOutput.Response(new{card_id = id});
-  }
-
-  [HttpGet]
   [Route("card")]
-  public IActionResult GetAllCard()
+  public IActionResult GetAllCard([FromQuery] int page, int size)
   {
     return IApiOutput.Response(new List<string>());
-  }
-
-  [HttpPost]
-  [Route("deck/add")]
-  [EnableCors("AllowCredentials")]
-  public IActionResult AddDeck()
-  {
-    return IApiOutput.Response(null);
-  }
-
-
-  [HttpPost]
-  [Route("deck/card/add")]
-  [EnableCors("AllowCredentials")]
-  [Authorize]
-  public IActionResult AddDeckCard()
-  {
-    return IApiOutput.Response(null);
   }
 }

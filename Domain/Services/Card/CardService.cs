@@ -1,5 +1,6 @@
 using deckster.cqs;
 using deckster.entities;
+using deckster.exceptions;
 using deckster.services.commands;
 using Microsoft.Data.SqlClient;
 
@@ -36,13 +37,22 @@ public partial class CardService
       if (rowsAffected<1)
       {
         return ICommandResult.Failure("Car insertion failed");
-
-
       }
 
       return ICommandResult.Success();
-
     }
+    catch (SqlException sqlEx) when (sqlEx.Number == 2627) // SQL Server unique constraint violation error code
+    {
+      string duplicateField = "default"; // default message
+
+      if (sqlEx.Message.Contains("U_card_name"))
+      {
+        duplicateField = "name";
+      }
+
+      return ICommandResult.Failure("", new DuplicateFieldException(duplicateField));
+    }
+
     catch (Exception e)
     {
       return ICommandResult.Failure("Server error",e);
