@@ -27,6 +27,7 @@ public class RegisterUserCommand(string userName, string email, string password,
   public string NickName { get; set; } = nickName;
 }
 
+
 public class PromoteAdminCommand(string accountId) : ICommandDefinition
 {
   [Required(ErrorMessage = "Account id is required")]

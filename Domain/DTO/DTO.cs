@@ -9,6 +9,12 @@ public enum EProvider
   google
 }
 
+public enum ERole
+{
+  admin,
+  tester
+}
+
 public class BaseTokenClaims(string id, string email,string nickName, EProvider provider)
 {
   public string Id { get; set; } = id;
@@ -23,7 +29,22 @@ public class CredentialInfoModel(string id, string email, string nickName, strin
   public string Email { get; } = email;
   public string NickName { get; } = nickName;
   public string Password { get; } = password;
+  public List<ERole> Roles {get; private set;} = [] ;
   public DateTime Created_At { get; } = created_At;
+
+  public void AddRole(List<ERole> roles)
+  {
+    foreach (ERole r in roles)
+    {
+      Console.WriteLine(Enum.GetName(r)); 
+    }
+    Roles = roles;
+  }
+
+  public void AddRole(ERole role)
+  {
+    Roles.Add(role);
+  }
 
   public List<Claim>  GetClaims(){
     List<Claim> claims =
@@ -33,6 +54,8 @@ public class CredentialInfoModel(string id, string email, string nickName, strin
       new(nameof(BaseTokenClaims.NickName), NickName),
       new(nameof(BaseTokenClaims.Provider), EProvider.credential.ToString())
       ];
+
+    claims.AddRange(Roles.Select(role => new Claim(ClaimTypes.Role, role.ToString() ?? string.Empty)));
 
     return claims;
   }

@@ -1,6 +1,5 @@
 // Packages
 using System.ComponentModel;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
 using Moq;
 
@@ -18,19 +17,17 @@ public class AuthTest
 
   private readonly Mock<IJWTService> _mockJWT;
   private readonly Mock<IHashService> _mockHash;
-  private readonly Mock<IConfiguration> _mockConfig;
   private readonly Mock<IDataContext> _mockDataContext;
 
   private readonly AuthService _auth;
 
   public AuthTest ()
   {
-    _mockConfig = new();
     _mockHash = new();
     _mockJWT = new();
     _mockDataContext = new();
 
-    _auth = new(_mockDataContext.Object,_mockHash.Object,_mockConfig.Object,_mockJWT.Object);
+    _auth = new(_mockDataContext.Object,_mockHash.Object,_mockJWT.Object);
   }
 
   [Fact]
@@ -83,6 +80,5 @@ public class AuthTest
     _mockHash.Verify(s=>s.HashPassword("SIMPLEtest55="),Times.Once);
     _mockDataContext.Verify(s=>s.CreateConnection(),Times.Once);
   }
-
 }
 

@@ -4,8 +4,6 @@ using deckster.dto;
 
 namespace deckster.services.queries;
 
-
-
 public class CredentialLoginQuery(string userName, string password) : IQueryDefinition<string>
 {
   [Required(ErrorMessage = "Username is required")]
@@ -18,7 +16,11 @@ public class CredentialLoginQuery(string userName, string password) : IQueryDefi
   [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$", ErrorMessage = "Password must contain at least one uppercase, one lowercase, one number and one special character")]
   [DataType(DataType.Password)]
   public string Password { get; set; } = password;
+}
 
+public class AccountRolesQuery(string account_id) : IQueryDefinition<List<ERole>>
+{
+  public string AccountId {get;set;} = account_id;
 }
 
 public class UserFromUserNameQuery(string userName) : IQueryDefinition<CredentialInfoModel?>
