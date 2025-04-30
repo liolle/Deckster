@@ -1,19 +1,15 @@
-﻿@page "/"
+@page "/cards"
 
 @using Blazor.Components.Navigation
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Cards</PageTitle>
 
 <div class="page-container">
     <Navbar />
     <div class="main">
-        <AuthorizeView>
-            <Authorized>
 
-            </Authorized>
-        </AuthorizeView>
     </div>
 </div>

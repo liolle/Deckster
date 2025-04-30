@@ -14,6 +14,17 @@
             </div>
         </div>
         <div class="navbar-center">
+            <div @onclick="NavigateToCard" class="nav-link-container">
+
+                @if (@Page == "cards")
+                {
+                    <span class="nav-link active-link">Cards</span>
+                }
+                else
+                {
+                    <span class="nav-link">Cards</span>
+                }
+            </div>
         </div>
         <div class="navbar-right">
             <AuthorizeView>

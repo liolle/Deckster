@@ -59,6 +59,11 @@ public partial class Navbar : ComponentBase
         Navigation?.NavigateTo("/login");
     }
 
+    public void NavigateToCard()
+    {
+        Navigation?.NavigateTo("/cards");
+    }
+
     public async Task Logout()
     {
         if (Auth is null) { return; }
