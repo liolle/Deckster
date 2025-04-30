@@ -1,6 +1,7 @@
 @page "/cards"
 
 @using Blazor.Components.Navigation
+@using Blazor.Components.Redirect.RedirectOnClaim
 @using Blazor.Components.TCard
 @using Blazor.models
 @using Microsoft.AspNetCore.Components.Authorization
@@ -8,7 +9,7 @@
 @rendermode InteractiveServer
 
 <PageTitle>Cards</PageTitle>
-
+<RedirectOnClaim ClaimName="Id" RedirectOnValid="/cards" RedirectOnFailure="/" />
 <div class="page-container">
     <Navbar />
     <div class="main">

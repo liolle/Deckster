@@ -15,15 +15,18 @@
         </div>
         <div class="navbar-center">
             <div @onclick="NavigateToCard" class="nav-link-container">
-
-                @if (@Page == "cards")
-                {
-                    <span class="nav-link active-link">Cards</span>
-                }
-                else
-                {
-                    <span class="nav-link">Cards</span>
-                }
+                <AuthorizeView>
+                    <Authorized>
+                        @if (@Page == "cards")
+                        {
+                            <span class="nav-link active-link">Cards</span>
+                        }
+                        else
+                        {
+                            <span class="nav-link">Cards</span>
+                        }
+                    </Authorized>
+                </AuthorizeView>
             </div>
         </div>
         <div class="navbar-right">
