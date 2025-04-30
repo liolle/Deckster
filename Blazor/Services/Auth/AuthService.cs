@@ -15,10 +15,7 @@ public class AuthService : IAuthService
 {
     private User? CurrentUser;
 
-
     private readonly IJSRuntime JS;
-
-
 
     public AuthService(IJSRuntime jS, IConfiguration config, ToastService toast)
     {

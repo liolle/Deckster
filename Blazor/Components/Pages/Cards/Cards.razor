@@ -1,6 +1,8 @@
 @page "/cards"
 
 @using Blazor.Components.Navigation
+@using Blazor.Components.TCard
+@using Blazor.models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode InteractiveServer
@@ -10,6 +12,11 @@
 <div class="page-container">
     <Navbar />
     <div class="main">
+
+        @foreach (Card c in Card_list)
+        {
+            <TCard CCard="c"></TCard>
+        }
 
     </div>
 </div>

@@ -11,7 +11,7 @@ using deckster.entities;
 
 namespace deckster.contollers;
 
-public class CardsController(ICardService cards) : ControllerBase 
+public class CardsController(ICardService cards) : ControllerBase
 {
   [HttpPost]
   [Route("card/add")]
@@ -45,13 +45,14 @@ public class CardsController(ICardService cards) : ControllerBase
 
   [HttpGet]
   [Route("cards")]
+  [Authorize]
   public IActionResult GetAllCard([FromQuery] int? page, [FromQuery] int? size)
   {
     try
     {
       this.validModelOrThrow();
 
-      QueryResult<List<CardEntity>> result = cards.Execute(new CardsQuery(page??0,size??15));
+      QueryResult<List<CardEntity>> result = cards.Execute(new CardsQuery(page ?? 0, size ?? 15));
 
       if (!result.IsSuccess)
       {

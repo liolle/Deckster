@@ -1,0 +1,13 @@
+.card-container {
+    width: 20rem;
+    overflow: hidden;
+    height: fit-content;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+
+img {
+    object-fit: cover;
+    width: 100%;
+}
