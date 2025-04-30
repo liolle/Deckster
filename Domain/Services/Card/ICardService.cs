@@ -2,12 +2,14 @@
 using deckster.cqs;
 using deckster.database;
 using deckster.dto;
+using deckster.entities;
 using deckster.services.commands;
 using deckster.services.queries;
 
 namespace deckster.services;
 public interface ICardService:
-ICommandHandler<AddCardCommand>
+ICommandHandler<AddCardCommand>,
+  IQueryHandler<CardsQuery,List<CardEntity>>
 {
 }
 
@@ -15,6 +17,5 @@ ICommandHandler<AddCardCommand>
 // HttpClient used for Oauth2
 public partial class CardService(IDataContext context) : ICardService
 {
-
 }
 

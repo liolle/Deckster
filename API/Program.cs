@@ -64,7 +64,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowCredentials", policy =>
     {
         policy
-        .WithOrigins([front_host])
+        .WithOrigins([front_host,"https://localhost:7257"])
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();

@@ -6,6 +6,8 @@ using deckster.extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using deckster.services.queries;
+using deckster.entities;
 
 namespace deckster.contollers;
 
@@ -42,9 +44,30 @@ public class CardsController(ICardService cards) : ControllerBase
   }
 
   [HttpGet]
-  [Route("card")]
-  public IActionResult GetAllCard([FromQuery] int page, int size)
+  [Route("cards")]
+  public IActionResult GetAllCard([FromQuery] int? page, [FromQuery] int? size)
   {
-    return IApiOutput.Response(new List<string>());
+    try
+    {
+      this.validModelOrThrow();
+
+      QueryResult<List<CardEntity>> result = cards.Execute(new CardsQuery(page??0,size??15));
+
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null)
+        {
+          throw result.Exception;
+        }
+
+        return IApiOutput.Response(result.ErrorMessage);
+      }
+
+      return IApiOutput.Response(result.Result);
+    }
+    catch (Exception e)
+    {
+      return IApiOutput.ResponseError(e);
+    }
   }
 }

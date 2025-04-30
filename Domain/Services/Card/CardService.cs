@@ -2,6 +2,7 @@ using deckster.cqs;
 using deckster.entities;
 using deckster.exceptions;
 using deckster.services.commands;
+using deckster.services.queries;
 using Microsoft.Data.SqlClient;
 
 namespace deckster.services;
@@ -29,7 +30,7 @@ public partial class CardService
       cmd.Parameters.AddWithValue("@Name", card.Name);
       cmd.Parameters.AddWithValue("@Cost", command.Cost);
       cmd.Parameters.AddWithValue("@Defense", card.Defense);
-      cmd.Parameters.AddWithValue("@Strength", card.strength);
+      cmd.Parameters.AddWithValue("@Strength", card.Strength);
       cmd.Parameters.AddWithValue("@Image", command.Image);
 
       int rowsAffected = context.ExecuteNonQuery(query,cmd);
@@ -56,6 +57,48 @@ public partial class CardService
     catch (Exception e)
     {
       return ICommandResult.Failure("Server error",e);
+    }
+  }
+
+
+  public QueryResult<List<CardEntity>> Execute(CardsQuery query)
+  {
+    try
+    {
+      List<CardEntity> cards = [];
+
+      string sql_query  = @"
+        SELECT * FROM [Cards]
+        ORDER BY [name]
+        OFFSET @Offset ROWS
+        FETCH NEXT @Size ROW ONLY
+        ";
+
+      using SqlConnection conn = context.CreateConnection();
+
+      using SqlCommand cmd = new(sql_query, conn);
+      cmd.Parameters.AddWithValue("@Offset", query.Size * query.Page);
+      cmd.Parameters.AddWithValue("@Size", query.Size );
+
+      using SqlDataReader reader = context.ExecuteReader(sql_query,cmd);
+      while (reader.Read())
+      {
+        CardEntity card = new(
+            (string)reader[nameof(CardEntity.Id)],
+            (string)reader[nameof(CardEntity.Name)],
+            (int)reader[nameof(CardEntity.Cost)],
+            (int)reader[nameof(CardEntity.Defense)],
+            (int)reader[nameof(CardEntity.Strength)],
+            (string)reader[nameof(CardEntity.Image)]
+            );
+        cards.Add(card);
+      }
+
+      return IQueryResult<List<CardEntity>>.Success(cards);
+    }
+    catch (Exception e)
+    {
+      return IQueryResult<List<CardEntity>>.Failure("",e);
     }
   }
 }

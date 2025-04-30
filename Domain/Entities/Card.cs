@@ -8,7 +8,7 @@ public class CardEntity(string id, string name, int cost, int defense, int stren
   public string Name  {get;init;} = name;
   public int Defense {get;init;} = defense;
   public int Cost {get;init;} = cost;
-  public int strength {get;init;} = strength;
+  public int Strength {get;init;} = strength;
   public string Image {get;init;} = image;
 
   public static CardEntity Create( string name, int cost, int defense, int strenght, string image){
