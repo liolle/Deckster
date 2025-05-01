@@ -11,11 +11,11 @@ public partial class RedirectOnClaim : ComponentBase
     [Parameter]
     public string? ClaimValue { get; set; }
 
-    [Parameter]
-    public string? RedirectOnFailure { get; set; }
-
     [Parameter, EditorRequired]
-    public string? RedirectOnValid { get; set; }
+    public string RedirectOnFailure { get; set; } = "/";
+
+    [Parameter]
+    public string RedirectOnValid { get; set; } = "";
 
     [Inject]
     AuthenticationStateProvider? AuthProvider { get; set; }
@@ -38,20 +38,14 @@ public partial class RedirectOnClaim : ComponentBase
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         IsValid = ValidateClaims(authState);
 
-        if (IsValid)
+        if (!IsValid)
         {
-            if (!string.IsNullOrEmpty(RedirectOnValid))
-            {
-                navigation.NavigateTo(RedirectOnValid);
-            }
+            navigation.NavigateTo(RedirectOnFailure);
+            return;
         }
-        else
+        if (!string.IsNullOrEmpty(RedirectOnValid))
         {
-            if (!string.IsNullOrEmpty(RedirectOnFailure))
-            {
-                navigation.NavigateTo(RedirectOnFailure);
-            }
+            navigation.NavigateTo(RedirectOnValid);
         }
-
     }
 }

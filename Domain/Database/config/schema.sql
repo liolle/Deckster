@@ -82,7 +82,7 @@ BEGIN
   CREATE TABLE [Decks_cards] (
     [deck_id] [nvarchar] (100) NOT NULL,
     [card_id] [nvarchar] (100) NOT NULL,
-    [quatity] [int] NOT NULL
+    [quantity] [int] NOT NULL
 
     CONSTRAINT FK_deck_deck_id FOREIGN KEY ([deck_id]) REFERENCES [Decks] ([id]) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT FK_deck_card_id FOREIGN KEY ([card_id]) REFERENCES [Cards] ([id]) ON DELETE CASCADE ON UPDATE CASCADE

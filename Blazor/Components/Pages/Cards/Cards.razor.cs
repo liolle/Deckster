@@ -11,6 +11,9 @@ public partial class Cards : ComponentBase
     [Inject]
     ICardsService? cardsService { get; set; }
 
+    [Inject]
+    NavigationManager? Navigation { get; set; }
+
     protected override void OnInitialized()
     {
         _ = UpdateCards();
@@ -23,6 +26,11 @@ public partial class Cards : ComponentBase
         Card_list = await cardsService.GetAllCards();
 
         StateHasChanged();
+    }
+
+    private void NavigateToAdd()
+    {
+        Navigation?.NavigateTo("/cards/add");
     }
 
 }

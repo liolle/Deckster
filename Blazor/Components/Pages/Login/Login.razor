@@ -1,11 +1,12 @@
 @page "/login"
+@using Blazor.Components.Redirect.RedirectOnClaim
 @using Blazor.models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager navigation
 
 <PageTitle>Login</PageTitle>
-
+<RedirectOnClaim ClaimName="Id" RedirectOnValid="/" RedirectOnFailure="/login" />
 <div class="page-container">
 
     <div class="main">

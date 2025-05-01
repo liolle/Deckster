@@ -9,7 +9,7 @@
 @rendermode InteractiveServer
 
 <PageTitle>Cards</PageTitle>
-<RedirectOnClaim ClaimName="Id" RedirectOnValid="/cards" RedirectOnFailure="/" />
+<RedirectOnClaim ClaimName="Id" RedirectOnFailure="/" />
 <div class="page-container">
     <Navbar />
     <div class="main">
@@ -18,6 +18,12 @@
         {
             <TCard CCard="c"></TCard>
         }
-
+        <AuthorizeView Roles="admin">
+            <Authorized>
+                <div class="btn-container">
+                    <button @onclick="@NavigateToAdd">Add</button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </div>
 </div>

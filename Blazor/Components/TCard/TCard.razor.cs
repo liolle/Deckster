@@ -17,6 +17,5 @@ public partial class TCard : ComponentBase
         if (string.IsNullOrEmpty(FILE_SERVER) || CCard is null) { return; }
 
         Image = $"{FILE_SERVER}/{CCard.Image}";
-        Console.WriteLine(Image);
     }
 }

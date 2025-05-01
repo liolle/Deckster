@@ -17,8 +17,8 @@ public partial class AuthService
   public CommandResult Execute(RegisterUserCommand command)
   {
     // Generate an Account to get the AccountId
-    UserEntity user = UserEntity.Create(command.Email,command.NickName);
-    AccountEntity acc = AccountEntity.Create("credential",user.Id,user.Id); 
+    UserEntity user = UserEntity.Create(command.Email, command.NickName);
+    AccountEntity acc = AccountEntity.Create("credential", user.Id, user.Id);
 
     try
     {
@@ -36,13 +36,13 @@ public partial class AuthService
       cmd.Parameters.Add("@RowsAffected", SqlDbType.Int).Direction = ParameterDirection.Output;
       cmd.Parameters.AddWithValue("@Password", hashedPassword);
 
-      int res = context.ExecuteNonQuery(query,cmd);
-      object val = cmd.Parameters["@RowsAffected"].Value; 
+      int res = context.ExecuteNonQuery(query, cmd);
+      object val = cmd.Parameters["@RowsAffected"].Value;
 
-      int rowsAffected = res ;
-      if (val is not null){rowsAffected = (int) val;}
+      int rowsAffected = res;
+      if (val is not null) { rowsAffected = (int)val; }
 
-      if ((rowsAffected + res) < 1 )
+      if ((rowsAffected + res) < 1)
       {
         return ICommandResult.Failure("User insertion failed.");
       }
@@ -70,7 +70,7 @@ public partial class AuthService
     }
     catch (Exception e)
     {
-      return ICommandResult.Failure("Server error",e);
+      return ICommandResult.Failure("Server error", e);
     }
   }
 
@@ -80,21 +80,21 @@ public partial class AuthService
     try
     {
       QueryResult<CredentialInfoModel?> qr = Execute(new UserFromUserNameQuery(query.UserName));
-      if (!qr.IsSuccess )
+      if (!qr.IsSuccess)
       {
-        return IQueryResult<string>.Failure("",new InvalidCredentialException());
+        return IQueryResult<string>.Failure("", new InvalidCredentialException());
       }
 
       if (!hash.VerifyPassword(qr.Result!.Password, query.Password))
       {
-        return IQueryResult<string>.Failure("",new InvalidCredentialException());
+        return IQueryResult<string>.Failure("", new InvalidCredentialException());
       }
 
       return IQueryResult<string>.Success(jwt.Generate(qr.Result.GetClaims()));
     }
     catch (Exception e)
     {
-      return IQueryResult<string>.Failure("Server error",e);
+      return IQueryResult<string>.Failure("Server error", e);
     }
   }
 
@@ -119,10 +119,11 @@ public partial class AuthService
     {
       CredentialInfoModel userInfo;
       string account_id = "";
-      using (SqlConnection conn = context.CreateConnection()){
+      using (SqlConnection conn = context.CreateConnection())
+      {
         using SqlCommand cmd = new(sql_query, conn);
         cmd.Parameters.AddWithValue("@UserName", query.UserName);
-        using SqlDataReader reader = context.ExecuteReader(sql_query,cmd);
+        using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
 
         if (reader.Read())
         {
@@ -133,19 +134,21 @@ public partial class AuthService
               (string)reader[nameof(CredentialEntity.Password)],
               (DateTime)reader[nameof(UserEntity.Created_At)]
               );
-        }else{
+        }
+        else
+        {
           return IQueryResult<CredentialInfoModel?>.Failure($"Could not find UserName {query.UserName}");
-        };
+        }
+        ;
         account_id = (string)reader["acid"];
       }
 
       AccountRolesQuery q = new(account_id);
       QueryResult<List<ERole>> res = ExecuteWithConnection(q);
 
-      if (!res.IsSuccess){
+      if (!res.IsSuccess)
+      {
 
-        Console.WriteLine($"==>:{res.ErrorMessage}");
-        Console.WriteLine($"==>:{res.Exception?.Message}");
         if (res.Exception is not null)
         {
           throw res.Exception;
@@ -159,8 +162,8 @@ public partial class AuthService
     }
     catch (Exception e)
     {
-      Console.WriteLine($"=>:{e.Message}");
-      return IQueryResult<CredentialInfoModel?>.Failure("Server error",e);
+      Console.WriteLine(e.Message);
+      return IQueryResult<CredentialInfoModel?>.Failure("Server error", e);
     }
   }
 
@@ -176,22 +179,24 @@ public partial class AuthService
 
       using SqlCommand cmd = new(sql_query, conn);
       cmd.Parameters.AddWithValue("@AccountId", command.AccountId);
-      cmd.Parameters.AddWithValue("@Role","admin");
+      cmd.Parameters.AddWithValue("@Role", "admin");
 
-      int res = context.ExecuteNonQuery(sql_query,cmd);
+      int res = context.ExecuteNonQuery(sql_query, cmd);
 
-      if(res<1){
+      if (res < 1)
+      {
         return ICommandResult.Failure("Fail to assign role");
       }
 
       return ICommandResult.Success();
     }
-    catch(SqlException e)
+    catch (SqlException e)
     {
       if (e.Message.Contains("FK_role_account_id"))
       {
         return ICommandResult.Failure("", new UnknownFieldException("account_id"));
-      }else if(e.Message.Contains("UNIQUE KEY constraint"))
+      }
+      else if (e.Message.Contains("UNIQUE KEY constraint"))
       {
         return ICommandResult.Success();
       }
@@ -199,7 +204,7 @@ public partial class AuthService
     }
     catch (Exception e)
     {
-      return ICommandResult.Failure("",e);
+      return ICommandResult.Failure("", e);
     }
   }
 
@@ -217,14 +222,14 @@ public partial class AuthService
       using SqlCommand cmd = new(sql_query, conn);
       cmd.Parameters.AddWithValue("@AccountId", query.AccountId);
 
-      using SqlDataReader reader = context.ExecuteReader(sql_query,cmd);
+      using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
       while (reader.Read())
       {
         RoleEntity role = new(
             (string)reader["account_id"],
-            (string) reader[nameof(RoleEntity.Role)]
+            (string)reader[nameof(RoleEntity.Role)]
             );
-        roles.Add(Enum.Parse<ERole>(role.Role)); 
+        roles.Add(Enum.Parse<ERole>(role.Role));
       }
 
 
@@ -233,7 +238,7 @@ public partial class AuthService
     catch (Exception e)
     {
       Console.WriteLine(e.Message);
-      return IQueryResult<List<ERole>>.Failure("",e);
+      return IQueryResult<List<ERole>>.Failure("", e);
     }
   }
 }
