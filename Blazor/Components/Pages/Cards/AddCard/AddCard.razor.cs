@@ -1,9 +1,11 @@
 using Blazor.models;
 using Blazor.services;
+using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.Components;
 
 namespace Blazor.Components.Pages.Cards.AddCard;
 
+[RequireCSRF]
 public partial class AddCard : ComponentBase
 {
 
@@ -32,6 +34,7 @@ public partial class AddCard : ComponentBase
             return;
         }
         _toast?.Add(new CToast(TOAST_TYPE.SUCCESS, "Card Added successfully", 3000));
+        Model.Reset();
         Sending = false;
     }
 }

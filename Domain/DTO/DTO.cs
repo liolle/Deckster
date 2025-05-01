@@ -15,7 +15,7 @@ public enum ERole
   tester
 }
 
-public class BaseTokenClaims(string id, string email,string nickName, EProvider provider)
+public class BaseTokenClaims(string id, string email, string nickName, EProvider provider)
 {
   public string Id { get; set; } = id;
   public EProvider Provider { get; set; } = provider;
@@ -29,15 +29,11 @@ public class CredentialInfoModel(string id, string email, string nickName, strin
   public string Email { get; } = email;
   public string NickName { get; } = nickName;
   public string Password { get; } = password;
-  public List<ERole> Roles {get; private set;} = [] ;
+  public List<ERole> Roles { get; private set; } = [];
   public DateTime Created_At { get; } = created_At;
 
   public void AddRole(List<ERole> roles)
   {
-    foreach (ERole r in roles)
-    {
-      Console.WriteLine(Enum.GetName(r)); 
-    }
     Roles = roles;
   }
 
@@ -46,7 +42,8 @@ public class CredentialInfoModel(string id, string email, string nickName, strin
     Roles.Add(role);
   }
 
-  public List<Claim>  GetClaims(){
+  public List<Claim> GetClaims()
+  {
     List<Claim> claims =
       [
       new(nameof(BaseTokenClaims.Id), Id.ToString()),

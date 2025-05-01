@@ -64,7 +64,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowCredentials", policy =>
     {
         policy
-        .WithOrigins([front_host,"https://localhost:7257"])
+        .WithOrigins([front_host, "https://localhost:7257"])
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -87,7 +87,7 @@ var app = builder.Build();
 
 app.UseCors();
 app.UseAuthorization();
-//app.UseCSRFApi();
+app.UseCSRFApi();
 
 app.MapControllers();
 

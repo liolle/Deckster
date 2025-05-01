@@ -49,4 +49,14 @@ public class AddCardModel
     {
         return new Card("", Name, Cost, Defense, Strength, Image);
     }
+
+    public void Reset()
+    {
+        Name = "";
+        Image = "default-image.png";
+        Cost = 0;
+        Defense = 0;
+        Strength = 0;
+    }
+
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using deckster.services.queries;
 using deckster.entities;
+using edllx.dotnet.csrf;
 
 namespace deckster.contollers;
 
@@ -17,6 +18,7 @@ public class CardsController(ICardService cards) : ControllerBase
   [Route("card/add")]
   [EnableCors("AllowCredentials")]
   [Authorize(Roles = "admin")]
+  [RequireCSRF]
   public IActionResult AddCard([FromBody] AddCardCommand command)
   {
     try

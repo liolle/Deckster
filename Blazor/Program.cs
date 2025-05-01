@@ -2,6 +2,7 @@ using System.Net;
 using Blazor.Components;
 using Blazor.services;
 using DotNetEnv;
+using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,7 @@ builder.Services.AddHttpClient("main_api", client =>
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddSingleton<CSRFService>();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthProvider>();
 builder.Services.AddScoped<HttpInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -43,6 +45,8 @@ builder.Services.AddScoped<ToastService>();
 var app = builder.Build();
 
 app.UseStaticFiles();
+
+app.UseCSRFBlazorServer();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()

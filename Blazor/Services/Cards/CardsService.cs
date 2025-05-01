@@ -17,16 +17,23 @@ public class CardsService : ICardsService
 
     string AUTH_TOKEN_NAME;
     string CSRF_COOKIE_NAME;
+    string CSRF_HEADER_NAME;
 
 
     public CardsService(HttpInfoService httpInfo, IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         AUTH_TOKEN_NAME = configuration["AUTH_TOKEN_NAME"] ?? throw new Exception("Missing configuration: AUTH_TOKEN_NAME");
         CSRF_COOKIE_NAME = configuration["CSRF_COOKIE_NAME"] ?? throw new Exception("Missing configuration: CSRF_COOKIE_NAME");
+        CSRF_HEADER_NAME = configuration["CSRF_HEADER_NAME"] ?? throw new Exception("Missing configuration: CSRF_HEADER_NAME");
         _info = httpInfo;
         _client = httpClientFactory.CreateClient("main_api");
+
+        // AUTH
         _client.DefaultRequestHeaders.Add("Cookie", $"{AUTH_TOKEN_NAME}={_info.ACCESS_TOKEN}");
-        _client.DefaultRequestHeaders.Add("Cookie", $"{CSRF_COOKIE_NAME}={_info.CSRF_TOKEN}");
+
+        // CSRF
+        _client.DefaultRequestHeaders.Add("Cookie", $"{CSRF_COOKIE_NAME}={_info.CSRF_COOKIE}");
+        _client.DefaultRequestHeaders.Add(CSRF_HEADER_NAME, $"{_info.CSRF_CODE}");
     }
 
     public async Task<string> AddCard(AddCardModel card)
