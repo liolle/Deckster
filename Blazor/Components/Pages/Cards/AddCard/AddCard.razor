@@ -1,0 +1,85 @@
+@page "/cards/add"
+@using Blazor.Components.Redirect.RedirectOnClaim
+@using Blazor.Components.TCard
+
+<RedirectOnClaim ClaimName="http://schemas.microsoft.com/ws/2008/06/identity/claims/role" ClaimValue="admin"
+    RedirectOnFailure="/" />
+<div class="page-container">
+    <Navbar />
+    <main>
+        <section class="card-display">
+
+            @if (Model is not null)
+            {
+                <TCard CCard="@Model.GetCard()"></TCard>
+            }
+        </section>
+        <section>
+            <div class="form-main">
+                <EditForm Model="Model" OnValidSubmit="SubmitValidFrom">
+                    <div class="form-container">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-element">
+                            <div class="form-input">
+                                <label>Name</label>
+                                <InputText @bind-Value="Model!.Name" class="input" />
+                            </div>
+                            <div class="form-input-error">
+                                <ValidationMessage For="@(() => Model.Name)" />
+                            </div>
+                        </div>
+
+                        <div class="form-element">
+                            <div class="form-input">
+                                <label>Image</label>
+                                <InputText @bind-Value="Model.Image" class="input" />
+                            </div>
+                            <div class="form-input-error">
+                                <ValidationMessage For="@(() => Model.Image)" />
+                            </div>
+                        </div>
+
+                        <div class="form-element">
+                            <div class="form-input">
+                                <label>Cost</label>
+                                <InputNumber @bind-Value="Model.Cost" class="input" />
+                            </div>
+                            <div class="form-input-error">
+                                <ValidationMessage For="@(() => Model.Cost)" />
+                            </div>
+                        </div>
+
+                        <div class="form-element">
+                            <div class="form-input">
+                                <label>Defense</label>
+                                <InputNumber @bind-Value="Model.Defense" class="input" />
+                            </div>
+                            <div class="form-input-error">
+                                <ValidationMessage For="@(() => Model.Defense)" />
+                            </div>
+                        </div>
+
+                        <div class="form-element">
+                            <div class="form-input">
+                                <label>Strength</label>
+                                <InputNumber @bind-Value="Model.Strength" class="input" />
+                            </div>
+                            <div class="form-input-error">
+                                <ValidationMessage For="@(() => Model.Strength)" />
+                            </div>
+                        </div>
+
+                        <div class="btn-container">
+                            <button disabled="@Sending" type="submit" class="btn">
+                                <span>Add Card</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </EditForm>
+
+            </div>
+        </section>
+    </main>
+</div>

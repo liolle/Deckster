@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Blazor.models;
 
@@ -6,6 +7,7 @@ namespace Blazor.services;
 public interface ICardsService
 {
     Task<List<Card>> GetAllCards();
+    Task<string> AddCard(AddCardModel card);
 }
 
 public class CardsService : ICardsService
@@ -27,11 +29,38 @@ public class CardsService : ICardsService
         _client.DefaultRequestHeaders.Add("Cookie", $"{CSRF_COOKIE_NAME}={_info.CSRF_TOKEN}");
     }
 
+    public async Task<string> AddCard(AddCardModel card)
+    {
+        try
+        {
+            string content = JsonSerializer.Serialize(card);
+            StringContent httpContent = new(content, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync("card/add", httpContent);
+
+            response.EnsureSuccessStatusCode();
+
+            return "";
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"HTTP Error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        return "Failed to Add Card";
+    }
+
     public async Task<List<Card>> GetAllCards()
     {
         try
         {
-            var response = await _client.GetAsync("cards");
+            HttpResponseMessage response = await _client.GetAsync("cards");
             if (!response.IsSuccessStatusCode)
             {
                 return [];
@@ -48,7 +77,9 @@ public class CardsService : ICardsService
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return [];
         }
+
+        return [];
     }
+
 }

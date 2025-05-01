@@ -19,3 +19,27 @@ public class HttpInfoService
     }
 
 }
+
+public class ImageLinkChecker
+{
+
+    public static async Task<bool> ImageExistsAsync(string imageUrl)
+    {
+        using var httpClient = new HttpClient();
+
+        if (string.IsNullOrWhiteSpace(imageUrl)) { return false; }
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Head, imageUrl);
+            var response = await httpClient.SendAsync(request);
+
+            return response.IsSuccessStatusCode &&
+                   response.Content.Headers.ContentType?.MediaType?.StartsWith("image/") == true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

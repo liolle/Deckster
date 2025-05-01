@@ -5,7 +5,6 @@ namespace Blazor.services;
 
 public interface IAuthService
 {
-    User? GetUser();
     Task<RegisterResult> Register(RegisterModel model);
     Task<bool> CredentialLogin(LoginModel model);
     Task<bool> Logout();
@@ -13,7 +12,6 @@ public interface IAuthService
 
 public class AuthService : IAuthService
 {
-    private User? CurrentUser;
 
     private readonly IJSRuntime JS;
 
@@ -24,10 +22,7 @@ public class AuthService : IAuthService
         _ = JS.InvokeVoidAsync("setURL", API_URL);
     }
 
-    public User? GetUser()
-    {
-        return CurrentUser;
-    }
+
 
     public async Task<RegisterResult> Register(RegisterModel model)
     {
