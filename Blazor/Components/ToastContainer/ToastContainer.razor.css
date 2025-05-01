@@ -1,0 +1,10 @@
+.toast-message-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 400px;
+    z-index: 1000;
+    border-radius: 1rem;
+    user-select: none;
+    animation: slide-in 0.5s ease-out;
+}

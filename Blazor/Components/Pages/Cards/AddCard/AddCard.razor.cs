@@ -27,10 +27,11 @@ public partial class AddCard : ComponentBase
 
         if (!string.IsNullOrEmpty(error_msg))
         {
-            _toast?.ShowToast(TOAST_TYPE.ERROR, error_msg, 0);
+            _toast?.Add(new CToast(TOAST_TYPE.ERROR, error_msg, 5000));
+            Sending = false;
             return;
         }
-        _toast?.ShowToast(TOAST_TYPE.SUCCESS, "Card Added successfully");
+        _toast?.Add(new CToast(TOAST_TYPE.SUCCESS, "Card Added successfully", 3000));
         Sending = false;
     }
 }

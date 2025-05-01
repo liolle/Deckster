@@ -6,46 +6,30 @@ namespace Blazor.Components.Toast;
 
 public partial class Toast : ComponentBase
 {
-    private bool Visible { get; set; } = false;
 
-    private string Type { get; set; } = Enum.GetName(TOAST_TYPE.INFO)!;
-    private string Content { get; set; } = "";
-    private int Timeout { get; set; } = 0;
+  [Parameter, EditorRequired]
+  public required CToast _toast { get; set; }
 
-    [Inject]
-    ToastService? _toast {get;set;}
+  [Inject]
+  ToastService? _toast_service { get; set; }
 
-    protected override void OnInitialized()
-    {
-      if (_toast is null){return;}
-      _toast.OnShow += Show;
-      _toast.OnHide += Hide;
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    if (_toast is null || _toast.Timeout == 0) { return; }
 
-    private async void Show(TOAST_TYPE type, string content, int timeout)
-    {
-      Type = Enum.GetName(type)!;
-      Content = content;
-      Visible = true;
-      Timeout = timeout;
+    await Task.Delay(_toast.Timeout);
+    Remove();
+  }
 
-      StateHasChanged();
-      if (timeout <= 0) { return; }
+  private void Remove()
+  {
+    if (_toast_service is null) { return; }
+    _toast_service.Remove(_toast);
+    StateHasChanged();
+  }
 
-      await Task.Delay(timeout);
-      Hide();
-    }
+  public void Dispose()
+  {
 
-    private void Hide()
-    {
-      Visible = false;
-      StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-      if (_toast is null){return;}
-      _toast.OnShow -= Show;
-      _toast.OnHide -= Hide;
-    }
+  }
 }

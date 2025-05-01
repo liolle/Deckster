@@ -37,7 +37,23 @@ public class CardsService : ICardsService
             StringContent httpContent = new(content, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await _client.PostAsync("card/add", httpContent);
 
+
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                string json = await response.Content.ReadAsStringAsync();
+
+                JsonSerializerOptions JsonOptions = new()
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                APIError? output = JsonSerializer.Deserialize<APIError>(json, JsonOptions);
+
+                return output?.ToString() ?? "";
+            }
+
             response.EnsureSuccessStatusCode();
+
 
             return "";
         }

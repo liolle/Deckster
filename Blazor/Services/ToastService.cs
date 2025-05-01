@@ -8,19 +8,33 @@ public enum TOAST_TYPE
     WARNING
 }
 
+public class CToast(TOAST_TYPE type, string content, int timeout)
+{
+    public TOAST_TYPE Type { get; } = type;
+    public string Content { get; } = content;
+    public int Timeout { get; } = timeout;
+}
+
 public class ToastService
 {
-    public event Action<TOAST_TYPE, string, int>? OnShow;
-    public event Action? OnHide;
+    public List<CToast> ToastList { get; } = [];
+    public event Action<CToast>? AddToast;
+    public event Action<CToast>? RemoveToast;
 
-    public void ShowToast(TOAST_TYPE type, string message, int timeout = 3000)
+    public void Add(CToast toast)
     {
-        if (OnShow is null) { return; }
-        OnShow.Invoke(type, message, timeout);
+        if (AddToast is null) { return; }
+        ToastList.Add(toast);
+        AddToast.Invoke(toast);
     }
 
-    public void HideToast()
+
+    public void Remove(CToast toast)
     {
-        OnHide?.Invoke();
+        if (RemoveToast is null) { return; }
+        ToastList.Remove(toast);
+        RemoveToast.Invoke(toast);
     }
 }
+
+

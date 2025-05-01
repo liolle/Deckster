@@ -23,7 +23,7 @@ public partial class Register : ComponentBase
         RegisterResult result = await Service.Register(Model);
         if (!result.IsSuccess)
         {
-            _toast?.ShowToast(TOAST_TYPE.ERROR, result.ErrorMessage, 0);
+            _toast?.Add(new CToast(TOAST_TYPE.ERROR, result.ErrorMessage, 0));
             return;
         }
         Navigation?.NavigateTo("/login", false, true);

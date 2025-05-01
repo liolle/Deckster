@@ -72,7 +72,8 @@ BEGIN
     [strength] [int] CONSTRAINT DF_strenght_cost DEFAULT 0,
     [image] [nvarchar](500) NOT NULL
     CONSTRAINT PK_card_id PRIMARY KEY ([id]),
-    CONSTRAINT U_card_name UNIQUE ([name])
+    CONSTRAINT U_card_name UNIQUE ([name]),
+    CONSTRAINT U_card_image UNIQUE ([image])
   );
   PRINT 'Table Cards created';
 END
