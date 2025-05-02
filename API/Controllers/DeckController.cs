@@ -145,7 +145,6 @@ public class DeckController(ICardService cards) : ControllerBase
     try
     {
       this.validModelOrThrow();
-
       List<string> errors = model.Validate();
 
       if (errors.Count > 0)
@@ -156,6 +155,7 @@ public class DeckController(ICardService cards) : ControllerBase
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
 
       CommandResult permissionResult = cards.Execute(new GetDeckPermission(model.DeckId, account_id));
+      CommandResult res = cards.Execute(new DeleteDeckCardsCommand(model.DeckId));
 
       if (!permissionResult.IsSuccess)
       {

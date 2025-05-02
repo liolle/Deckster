@@ -15,6 +15,7 @@ ICommandHandler<AddDeckCommand>,
 ICommandHandler<DeleteDeckCommand>,
 ICommandHandler<PatchDeckCommand>,
 ICommandHandler<GetDeckPermission>,
+ICommandHandler<DeleteDeckCardsCommand>,
   IQueryHandler<CardsQuery, List<CardEntity>>,
   IQueryHandler<UserDecksQuery, List<DeckEntity>>,
   IQueryHandler<UserDecksInfoQuery, DeckModel>,
@@ -189,8 +190,6 @@ public partial class CardService
   public CommandResult Execute(PatchDeckCommand command)
   {
 
-
-
     string valuesClause = string.Join(",", command.Cards.Select((_, i) =>
     $"(@DeckId, @Card_{i}, @Quantity_{i})"));
 
@@ -200,6 +199,8 @@ public partial class CardService
 
     try
     {
+
+
       using SqlConnection conn = context.CreateConnection();
       using SqlCommand cmd = new(query, conn);
 
