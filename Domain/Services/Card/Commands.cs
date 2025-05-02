@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using deckster.cqs;
 namespace deckster.services.commands;
 
@@ -24,3 +25,12 @@ public class AddDeckCommand(string name) : ICommandDefinition
   public string DeckId { get; set; } = "";
 }
 
+public class DeleteDeckCommand(string deckId) : ICommandDefinition
+{
+  [Required(ErrorMessage = "Deck id is required")]
+  public string DeckId { get; set; } = deckId;
+
+  [JsonIgnore]
+  public string AccountId { get; set; } = "";
+
+}

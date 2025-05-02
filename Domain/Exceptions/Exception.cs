@@ -6,32 +6,36 @@ public class MissingConfigException(string config_key) : Exception($"Missing con
 
 public class DuplicateFieldException(string field_name) : Exception($"Unavailable field:\n- {field_name}")
 {
-  public string Field {get;init;} = field_name;
+  public string Field { get; init; } = field_name;
 }
 
 
 public class UnknownFieldException(string field_name) : Exception($"Unknown field:\n- {field_name}")
 {
-  public string Field {get;init;} = field_name;
+  public string Field { get; init; } = field_name;
 }
 
 public class InvalidRequestModelException(KeyValuePair<string, string[]?>[]? errors) : Exception($"Invalid Model")
 {
-  public KeyValuePair<string, string[]?>[]? Errors {get;init;} = errors;
+  public KeyValuePair<string, string[]?>[]? Errors { get; init; } = errors;
 }
 
 public class NotFoundElementException(string key) : Exception($"Not found element:\n {key}")
 {
-    public string Key {get;init;} = key;
+  public string Key { get; init; } = key;
 }
 
-public class InvalidCredentialException():Exception("Invalid Connection Credentials")
+public class InvalidCredentialException() : Exception("Invalid Connection Credentials")
 {
 }
 
-public class InvalidHeaderException(string key):Exception($"Invalid Header\n - {key}")
+public class UnAuthorizeActionException(string message) : Exception(message)
 {
-  public string Key {get;init;} = key;
+}
+
+public class InvalidHeaderException(string key) : Exception($"Invalid Header\n - {key}")
+{
+  public string Key { get; init; } = key;
 
 }
 

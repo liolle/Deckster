@@ -84,21 +84,26 @@ public class DeckController(ICardService cards) : ControllerBase
   [Route("deck")]
   [Authorize]
   [Description("Delete user decks")]
-  public IActionResult DeleteCard([FromQuery] string deckId)
+  public IActionResult DeleteCard([FromBody] DeleteDeckCommand command)
   {
     try
     {
       this.validModelOrThrow();
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
+      command.AccountId = account_id;
 
-      // TODO
-      // replace with a service call
+      CommandResult result = cards.Execute(command);
+
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null) { throw result.Exception; }
+        return IApiOutput.Response(result.ErrorMessage);
+      }
 
       return IApiOutput.Response(null);
     }
     catch (Exception e)
     {
-
       return IApiOutput.ResponseError(e);
     }
   }

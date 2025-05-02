@@ -9,13 +9,14 @@ public enum ERROR_TYPES
   INVALID_MODEL,
   INVALID_CREDENTIALS,
   INVALID_HEADER,
-  UNKNOW_ACCOUNT
+  UNKNOW_ACCOUNT,
+  ACTION_DENIED
 }
 
-public class ApiError 
+public class ApiError
 {
   public string Type { get; set; }
-  public Object? Value { get; set;  } 
+  public Object? Value { get; set; }
 
   public ApiError(ERROR_TYPES type, object? value)
   {
@@ -48,6 +49,8 @@ public interface IApiOutput
 
       case UnknownFieldException ex:
         return new UnauthorizedObjectResult(new ApiError(ERROR_TYPES.UNKNOW_ACCOUNT, ex.Field));
+      case UnAuthorizeActionException ex:
+        return new ObjectResult(new ApiError(ERROR_TYPES.ACTION_DENIED, ex.Message)) { StatusCode = 403 };
       default:
         Console.WriteLine(e.Message);
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.SERVER_ERROR, default));
