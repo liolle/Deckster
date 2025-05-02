@@ -8,67 +8,157 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
+using deckster.entities;
+using System.Security.Claims;
+using deckster.exceptions;
 
 namespace deckster.contollers;
 
-public class DeckController(ICardService cards) : ControllerBase 
+public class DeckController(ICardService cards) : ControllerBase
 {
 
   // Deck 
   [HttpPost]
-  [Route("deck")]
+  [Route("deck/add")]
   [EnableCors("AllowCredentials")]
   [Authorize]
   [Description("Create a deck")]
-  public IActionResult AddDeck()
+  public IActionResult AddDeck([FromBody] AddDeckCommand model)
   {
-    return IApiOutput.Response(null);
+
+    try
+    {
+      this.validModelOrThrow();
+
+      string account_id = User.FindFirst("AccountId")?.Value ?? "";
+      DeckEntity deck = DeckEntity.Create(account_id, model.Name);
+      model.AccountId = account_id;
+      model.DeckId = deck.Id;
+
+      CommandResult result = cards.Execute(model);
+
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null)
+        {
+          throw result.Exception;
+        }
+
+        return IApiOutput.Response(result.ErrorMessage);
+      }
+
+      DeckModel output = new(deck);
+
+      return IApiOutput.Response(output);
+    }
+    catch (Exception e)
+    {
+
+      return IApiOutput.ResponseError(e);
+    }
   }
 
   [HttpGet]
-  [Route("deck")]
+  [Route("decks")]
   [Authorize]
   [Description("Gets all user decks")]
-  public IActionResult GetDeckCards([FromQuery] string deckId)
+  public IActionResult GetDeckCards()
   {
-    return IApiOutput.Response(new{deck_id = deckId});
+    try
+    {
+      string account_id = User.FindFirst("AccountId")?.Value ?? "";
+
+      // TODO
+      // replace with a service call
+      List<DeckCardEntity> decks = [];
+
+      return IApiOutput.Response(decks);
+    }
+    catch (Exception e)
+    {
+
+      return IApiOutput.ResponseError(e);
+    }
   }
 
   [HttpDelete]
   [Route("deck")]
   [Authorize]
   [Description("Delete user decks")]
-  public IActionResult GetAllCard([FromQuery] int page, int size)
+  public IActionResult DeleteCard([FromQuery] string deckId)
   {
-    return IApiOutput.Response(new List<string>());
+    try
+    {
+      this.validModelOrThrow();
+      string account_id = User.FindFirst("AccountId")?.Value ?? "";
+
+      // TODO
+      // replace with a service call
+
+      return IApiOutput.Response(null);
+    }
+    catch (Exception e)
+    {
+
+      return IApiOutput.ResponseError(e);
+    }
   }
 
 
-  // Deck cards
-  [HttpPost]
-  [Route("deck/card")]
-  [EnableCors("AllowCredentials")]
-  [Authorize]
-  public IActionResult AddDeckCard()
-  {
-    return IApiOutput.Response(null);
-  }
 
   [HttpGet]
-  [Route("deck/card")]
+  [Route("deck/cards")]
   [EnableCors("AllowCredentials")]
   [Authorize]
-  public IActionResult GetDeckCard()
+  [Description("Gets deck with cars ")]
+  public IActionResult GetDeckCard([FromQuery] string deckId)
   {
-    return IApiOutput.Response(null);
+    try
+    {
+      this.validModelOrThrow();
+      string account_id = User.FindFirst("AccountId")?.Value ?? "";
+
+      // TODO
+      // replace with a service call
+
+      return IApiOutput.Response(null);
+    }
+    catch (Exception e)
+    {
+
+      return IApiOutput.ResponseError(e);
+    }
   }
 
-  [HttpDelete]
-  [Route("deck/card")]
+  [HttpPatch]
+  [Route("deck/cards")]
   [EnableCors("AllowCredentials")]
   [Authorize]
-  public IActionResult DeleteDeckCard()
+  [Description("Gets deck with cars ")]
+  public IActionResult UpdateDeckCard([FromBody] List<DeckModel> model)
   {
-    return IApiOutput.Response(null);
+    try
+    {
+      foreach (DeckModel deckCard in model)
+      {
+        if (!TryValidateModel(deckCard))
+        {
+          throw new InvalidRequestModelException([]);
+        }
+      }
+
+      string account_id = User.FindFirst("AccountId")?.Value ?? "";
+
+      // TODO
+      // replace with a service call
+
+      return IApiOutput.Response(null);
+    }
+    catch (Exception e)
+    {
+
+      return IApiOutput.ResponseError(e);
+    }
   }
+
 }

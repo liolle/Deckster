@@ -129,6 +129,7 @@ public partial class AuthService
         {
           userInfo = new CredentialInfoModel(
               (string)reader[nameof(UserEntity.Id)],
+              (string)reader["acid"],
               (string)reader[nameof(UserEntity.Email)],
               (string)reader[nameof(UserEntity.NickName)],
               (string)reader[nameof(CredentialEntity.Password)],

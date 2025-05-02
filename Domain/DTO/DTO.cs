@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Text.Json.Serialization;
+using deckster.entities;
 
 namespace deckster.dto;
 
@@ -23,13 +25,22 @@ public class BaseTokenClaims(string id, string email, string nickName, EProvider
   public string Email { get; set; } = email;
 }
 
-public class CredentialInfoModel(string id, string email, string nickName, string password, DateTime created_At)
+public class CredentialInfoModel(string id, string account_id, string email, string nickName, string password, DateTime created_At)
 {
+  [JsonPropertyName("id")]
   public string Id { get; } = id;
+
+  [JsonPropertyName("accountId")]
+  public string AccountId { get; } = account_id;
+  [JsonPropertyName("email")]
   public string Email { get; } = email;
+  [JsonPropertyName("nickname")]
   public string NickName { get; } = nickName;
+  [JsonPropertyName("password")]
   public string Password { get; } = password;
+  [JsonPropertyName("role")]
   public List<ERole> Roles { get; private set; } = [];
+  [JsonPropertyName("createdAt")]
   public DateTime Created_At { get; } = created_At;
 
   public void AddRole(List<ERole> roles)
@@ -47,6 +58,7 @@ public class CredentialInfoModel(string id, string email, string nickName, strin
     List<Claim> claims =
       [
       new(nameof(BaseTokenClaims.Id), Id.ToString()),
+      new("AccountId", AccountId.ToString()),
       new(nameof(BaseTokenClaims.Email), Email),
       new(nameof(BaseTokenClaims.NickName), NickName),
       new(nameof(BaseTokenClaims.Provider), EProvider.credential.ToString())
@@ -56,4 +68,37 @@ public class CredentialInfoModel(string id, string email, string nickName, strin
 
     return claims;
   }
+}
+
+
+public class DeckModel
+{
+  [JsonPropertyName("deck")]
+  DeckEntity Deck { get; init; }
+
+  [JsonPropertyName("cards")]
+  List<CardEntity> Cards { get; set; }
+
+
+  public DeckModel(DeckEntity deck)
+  {
+    Deck = deck;
+    Cards = [];
+  }
+
+  public DeckModel(DeckEntity deck, List<CardEntity> cards)
+  {
+    Deck = deck;
+    Cards = cards;
+  }
+}
+
+public class DeckDTO
+{
+  [JsonPropertyName("deckId")]
+  string DeckId { get; init; } = "";
+
+  [JsonPropertyName("cards")]
+  List<CardEntity> Cards { get; set; } = [];
+
 }

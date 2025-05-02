@@ -57,6 +57,7 @@ BEGIN
     [account_id] [nvarchar] (100) NOT NULL,
     [name] [nvarchar] (100) NOT NULL,
     CONSTRAINT PK_deck_id PRIMARY KEY ([id]),
+    CONSTRAINT U_deck_name UNIQUE ([name]),
     CONSTRAINT FK_deck_account_id FOREIGN KEY ([account_id]) REFERENCES [Accounts] ([id]) ON DELETE CASCADE ON UPDATE CASCADE
   );
   PRINT 'Table Decks created';
