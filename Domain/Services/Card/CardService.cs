@@ -11,59 +11,17 @@ namespace deckster.services;
 public interface ICardService :
 ICommandHandler<AddCardCommand>,
 ICommandHandler<AddDeckCommand>,
-  IQueryHandler<CardsQuery, List<CardEntity>>
+  IQueryHandler<CardsQuery, List<CardEntity>>,
+  IQueryHandler<UserDecksQuery, List<DeckEntity>>
 {
 }
 
 public partial class CardService(IDataContext context) : ICardService
 {
-  public CommandResult Execute(AddDeckCommand command)
-  {
 
-    string query = @"
-        INSERT INTO [Decks]([name],[account_id],[id])
-        VALUES(@Name,@AccountId,@DeckId)
-        ";
-
-    try
-    {
-
-      using SqlConnection conn = context.CreateConnection();
-
-      using SqlCommand cmd = new(query, conn);
-
-      cmd.Parameters.AddWithValue("@DeckId", command.DeckId);
-      cmd.Parameters.AddWithValue("@AccountId", command.AccountId);
-      cmd.Parameters.AddWithValue("@Name", command.Name);
-
-      int rowsAffected = context.ExecuteNonQuery(query, cmd);
-
-      if (rowsAffected < 1)
-      {
-        return ICommandResult.Failure("Card insertion failed");
-      }
-
-      return ICommandResult.Success();
-    }
-    catch (SqlException sqlEx) when (sqlEx.Number == 2627) // SQL Server unique constraint violation error code
-    {
-      string duplicateField = "default"; // default message
-
-      if (sqlEx.Message.Contains("U_deck_name"))
-      {
-        duplicateField = "name";
-      }
-
-      return ICommandResult.Failure("", new DuplicateFieldException(duplicateField));
-    }
-    catch (Exception e)
-    {
-      return ICommandResult.Failure("Server error", e);
-    }
-  }
 }
 
-
+// Commands
 public partial class CardService
 {
 
@@ -115,6 +73,58 @@ public partial class CardService
     }
   }
 
+  public CommandResult Execute(AddDeckCommand command)
+  {
+
+    string query = @"
+        INSERT INTO [Decks]([name],[account_id],[id])
+        VALUES(@Name,@AccountId,@DeckId)
+        ";
+
+    try
+    {
+
+      using SqlConnection conn = context.CreateConnection();
+
+      using SqlCommand cmd = new(query, conn);
+
+      cmd.Parameters.AddWithValue("@DeckId", command.DeckId);
+      cmd.Parameters.AddWithValue("@AccountId", command.AccountId);
+      cmd.Parameters.AddWithValue("@Name", command.Name);
+
+      int rowsAffected = context.ExecuteNonQuery(query, cmd);
+
+      if (rowsAffected < 1)
+      {
+        return ICommandResult.Failure("Card insertion failed");
+      }
+
+      return ICommandResult.Success();
+    }
+    catch (SqlException sqlEx) when (sqlEx.Number == 2627) // SQL Server unique constraint violation error code
+    {
+      string duplicateField = "default"; // default message
+
+      if (sqlEx.Message.Contains("U_deck_name"))
+      {
+        duplicateField = "name";
+      }
+
+      return ICommandResult.Failure("", new DuplicateFieldException(duplicateField));
+    }
+    catch (Exception e)
+    {
+      return ICommandResult.Failure("Server error", e);
+    }
+  }
+
+
+}
+
+// Queries
+public partial class CardService
+{
+
 
   public QueryResult<List<CardEntity>> Execute(CardsQuery query)
   {
@@ -154,6 +164,41 @@ public partial class CardService
     catch (Exception e)
     {
       return IQueryResult<List<CardEntity>>.Failure("", e);
+    }
+  }
+
+  public QueryResult<List<DeckEntity>> Execute(UserDecksQuery query)
+  {
+    try
+    {
+      List<DeckEntity> decks = [];
+
+      string sql_query = @"
+        SELECT * FROM [Decks]
+        WHERE [account_id] = @AccountId
+        ";
+
+      using SqlConnection conn = context.CreateConnection();
+
+      using SqlCommand cmd = new(sql_query, conn);
+      cmd.Parameters.AddWithValue("@AccountId", query.AccountId);
+
+      using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
+      while (reader.Read())
+      {
+        DeckEntity deck = new(
+            (string)reader[nameof(DeckEntity.Id)],
+            (string)reader[nameof(DeckEntity.Account_id)],
+            (string)reader[nameof(DeckEntity.Name)]
+            );
+        decks.Add(deck);
+      }
+
+      return IQueryResult<List<DeckEntity>>.Success(decks);
+    }
+    catch (Exception e)
+    {
+      return IQueryResult<List<DeckEntity>>.Failure("", e);
     }
   }
 }

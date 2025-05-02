@@ -11,6 +11,7 @@ using System.ComponentModel;
 using deckster.entities;
 using System.Security.Claims;
 using deckster.exceptions;
+using deckster.services.queries;
 
 namespace deckster.contollers;
 
@@ -39,11 +40,7 @@ public class DeckController(ICardService cards) : ControllerBase
 
       if (!result.IsSuccess)
       {
-        if (result.Exception is not null)
-        {
-          throw result.Exception;
-        }
-
+        if (result.Exception is not null) { throw result.Exception; }
         return IApiOutput.Response(result.ErrorMessage);
       }
 
@@ -59,24 +56,26 @@ public class DeckController(ICardService cards) : ControllerBase
   }
 
   [HttpGet]
-  [Route("decks")]
+  [Route("decks/me")]
   [Authorize]
   [Description("Gets all user decks")]
-  public IActionResult GetDeckCards()
+  public IActionResult GetUserDecks()
   {
     try
     {
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
+      QueryResult<List<DeckEntity>> result = cards.Execute(new UserDecksQuery(account_id));
 
-      // TODO
-      // replace with a service call
-      List<DeckCardEntity> decks = [];
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null) { throw result.Exception; }
+        return IApiOutput.Response(result.ErrorMessage);
+      }
 
-      return IApiOutput.Response(decks);
+      return IApiOutput.Response(result.Result);
     }
     catch (Exception e)
     {
-
       return IApiOutput.ResponseError(e);
     }
   }
