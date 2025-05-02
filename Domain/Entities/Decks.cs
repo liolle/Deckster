@@ -13,13 +13,21 @@ public class DeckEntity(string id, string account_id, string name)
   {
     return new(IdGererator.GenerateId("DK"), user_id, name);
   }
+
+  public override string ToString()
+  {
+    return $"=>{Id}: {Account_id}: {Name}";
+  }
 }
 
-public class DeckCardEntity(string deck_id, string card_id, int quatity)
+public class DeckCardEntity(string deckId, string cardId, int quantity)
 {
-  public string DeckId { get; init; } = deck_id;
-  public string CardId { get; init; } = card_id;
-  public int Quatity { get; init; } = quatity;
+  [JsonPropertyName("deckid")]
+  public string DeckId { get; init; } = deckId;
+  [JsonPropertyName("cardid")]
+  public string CardId { get; init; } = cardId;
+  [JsonPropertyName("quantity")]
+  public int Quantity { get; init; } = quantity;
 
 }
 

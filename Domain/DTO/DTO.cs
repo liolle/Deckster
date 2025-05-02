@@ -74,10 +74,10 @@ public class CredentialInfoModel(string id, string account_id, string email, str
 public class DeckModel
 {
   [JsonPropertyName("deck")]
-  DeckEntity Deck { get; init; }
+  public DeckEntity Deck { get; init; }
 
   [JsonPropertyName("cards")]
-  List<CardEntity> Cards { get; set; }
+  public List<DeckCardEntity> Cards { get; set; }
 
 
   public DeckModel(DeckEntity deck)
@@ -86,7 +86,7 @@ public class DeckModel
     Cards = [];
   }
 
-  public DeckModel(DeckEntity deck, List<CardEntity> cards)
+  public DeckModel(DeckEntity deck, List<DeckCardEntity> cards)
   {
     Deck = deck;
     Cards = cards;

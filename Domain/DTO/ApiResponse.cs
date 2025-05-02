@@ -9,8 +9,9 @@ public enum ERROR_TYPES
   INVALID_MODEL,
   INVALID_CREDENTIALS,
   INVALID_HEADER,
-  UNKNOW_ACCOUNT,
-  ACTION_DENIED
+  UNKNOWN_ACCOUNT,
+  ACTION_DENIED,
+  NOT_FOUND_ELEMENT
 }
 
 public class ApiError
@@ -41,14 +42,21 @@ public interface IApiOutput
       case InvalidCredentialException ex:
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.INVALID_CREDENTIALS, default));
 
-      case InvalidRequestModelException ex:
+      case InvalidRequestModelException<List<string>> ex:
+        return new BadRequestObjectResult(new ApiError(ERROR_TYPES.INVALID_MODEL, ex.Errors));
+
+      case InvalidRequestModelException<KeyValuePair<string, string[]?>[]?> ex:
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.INVALID_MODEL, ex.Errors));
 
       case InvalidHeaderException ex:
         return new UnauthorizedObjectResult(new ApiError(ERROR_TYPES.INVALID_HEADER, ex.Key));
 
+      case NotFoundElementException ex:
+        return new ObjectResult(new ApiError(ERROR_TYPES.NOT_FOUND_ELEMENT, ex.Message)) { StatusCode = 400 };
+
       case UnknownFieldException ex:
-        return new UnauthorizedObjectResult(new ApiError(ERROR_TYPES.UNKNOW_ACCOUNT, ex.Field));
+        return new UnauthorizedObjectResult(new ApiError(ERROR_TYPES.UNKNOWN_ACCOUNT, ex.Field));
+
       case UnAuthorizeActionException ex:
         return new ObjectResult(new ApiError(ERROR_TYPES.ACTION_DENIED, ex.Message)) { StatusCode = 403 };
       default:

@@ -1,5 +1,6 @@
 using deckster.cqs;
 using deckster.database;
+using deckster.dto;
 using deckster.entities;
 using deckster.exceptions;
 using deckster.services.commands;
@@ -12,8 +13,12 @@ public interface ICardService :
 ICommandHandler<AddCardCommand>,
 ICommandHandler<AddDeckCommand>,
 ICommandHandler<DeleteDeckCommand>,
+ICommandHandler<PatchDeckCommand>,
+ICommandHandler<GetDeckPermission>,
   IQueryHandler<CardsQuery, List<CardEntity>>,
-  IQueryHandler<UserDecksQuery, List<DeckEntity>>
+  IQueryHandler<UserDecksQuery, List<DeckEntity>>,
+  IQueryHandler<UserDecksInfoQuery, DeckModel>,
+  IQueryHandler<DeckCardsQuery, List<DeckCardEntity>>
 {
 }
 
@@ -125,7 +130,6 @@ public partial class CardService
         DELETE FROM [Decks]
         WHERE [id] = @DeckId AND [account_id] = @AccountId
         ";
-
     try
     {
 
@@ -149,12 +153,111 @@ public partial class CardService
       return ICommandResult.Failure("Server error", e);
     }
   }
+
+
+  public CommandResult Execute(DeleteDeckCardsCommand command)
+  {
+    string query = @"
+        DELETE FROM [Decks_cards]
+        WHERE [deck_id] = @DeckId 
+        ";
+
+    try
+    {
+
+      using SqlConnection conn = context.CreateConnection();
+      using SqlCommand cmd = new(query, conn);
+
+      cmd.Parameters.AddWithValue("@DeckId", command.DeckId);
+
+      int rowsAffected = context.ExecuteNonQuery(query, cmd);
+
+      if (rowsAffected < 1)
+      {
+        return ICommandResult.Failure("", new UnAuthorizeActionException("Permission Denied or No card in the deck"));
+      }
+
+      return ICommandResult.Success();
+    }
+    catch (Exception e)
+    {
+      return ICommandResult.Failure("Server error", e);
+    }
+  }
+
+
+  public CommandResult Execute(PatchDeckCommand command)
+  {
+
+
+
+    string valuesClause = string.Join(",", command.Cards.Select((_, i) =>
+    $"(@DeckId, @Card_{i}, @Quantity_{i})"));
+
+    string query = $@"
+    INSERT INTO [Decks_cards]([deck_id], [card_id], [quantity])
+    VALUES {valuesClause}";
+
+    try
+    {
+      using SqlConnection conn = context.CreateConnection();
+      using SqlCommand cmd = new(query, conn);
+
+      cmd.Parameters.AddWithValue($"@DeckId", command.DeckId);
+      for (int i = 0; i < command.Cards.Count; i++)
+      {
+        cmd.Parameters.AddWithValue($"@Card_{i}", command.Cards[i].CardId);
+        cmd.Parameters.AddWithValue($"@Quantity_{i}", command.Cards[i].Quantity);
+      }
+
+      int rowsAffected = context.ExecuteNonQuery(query, cmd);
+      if (rowsAffected < 1)
+      {
+        return ICommandResult.Failure("Failed to update deck");
+      }
+
+      return ICommandResult.Success();
+    }
+    catch (Exception e)
+    {
+      return ICommandResult.Failure("Server error", e);
+    }
+  }
+
+  public CommandResult Execute(GetDeckPermission command)
+  {
+    string query = @"
+    SELECT * FROM [Decks]
+    WHERE [id] = @DeckId AND [account_id] = @AccountId
+    ";
+
+    try
+    {
+      using SqlConnection conn = context.CreateConnection();
+      using SqlCommand cmd = new(query, conn);
+
+      cmd.Parameters.AddWithValue($"@DeckId", command.DeckId);
+      cmd.Parameters.AddWithValue($"@AccountId", command.AccountId);
+
+      SqlDataReader reader = context.ExecuteReader(query, cmd);
+      if (!reader.Read())
+      {
+        return ICommandResult.Failure("", new UnAuthorizeActionException("Permission Denied"));
+      }
+
+      return ICommandResult.Success();
+    }
+    catch (Exception e)
+    {
+      return ICommandResult.Failure("Server error", e);
+    }
+
+  }
 }
 
 // Queries
 public partial class CardService
 {
-
 
   public QueryResult<List<CardEntity>> Execute(CardsQuery query)
   {
@@ -229,6 +332,92 @@ public partial class CardService
     catch (Exception e)
     {
       return IQueryResult<List<DeckEntity>>.Failure("", e);
+    }
+  }
+
+  public QueryResult<DeckModel> Execute(UserDecksInfoQuery query)
+  {
+    try
+    {
+      DeckEntity? deck = null;
+
+      string sql_query = @"
+        SELECT * FROM [Decks]
+        WHERE [id] = @DeckId
+        ";
+
+      using SqlConnection conn = context.CreateConnection();
+
+      using SqlCommand cmd = new(sql_query, conn);
+      cmd.Parameters.AddWithValue("@DeckId", query.DeckId);
+
+      using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
+      if (reader.Read())
+      {
+        deck = new(
+           (string)reader[nameof(DeckEntity.Id)],
+           (string)reader[nameof(DeckEntity.Account_id)],
+           (string)reader[nameof(DeckEntity.Name)]
+           );
+      }
+      if (deck is null)
+      {
+
+
+        return IQueryResult<DeckModel>.Failure("", new NotFoundElementException(query.DeckId));
+      }
+
+      QueryResult<List<DeckCardEntity>> res = Execute(new DeckCardsQuery(deck.Id));
+
+      if (!res.IsSuccess)
+      {
+        return IQueryResult<DeckModel>.Failure("", res.Exception);
+      }
+
+      return IQueryResult<DeckModel>.Success(new DeckModel(deck, res.Result));
+
+    }
+    catch (Exception e)
+    {
+
+      return IQueryResult<DeckModel>.Failure("", e);
+    }
+  }
+
+  public QueryResult<List<DeckCardEntity>> Execute(DeckCardsQuery query)
+  {
+    try
+    {
+      List<DeckCardEntity> cards = [];
+
+      string sql_query = @"
+        SELECT 
+        *
+        FROM [Decks_cards] d
+        WHERE [deck_id] = @DeckId
+        ";
+
+      using SqlConnection conn = context.CreateConnection();
+
+      using SqlCommand cmd = new(sql_query, conn);
+      cmd.Parameters.AddWithValue("@DeckId", query.DeckId);
+
+      using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
+      while (reader.Read())
+      {
+        DeckCardEntity card = new(
+            (string)reader["deck_id"],
+            (string)reader["card_id"],
+            (int)reader[nameof(DeckCardEntity.Quantity)]
+            );
+        cards.Add(card);
+      }
+
+      return IQueryResult<List<DeckCardEntity>>.Success(cards);
+    }
+    catch (Exception e)
+    {
+      return IQueryResult<List<DeckCardEntity>>.Failure("", e);
     }
   }
 }

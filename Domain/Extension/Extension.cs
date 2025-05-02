@@ -15,7 +15,7 @@ public static class ModelStateExtesion
           val => val.Key,
           val => val.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
           ).ToArray();
-    throw new InvalidRequestModelException(errors);
+    throw new InvalidRequestModelException<KeyValuePair<string, string[]?>[]?>(errors);
   }
 
 

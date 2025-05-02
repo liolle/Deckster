@@ -112,20 +112,21 @@ public class DeckController(ICardService cards) : ControllerBase
 
   [HttpGet]
   [Route("deck/cards")]
-  [EnableCors("AllowCredentials")]
-  [Authorize]
   [Description("Gets deck with cars ")]
   public IActionResult GetDeckCard([FromQuery] string deckId)
   {
     try
     {
       this.validModelOrThrow();
-      string account_id = User.FindFirst("AccountId")?.Value ?? "";
 
-      // TODO
-      // replace with a service call
+      QueryResult<DeckModel> result = cards.Execute(new UserDecksInfoQuery(deckId));
 
-      return IApiOutput.Response(null);
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null) { throw result.Exception; }
+        return IApiOutput.Response(result.ErrorMessage);
+      }
+      return IApiOutput.Response(result.Result);
     }
     catch (Exception e)
     {
@@ -138,29 +139,41 @@ public class DeckController(ICardService cards) : ControllerBase
   [Route("deck/cards")]
   [EnableCors("AllowCredentials")]
   [Authorize]
-  [Description("Gets deck with cars ")]
-  public IActionResult UpdateDeckCard([FromBody] List<DeckModel> model)
+  [Description("Patch deck ")]
+  public IActionResult UpdateDeckCard([FromBody] PatchDeckCommand model)
   {
     try
     {
-      foreach (DeckModel deckCard in model)
+      this.validModelOrThrow();
+
+      List<string> errors = model.Validate();
+
+      if (errors.Count > 0)
       {
-        if (!TryValidateModel(deckCard))
-        {
-          throw new InvalidRequestModelException([]);
-        }
+        throw new InvalidRequestModelException<List<string>>(errors);
       }
 
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
 
-      // TODO
-      // replace with a service call
+      CommandResult permissionResult = cards.Execute(new GetDeckPermission(model.DeckId, account_id));
+
+      if (!permissionResult.IsSuccess)
+      {
+        if (permissionResult.Exception is not null) { throw permissionResult.Exception; }
+        return IApiOutput.Response(permissionResult.ErrorMessage);
+      }
+
+      CommandResult result = cards.Execute(model);
+      if (!result.IsSuccess)
+      {
+        if (result.Exception is not null) { throw result.Exception; }
+        return IApiOutput.Response(result.ErrorMessage);
+      }
 
       return IApiOutput.Response(null);
     }
     catch (Exception e)
     {
-
       return IApiOutput.ResponseError(e);
     }
   }

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using deckster.cqs;
+using deckster.dto;
 using deckster.entities;
 
 namespace deckster.services.queries;
@@ -16,4 +18,15 @@ public class CardsQuery(int page, int size) : IQueryDefinition<List<CardEntity>>
 public class UserDecksQuery(string account_id) : IQueryDefinition<List<DeckEntity>>
 {
   public string AccountId = account_id;
+}
+
+public class UserDecksInfoQuery(string deck_id) : IQueryDefinition<DeckModel>
+{
+  [JsonPropertyName("deckId")]
+  public string DeckId = deck_id;
+}
+
+public class DeckCardsQuery(string deck_id) : IQueryDefinition<List<DeckCardEntity>>
+{
+  public string DeckId = deck_id;
 }

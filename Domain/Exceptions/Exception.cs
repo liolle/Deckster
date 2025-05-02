@@ -15,9 +15,9 @@ public class UnknownFieldException(string field_name) : Exception($"Unknown fiel
   public string Field { get; init; } = field_name;
 }
 
-public class InvalidRequestModelException(KeyValuePair<string, string[]?>[]? errors) : Exception($"Invalid Model")
+public class InvalidRequestModelException<T>(T errors) : Exception($"Invalid Model")
 {
-  public KeyValuePair<string, string[]?>[]? Errors { get; init; } = errors;
+  public T Errors { get; init; } = errors;
 }
 
 public class NotFoundElementException(string key) : Exception($"Not found element:\n {key}")
