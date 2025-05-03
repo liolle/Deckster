@@ -19,7 +19,7 @@ ICommandHandler<DeleteDeckCardsCommand>,
   IQueryHandler<CardsQuery, List<CardEntity>>,
   IQueryHandler<UserDecksQuery, List<DeckEntity>>,
   IQueryHandler<UserDecksInfoQuery, DeckModel>,
-  IQueryHandler<DeckCardsQuery, List<DeckCardEntity>>
+  IQueryHandler<DeckCardsQuery, List<DeckCard>>
 {
 }
 
@@ -368,7 +368,7 @@ public partial class CardService
         return IQueryResult<DeckModel>.Failure("", new NotFoundElementException(query.DeckId));
       }
 
-      QueryResult<List<DeckCardEntity>> res = Execute(new DeckCardsQuery(deck.Id));
+      QueryResult<List<DeckCard>> res = Execute(new DeckCardsQuery(deck.Id));
 
       if (!res.IsSuccess)
       {
@@ -385,16 +385,23 @@ public partial class CardService
     }
   }
 
-  public QueryResult<List<DeckCardEntity>> Execute(DeckCardsQuery query)
+  public QueryResult<List<DeckCard>> Execute(DeckCardsQuery query)
   {
     try
     {
-      List<DeckCardEntity> cards = [];
+      List<DeckCard> cards = [];
 
       string sql_query = @"
         SELECT 
-        *
+        d.card_id AS cardId,
+        d.quantity AS quantity,
+        c.name AS name,
+        c.cost AS cost,
+        c.defense AS defense,
+        c.strength AS strength,
+        c.image AS image
         FROM [Decks_cards] d
+        LEFT JOIN [Cards] c ON c.id = d.card_id
         WHERE [deck_id] = @DeckId
         ";
 
@@ -406,19 +413,23 @@ public partial class CardService
       using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
       while (reader.Read())
       {
-        DeckCardEntity card = new(
-            (string)reader["deck_id"],
-            (string)reader["card_id"],
-            (int)reader[nameof(DeckCardEntity.Quantity)]
+        DeckCard card = new(
+            (string)reader[nameof(DeckCard.CardId)],
+            (string)reader[nameof(DeckCard.Name)],
+            (int)reader[nameof(DeckCard.Quantity)],
+            (int)reader[nameof(DeckCard.Defense)],
+            (int)reader[nameof(DeckCard.Cost)],
+            (int)reader[nameof(DeckCard.Strength)],
+            (string)reader[nameof(DeckCard.Image)]
             );
         cards.Add(card);
       }
 
-      return IQueryResult<List<DeckCardEntity>>.Success(cards);
+      return IQueryResult<List<DeckCard>>.Success(cards);
     }
     catch (Exception e)
     {
-      return IQueryResult<List<DeckCardEntity>>.Failure("", e);
+      return IQueryResult<List<DeckCard>>.Failure("", e);
     }
   }
 }

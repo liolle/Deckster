@@ -26,7 +26,7 @@ public class UserDecksInfoQuery(string deck_id) : IQueryDefinition<DeckModel>
   public string DeckId = deck_id;
 }
 
-public class DeckCardsQuery(string deck_id) : IQueryDefinition<List<DeckCardEntity>>
+public class DeckCardsQuery(string deck_id) : IQueryDefinition<List<DeckCard>>
 {
   public string DeckId = deck_id;
 }

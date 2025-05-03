@@ -77,7 +77,7 @@ public class DeckModel
   public DeckEntity Deck { get; init; }
 
   [JsonPropertyName("cards")]
-  public List<DeckCardEntity> Cards { get; set; }
+  public List<DeckCard> Cards { get; set; }
 
 
   public DeckModel(DeckEntity deck)
@@ -86,19 +86,29 @@ public class DeckModel
     Cards = [];
   }
 
-  public DeckModel(DeckEntity deck, List<DeckCardEntity> cards)
+  public DeckModel(DeckEntity deck, List<DeckCard> cards)
   {
     Deck = deck;
     Cards = cards;
   }
 }
 
-public class DeckDTO
+public class DeckCard(string cardId, string name, int quantity, int defense, int cost, int strength, string image)
 {
-  [JsonPropertyName("deckId")]
-  string DeckId { get; init; } = "";
+  [JsonPropertyName("cardid")]
+  public string CardId { get; init; } = cardId;
+  [JsonPropertyName("quantity")]
+  public int Quantity { get; init; } = quantity;
 
-  [JsonPropertyName("cards")]
-  List<CardEntity> Cards { get; set; } = [];
+  [JsonPropertyName("name")]
+  public string Name { get; init; } = name;
+  [JsonPropertyName("defense")]
+  public int Defense { get; init; } = defense;
+  [JsonPropertyName("cost")]
+  public int Cost { get; init; } = cost;
+  [JsonPropertyName("strength")]
+  public int Strength { get; init; } = strength;
+  [JsonPropertyName("image")]
+  public string Image { get; init; } = image;
 
 }
