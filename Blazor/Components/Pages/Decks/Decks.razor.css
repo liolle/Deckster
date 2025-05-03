@@ -1,0 +1,74 @@
+/* Global */
+.main-container {
+    flex: 1;
+    display: flex;
+    padding: .5rem;
+}
+
+main {
+    height: 100%;
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+}
+
+
+/* Main */
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-bar {
+    max-width: 100%;
+    width: fit-content;
+    min-width: 4rem;
+    flex-basis: 2rem;
+    display: flex;
+    gap: 1rem;
+    user-select: none;
+}
+
+/** Display **/
+.display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+/** Tab bar **/
+.tab-btn {
+    position: relative;
+    font-family: monospace;
+    font-size: medium;
+    font-weight: bold;
+    font-style: italic;
+    padding: .5rem 1rem;
+    border-radius: .5rem .5rem 0 0;
+    cursor: pointer;
+    color: var(--secondary-color);
+    width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--secondary-color);
+    border-bottom: 0;
+}
+
+.tab-selected,
+.tab-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+
+/* Side bar */
+
+.sidebar {
+    flex-basis: 15%;
+    border-radius: 1rem;
+    border: 1px solid var(--secondary-color);
+}

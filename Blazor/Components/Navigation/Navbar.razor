@@ -28,6 +28,21 @@
                     </Authorized>
                 </AuthorizeView>
             </div>
+
+            <div @onclick="NavigateToDecks" class="nav-link-container">
+                <AuthorizeView>
+                    <Authorized>
+                        @if (@Page == "decks")
+                        {
+                            <span class="nav-link active-link">Decks</span>
+                        }
+                        else
+                        {
+                            <span class="nav-link">Decks</span>
+                        }
+                    </Authorized>
+                </AuthorizeView>
+            </div>
         </div>
         <div class="navbar-right">
             <AuthorizeView>

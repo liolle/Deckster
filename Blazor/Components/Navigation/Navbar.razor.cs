@@ -30,11 +30,6 @@ public partial class Navbar : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         await Task.CompletedTask;
-        /*
-        if (AuthProvider is null) { return; }
-        AuthenticationState authState = await AuthProvider.GetAuthenticationStateAsync();
-        ClaimsPrincipal user = authState.User;
-        */
     }
 
     private void SetPage()
@@ -62,6 +57,11 @@ public partial class Navbar : ComponentBase
     public void NavigateToCard()
     {
         Navigation?.NavigateTo("/cards");
+    }
+
+    public void NavigateToDecks()
+    {
+        Navigation?.NavigateTo("/decks");
     }
 
     public async Task Logout()

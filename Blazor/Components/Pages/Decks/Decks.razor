@@ -1,0 +1,49 @@
+@page "/decks"
+
+@using Blazor.Components.Navigation
+@using Blazor.Components.Redirect.RedirectOnClaim
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>Decks</PageTitle>
+<RedirectOnClaim ClaimName="Id" RedirectOnFailure="/" />
+<div class="page-container">
+    <Navbar />
+    <div class="main-container">
+        <main>
+
+            <section class="main">
+                <div class="tab-bar">
+                    <div class="tab-btn @ShowSelected("decks")" @onclick="SelectDeck">
+                        <span>Decks</span>
+                    </div>
+                    <div class="tab-btn @ShowSelected("cards")" @onclick="SelectCards">
+                        <span>Cards</span>
+                    </div>
+                </div>
+                <div class="display">
+                    @if (SelectedTab == "decks")
+                    {
+                        <div>
+                            <span>Should display list of user decks</span>
+                        </div>
+                    }
+                    else if (SelectedTab == "cards")
+                    {
+                        <div>
+                            <span>Should display available Cards</span>
+                        </div>
+                    }
+
+                </div>
+
+            </section>
+            <section class="sidebar">
+
+
+            </section>
+        </main>
+
+    </div>
+</div>
