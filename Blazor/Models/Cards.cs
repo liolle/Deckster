@@ -60,3 +60,37 @@ public class AddCardModel
     }
 
 }
+
+public class Deck(string id, string name)
+{
+    public string Id { get; init; } = id;
+    public string Name { get; init; } = name;
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Deck other)
+        { return false; }
+
+        return Id == other.Id;
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
+
+}
+
+public class AddDeckModel
+{
+    [Required(ErrorMessage = "You need to specify a name for the deck")]
+    [JsonPropertyName("name")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "Name must be between 1 and 100 characters")]
+    public string Name { get; set; } = "";
+
+
+    public void Reset()
+    {
+        Name = "";
+    }
+}

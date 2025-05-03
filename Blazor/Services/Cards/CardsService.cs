@@ -8,9 +8,11 @@ public interface ICardsService
 {
     Task<List<Card>> GetAllCards();
     Task<string> AddCard(AddCardModel card);
+    Task<List<Deck>> GetUserDeck();
+    Task<string> AddDeck(AddDeckModel deck);
 }
 
-public class CardsService : ICardsService
+public partial class CardsService : ICardsService
 {
     HttpClient _client;
     HttpInfoService _info;
@@ -36,6 +38,13 @@ public class CardsService : ICardsService
         _client.DefaultRequestHeaders.Add(CSRF_HEADER_NAME, $"{_info.CSRF_CODE}");
     }
 
+
+}
+
+
+// Cards related calls
+public partial class CardsService : ICardsService
+{
     public async Task<string> AddCard(AddCardModel card)
     {
         try
@@ -105,4 +114,80 @@ public class CardsService : ICardsService
         return [];
     }
 
+}
+
+
+// Deck related calls 
+public partial class CardsService
+{
+    public async Task<List<Deck>> GetUserDeck()
+    {
+        try
+        {
+            HttpResponseMessage response = await _client.GetAsync("decks/me");
+            if (!response.IsSuccessStatusCode)
+            {
+                return [];
+            }
+            string json = await response.Content.ReadAsStringAsync();
+
+            JsonSerializerOptions JsonOptions = new()
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            return JsonSerializer.Deserialize<List<Deck>>(json, JsonOptions) ?? [];
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return [];
+    }
+
+    public async Task<string> AddDeck(AddDeckModel deck)
+    {
+        try
+        {
+            string content = JsonSerializer.Serialize(deck);
+            StringContent httpContent = new(content, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync("deck/add", httpContent);
+
+
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                string json = await response.Content.ReadAsStringAsync();
+
+                JsonSerializerOptions JsonOptions = new()
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+
+                APIError? output = JsonSerializer.Deserialize<APIError>(json, JsonOptions);
+
+                return output?.ToString() ?? "";
+            }
+
+
+            response.EnsureSuccessStatusCode();
+
+
+            return "";
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"HTTP Error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        return "Failed to Add Deck";
+    }
 }

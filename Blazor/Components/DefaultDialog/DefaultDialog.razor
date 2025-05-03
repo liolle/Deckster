@@ -1,0 +1,10 @@
+@if (Visible)
+{
+    <div class="dialog-overlay" @onclick="OverlayClose">
+        <div class="dialog-container" @onclick:stopPropagation="true">
+            <div class="dialog-body">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}

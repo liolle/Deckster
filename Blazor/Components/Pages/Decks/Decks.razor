@@ -1,7 +1,9 @@
 @page "/decks"
 
+@using Blazor.Components.DefaultDialog
 @using Blazor.Components.Navigation
 @using Blazor.Components.Redirect.RedirectOnClaim
+@using Blazor.models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode InteractiveServer
@@ -9,6 +11,48 @@
 <PageTitle>Decks</PageTitle>
 <RedirectOnClaim ClaimName="Id" RedirectOnFailure="/" />
 <div class="page-container">
+    <DefaultDialog @ref="addDeckDialog" CloseOnOverlayClick="false">
+        <div class="dialog-core-container">
+            <div class="dialog-core">
+                <div class="dialog-top-container">
+                    <div class="dialog-top">
+                        <div class="title">
+                            <span>Add Decks</span>
+                        </div>
+                        <div @onclick="CloseAddDeckDialog" class="close-btn">
+                            <span>X</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="dialog-main">
+                    <div class="form-main">
+                        <EditForm Model="Model" OnValidSubmit="SubmitNewDeck">
+                            <div class="form-container">
+                                <DataAnnotationsValidator />
+
+                                <div class="form-element">
+                                    <div class="form-input">
+                                        <label>Decks Name </label>
+                                        <InputText @bind-Value="Model.Name" class="input" />
+                                    </div>
+                                    <div class="form-input-error">
+                                        <ValidationMessage For="@(() => Model.Name)" />
+                                    </div>
+                                </div>
+                                <div class="btn-container">
+                                    <button type="submit" class="btn">
+                                        <span>Add</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </DefaultDialog>
     <Navbar />
     <div class="main-container">
         <main>
@@ -25,8 +69,18 @@
                 <div class="display">
                     @if (SelectedTab == "decks")
                     {
-                        <div>
-                            <span>Should display list of user decks</span>
+                        <div class="deck-list">
+
+                            @foreach (Deck d in Deck_list)
+                            {
+                                <div class="deck-item-container @ShowSelectedDeck(d)" @onclick="()=>SelectDeck(d)">
+                                    <span>@d.Name</span>
+                                </div>
+                            }
+
+                            <button @onclick="OpenAddDeckDialog" class="add-deck-btn">
+                                Add
+                            </button>
                         </div>
                     }
                     else if (SelectedTab == "cards")
@@ -39,8 +93,31 @@
                 </div>
 
             </section>
-            <section class="sidebar">
+            <section class="sidebar-container">
+                @if (SelectedDeck is not null)
+                {
+                    <div class="sidebar">
+                        <div class="sidebar-top-container">
+                            <div class="sidebar-top">
+                                <div class="title">
+                                    <span>@SelectedDeck.Name</span>
+                                </div>
+                                <div class="del-btn">
+                                    <span>X</span>
+                                </div>
 
+                            </div>
+                        </div>
+
+                        <div class="sidebar-cards">
+
+                        </div>
+
+                        <div class="sidebar-bottom">
+
+                        </div>
+                    </div>
+                }
 
             </section>
         </main>

@@ -6,6 +6,7 @@ namespace deckster.entities;
 public class DeckEntity(string id, string account_id, string name)
 {
   public string Id { get; init; } = id;
+  [JsonIgnore]
   public string Account_id { get; init; } = account_id;
   public string Name { get; init; } = name;
 
@@ -23,6 +24,7 @@ public class DeckEntity(string id, string account_id, string name)
 public class DeckCardEntity(string deckId, string cardId, int quantity)
 {
   [JsonPropertyName("deckid")]
+  [JsonIgnore]
   public string DeckId { get; init; } = deckId;
   [JsonPropertyName("cardid")]
   public string CardId { get; init; } = cardId;

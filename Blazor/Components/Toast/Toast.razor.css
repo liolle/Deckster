@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px;
+    padding: .5rem 1rem;
     border-radius: .5rem;
     color: var(--secondary-color);
     border: 1px solid var(--secondary-color);
@@ -11,22 +11,28 @@
     font-style: italic;
     box-shadow: -10 20px 2px #000;
     animation: slide-in .5s linear;
+    z-index: 1000;
+    background-color: var(--primary-color);
 }
 
 .INFO {
     border: 1px solid var(--accent-color);
+    background-color: var(--accent-color);
 }
 
 .ERROR {
     border: 1px solid red;
+    background-color: red;
 }
 
 .WARNING {
     border: 1px solid orange;
+    background-color: orange;
 }
 
 .SUCCESS {
-    border: 1px solid rgb(1, 187, 1);
+    border: 1px solid green;
+    background-color: green;
 }
 
 .toast-close-button {
@@ -42,6 +48,7 @@
     font-size: 12px;
     font-weight: bold;
     cursor: pointer;
+
 }
 
 .toast-close-button:hover {
