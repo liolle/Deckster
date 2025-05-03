@@ -11,6 +11,9 @@ public partial class TCard : ComponentBase
     [Parameter, EditorRequired]
     public Card CCard { get; set; } = null!;
 
+    [Parameter]
+    public int Quantity { get; set; } = 0;
+
     private string FILE_SERVER = "";
     private string DEFAULT_CARD = "";
     string? Image;
@@ -37,5 +40,15 @@ public partial class TCard : ComponentBase
         {
             Image = Image = $"{FILE_SERVER}/{DEFAULT_CARD}";
         }
+    }
+
+    private string GetCount()
+    {
+        return $"x{Quantity}";
+    }
+
+    private string MaxedStatus()
+    {
+        return Quantity >= 5 ? "maxed" : "";
     }
 }

@@ -1,7 +1,7 @@
 .toast-message-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 1rem;
+    left: 1rem;
     width: 400px;
     z-index: 1000;
     border-radius: 1rem;

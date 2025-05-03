@@ -10,6 +10,7 @@ public interface ICardsService
     Task<string> AddCard(AddCardModel card);
     Task<List<Deck>> GetUserDeck();
     Task<string> AddDeck(AddDeckModel deck);
+    Task<DeckInfo?> GetDeckInfo(string deckId);
 }
 
 public partial class CardsService : ICardsService
@@ -37,9 +38,8 @@ public partial class CardsService : ICardsService
         _client.DefaultRequestHeaders.Add("Cookie", $"{CSRF_COOKIE_NAME}={_info.CSRF_COOKIE}");
         _client.DefaultRequestHeaders.Add(CSRF_HEADER_NAME, $"{_info.CSRF_CODE}");
     }
-
-
 }
+
 
 
 // Cards related calls
@@ -189,5 +189,33 @@ public partial class CardsService
             Console.WriteLine($"Error: {ex.Message}");
         }
         return "Failed to Add Deck";
+    }
+
+
+    public async Task<DeckInfo?> GetDeckInfo(string deckId)
+    {
+        try
+        {
+            HttpResponseMessage response = await _client.GetAsync($"deck/cards?deckId={deckId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            string json = await response.Content.ReadAsStringAsync();
+
+
+            JsonSerializerOptions JsonOptions = new()
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            return JsonSerializer.Deserialize<DeckInfo>(json, JsonOptions) ?? null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return null;
     }
 }

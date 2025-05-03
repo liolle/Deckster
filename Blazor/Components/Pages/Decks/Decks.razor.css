@@ -53,6 +53,15 @@ main {
     gap: 1rem;
 }
 
+.card-list {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    gap: 4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 .add-deck-btn {
     position: absolute;
     bottom: 1rem;
@@ -64,7 +73,7 @@ main {
     font-size: medium;
     font-weight: bold;
     font-style: italic;
-    border: 1px solid var(--secondary-color);
+    outline: 1px solid var(--secondary-color);
     border-radius: .5rem;
     width: 20rem;
     height: 1.5rem;
@@ -76,7 +85,7 @@ main {
 }
 
 .deck-selected {
-    border: 1px solid var(--accent-color);
+    outline: 3px solid var(--accent-color);
 }
 
 
@@ -122,6 +131,11 @@ main {
 
 .sidebar-cards {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: .5rem;
+    user-select: none;
 }
 
 .dialog-top-container,
@@ -171,6 +185,70 @@ main {
     color: var(--secondary-color);
 }
 
+.sidebar-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-bottom .card-counter {
+    font-size: x-large;
+    font-weight: bold;
+}
+
+.sidebar-bottom .card-counter.maxed {
+    color: green;
+}
+
+.card-counter span.num {
+    display: inline-block;
+    text-align: center;
+    width: 30px;
+}
+
+.sidebar-bottom button {
+    width: 80px;
+}
+
+/* Sidebar Card */
+
+.sidebar-card-container {
+    display: flex;
+    gap: .25rem;
+    height: 2.5rem;
+    outline: 1px solid var(--secondary-color);
+    border-radius: .5rem;
+    align-items: center;
+    padding: .25rem .5rem;
+    cursor: pointer;
+}
+
+.card-info {
+    display: flex;
+    justify-content: center;
+    font-size: small;
+
+}
+
+.card-cost,
+.card-quantity {
+    font-size: large;
+    flex-basis: 15%;
+}
+
+.card-name {
+    flex: 1;
+    justify-content: flex-start;
+}
+
+.card-selected {
+    outline: 3px solid var(--accent-color);
+}
+
+
+/* Add Deck Dialog */
+
+
 .dialog-top {
     font-family: monospace;
     font-size: large;
@@ -195,7 +273,7 @@ main {
     flex-direction: column;
 }
 
-/* Add Deck Dialog */
+
 
 .dialog-core-container {
     border-radius: .5rem;

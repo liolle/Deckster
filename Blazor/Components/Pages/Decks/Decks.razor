@@ -3,6 +3,7 @@
 @using Blazor.Components.DefaultDialog
 @using Blazor.Components.Navigation
 @using Blazor.Components.Redirect.RedirectOnClaim
+@using Blazor.Components.TCard
 @using Blazor.models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -85,8 +86,11 @@
                     }
                     else if (SelectedTab == "cards")
                     {
-                        <div>
-                            <span>Should display available Cards</span>
+                        <div class="card-list">
+                            @foreach (Card c in Card_list)
+                            {
+                                <TCard Quantity=GetCardCount(c.Id) CCard="c"></TCard>
+                            }
                         </div>
                     }
 
@@ -110,11 +114,42 @@
                         </div>
 
                         <div class="sidebar-cards">
+                            @if (SelectedDeckInfo is not null)
+                            {
+                                @foreach (DeckCard card in SelectedDeckInfo.Cards)
+                                {
+                                    <div @onclick="()=>SelectCard(card)" class="sidebar-card-container @ShowSelectedCard(card)">
+                                        <div class="card-info card-cost">
+                                            <span>
+                                                @card.Cost
+                                            </span>
+                                        </div>
+                                        <div class="card-info card-name">
+                                            @card.Name
+                                        </div>
+                                        <div class="card-info card-quantity">
+                                            <span>
+                                                x @card.Quantity
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+
+                            }
 
                         </div>
 
                         <div class="sidebar-bottom">
-
+                            <div class="card-counter @MaxedStatus()">
+                                <span class="num">@(SelectedDeckInfo?.Count ?? 0)</span>
+                                <span>/</span>
+                                <span class="num">30</span>
+                            </div>
+                            <button @onclick="SaveDeck">
+                                <span>
+                                    Save
+                                </span>
+                            </button>
                         </div>
                     </div>
                 }

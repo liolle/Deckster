@@ -1,14 +1,86 @@
 .card-container {
     width: 16rem;
-    overflow: hidden;
-    height: fit-content;
+    height: 357px;
     border-radius: 1rem;
+    overflow: hidden;
     cursor: pointer;
+    position: relative;
+}
+
+.out-layer {
+    position: relative;
+    height: fit-content;
 }
 
 
 img {
-    object-fit: cover;
     width: 100%;
-    overflow: hidden;
+    height: 100%;
+}
+
+.card-counter {
+    position: absolute;
+    bottom: -35px;
+    left: calc(50% - 34px);
+    width: fit-content;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: monospace;
+    font-style: italic;
+    font-size: x-large;
+    font-weight: bold;
+    z-index: 100;
+
+}
+
+.marker {
+    position: absolute;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: x-large;
+}
+
+.card-cost {
+    top: 1.2rem;
+    left: 1rem;
+    width: 20px;
+    height: 20px;
+    color: var(--secondary-color);
+}
+
+
+.card-strength {
+    top: 55.5%;
+    right: 17.9%;
+    width: 23px;
+    height: 23px;
+    color: var(--primary-color);
+}
+
+.card-defense {
+    top: 55.5%;
+    right: 6.2%;
+    width: 24px;
+    height: 24px;
+    color: var(--primary-color);
+}
+
+.card-counter .num {
+    display: inline-block;
+    text-align: center;
+    width: 30px;
+}
+
+.num.denominator {
+    width: 15px;
+}
+
+.maxed {
+    color: green;
 }

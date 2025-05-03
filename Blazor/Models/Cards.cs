@@ -61,6 +61,52 @@ public class AddCardModel
 
 }
 
+public class DeckCard(string cardId, string name, int quantity, int defense, int cost, int strength, string image)
+{
+    public string CardId { get; set; } = cardId;
+    public int Quantity { get; set; } = quantity;
+    public string Name { get; set; } = name;
+    public int Defense { get; set; } = defense;
+    public int Cost { get; set; } = cost;
+    public int Strength { get; set; } = strength;
+    public string Image { get; set; } = image;
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not DeckCard other)
+        { return false; }
+
+        return CardId == other.CardId;
+    }
+
+    public override int GetHashCode()
+    {
+        return CardId.GetHashCode();
+    }
+}
+
+public class DeckInfo(Deck deck, List<DeckCard> cards)
+{
+    public Deck Deck { get; set; } = deck;
+
+    public List<DeckCard> Cards { get; set; } = cards;
+
+    public int Count
+    {
+        get
+        {
+            int output = 0;
+            foreach (DeckCard item in Cards)
+            {
+                output += item.Quantity;
+            }
+
+            return output;
+        }
+    }
+}
+
+
 public class Deck(string id, string name)
 {
     public string Id { get; init; } = id;
