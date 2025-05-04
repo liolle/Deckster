@@ -21,13 +21,14 @@
 }
 
 .ERROR {
-    border: 1px solid red;
-    background-color: red;
+    border: 1px solid #ce0b0b;
+    background-color: #ce0b0b;
 }
 
 .WARNING {
     border: 1px solid orange;
     background-color: orange;
+    color: var(--primary-color);
 }
 
 .SUCCESS {

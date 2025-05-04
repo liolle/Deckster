@@ -89,7 +89,9 @@
                         <div class="card-list">
                             @foreach (Card c in Card_list)
                             {
-                                <TCard Quantity=GetCardCount(c.Id) CCard="c"></TCard>
+                                <div @onclick="(e) => HandleCardClick(e, c)">
+                                    <TCard Quantity=GetCardCount(c.Id) CCard="c"></TCard>
+                                </div>
                             }
                         </div>
                     }

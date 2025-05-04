@@ -21,11 +21,11 @@ public class DeckEntity(string id, string account_id, string name)
   }
 }
 
-public class DeckCardEntity(string deckId, string cardId, int quantity)
+public class DeckCardEntity(string cardId, int quantity, string? deckId)
 {
   [JsonPropertyName("deckid")]
   [JsonIgnore]
-  public string DeckId { get; init; } = deckId;
+  public string DeckId { get; init; } = deckId ?? "";
   [JsonPropertyName("cardid")]
   public string CardId { get; init; } = cardId;
   [JsonPropertyName("quantity")]

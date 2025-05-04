@@ -3,6 +3,7 @@ using Blazor.models;
 using Blazor.services;
 using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using DefaultD = Blazor.Components.DefaultDialog.DefaultDialog;
 
 
@@ -148,13 +149,71 @@ public partial class Decks : ComponentBase
         if (SelectedDeckInfo is null)
         { return 0; }
 
-        return SelectedDeckInfo.Cards.Find(c => c.CardId == id)?.Quantity ?? 0;
+        return SelectedDeckInfo.CountById(id);
     }
 
     private async Task SaveDeck()
     {
+        if (SelectedDeckInfo is null || cardsService is null)
+        { return; }
         await Task.CompletedTask;
-        _toast?.Add(new CToast(TOAST_TYPE.INFO, "Test", 0));
 
+        List<string> errs = SelectedDeckInfo.ValidateDeck();
+
+        if (errs.Count > 0)
+        {
+
+            foreach (string item in errs)
+            {
+                _toast?.Add(new CToast(TOAST_TYPE.ERROR, item, 0));
+            }
+
+            return;
+        }
+
+        string error = await cardsService.PatchDeck(SelectedDeckInfo.GetPatchModel());
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            _toast?.Add(new CToast(TOAST_TYPE.ERROR, error, 0));
+            return;
+
+        }
+
+        _toast?.Add(new CToast(TOAST_TYPE.SUCCESS, "Deck updated successfully", 4000));
+    }
+
+    private void HandleCardClick(MouseEventArgs e, Card c)
+    {
+        if (SelectedDeckInfo is null)
+        {
+            return;
+        }
+
+        List<string> errors = [];
+
+        if (e.ShiftKey)
+        {
+            // remove one copy on SHIFT Click 
+            SelectedDeckInfo.RemoveCard(c.Id).ForEach(err =>
+            {
+                errors.Add(err);
+            });
+        }
+        else
+        {
+            // Add a copy on Click
+
+            DeckCard new_card = new DeckCard(c.Id, c.Name, 1, c.Defense, c.Cost, c.Strength, c.Image);
+            SelectedDeckInfo.AddCard(new_card).ForEach(err =>
+            {
+                errors.Add(err);
+            }); ;
+        }
+
+        if (errors.Count == 0)
+        {
+            StateHasChanged();
+        }
     }
 }

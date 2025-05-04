@@ -11,6 +11,7 @@ public interface ICardsService
     Task<List<Deck>> GetUserDeck();
     Task<string> AddDeck(AddDeckModel deck);
     Task<DeckInfo?> GetDeckInfo(string deckId);
+    Task<string> PatchDeck(PatchDeckModel deck);
 }
 
 public partial class CardsService : ICardsService
@@ -38,6 +39,8 @@ public partial class CardsService : ICardsService
         _client.DefaultRequestHeaders.Add("Cookie", $"{CSRF_COOKIE_NAME}={_info.CSRF_COOKIE}");
         _client.DefaultRequestHeaders.Add(CSRF_HEADER_NAME, $"{_info.CSRF_CODE}");
     }
+
+
 }
 
 
@@ -217,5 +220,52 @@ public partial class CardsService
         }
 
         return null;
+    }
+
+    public async Task<string> PatchDeck(PatchDeckModel deck)
+    {
+        try
+        {
+            string content = JsonSerializer.Serialize(deck);
+
+            Console.WriteLine(content);
+            StringContent httpContent = new(content, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PatchAsync("deck/cards", httpContent);
+
+
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                string json = await response.Content.ReadAsStringAsync();
+
+                JsonSerializerOptions JsonOptions = new()
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+
+                APIError? output = JsonSerializer.Deserialize<APIError>(json, JsonOptions);
+
+                return output?.ToString() ?? "";
+            }
+
+
+            response.EnsureSuccessStatusCode();
+
+
+            return "";
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"HTTP Error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        return "Failed to Add Deck";
     }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Blazor.Components.Pages.Cards.AddCard;
 
 namespace Blazor.models;
 public class Card(string id, string name, int cost, int defense, int strength, string image)
@@ -104,6 +105,101 @@ public class DeckInfo(Deck deck, List<DeckCard> cards)
             return output;
         }
     }
+
+    public List<string> AddCard(DeckCard card)
+    {
+        List<string> errors = [];
+
+        if (Count >= 30)
+        {
+            errors.Add("Max Deck card exceeded, Only 30 card per deck allowed");
+        }
+
+        if (CountById(card.CardId) >= 5)
+        {
+            errors.Add("Max Card type exceeded, Only 5 copy per card allowed");
+        }
+
+        if (errors.Count > 0)
+        {
+            return errors;
+        }
+
+
+        DeckCard? dc = Cards.Find(c => c.CardId == card.CardId);
+
+
+        if (dc is null)
+        {
+            Cards.Add(card);
+        }
+        else
+        {
+            dc.Quantity++;
+        }
+
+        return errors;
+    }
+
+    public List<string> RemoveCard(string cardId)
+    {
+        List<string> errors = [];
+
+        DeckCard? dc = Cards.Find(c => c.CardId == cardId);
+
+        if (dc is null)
+        {
+            errors.Add("Can't remove card from deck");
+            return errors;
+        }
+
+        dc.Quantity--;
+
+
+        if (dc.Quantity < 1)
+        {
+            Cards.Remove(dc);
+        }
+
+
+        return errors;
+    }
+
+    public List<string> ValidateDeck()
+    {
+        List<string> errors = [];
+
+        if (Count != 30)
+        {
+            errors.Add("Make sure to have 30 cards before saving");
+        }
+
+        return errors;
+    }
+
+
+    public PatchDeckModel GetPatchModel()
+    {
+        List<MinimalCard> cards = [];
+
+        Cards.ForEach(c =>
+        {
+            cards.Add(new MinimalCard(c.CardId, c.Quantity));
+        });
+
+        PatchDeckModel model = new()
+        {
+            DeckId = Deck.Id,
+            Cards = cards
+        };
+
+        return model;
+    }
+
+    public int CountById(string cardId)
+    {
+        return Cards.Find(c => c.CardId == cardId)?.Quantity ?? 0;
+    }
 }
 
 
@@ -139,4 +235,22 @@ public class AddDeckModel
     {
         Name = "";
     }
+}
+
+
+public class MinimalCard(string cardId, int quantity)
+{
+    [JsonPropertyName("cardid")]
+    public string CardId { get; set; } = cardId;
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; } = quantity;
+}
+
+public class PatchDeckModel
+{
+    [JsonPropertyName("deckid")]
+    public string DeckId { get; set; } = "";
+    [JsonPropertyName("cards")]
+    public List<MinimalCard> Cards { get; set; } = [];
+
 }
