@@ -36,6 +36,8 @@ public class DeckController(ICardService cards) : ControllerBase
       model.AccountId = account_id;
       model.DeckId = deck.Id;
 
+
+
       CommandResult result = cards.Execute(model);
 
       if (!result.IsSuccess)
@@ -59,12 +61,18 @@ public class DeckController(ICardService cards) : ControllerBase
   [Route("decks/me")]
   [Authorize]
   [Description("Gets all user decks")]
-  public IActionResult GetUserDecks()
+  public IActionResult GetUserDecks([FromQuery] string? state)
   {
     try
     {
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
-      QueryResult<List<DeckEntity>> result = cards.Execute(new UserDecksQuery(account_id));
+
+      UserDecksQuery q = new(account_id)
+      {
+        State = state ?? ""
+      };
+
+      QueryResult<List<DeckEntity>> result = cards.Execute(q);
 
       if (!result.IsSuccess)
       {

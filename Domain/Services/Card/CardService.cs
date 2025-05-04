@@ -307,15 +307,27 @@ public partial class CardService
     {
       List<DeckEntity> decks = [];
 
-      string sql_query = @"
+      string IncludeState = "";
+
+      if (!string.IsNullOrEmpty(query.State))
+      {
+        IncludeState = "AND [state] = @State";
+      }
+
+      string sql_query = @$"
         SELECT * FROM [Decks]
         WHERE [account_id] = @AccountId
+        {IncludeState}
         ";
 
       using SqlConnection conn = context.CreateConnection();
 
       using SqlCommand cmd = new(sql_query, conn);
       cmd.Parameters.AddWithValue("@AccountId", query.AccountId);
+      if (!string.IsNullOrEmpty(query.State))
+      {
+        cmd.Parameters.AddWithValue("@State", query.State);
+      }
 
       using SqlDataReader reader = context.ExecuteReader(sql_query, cmd);
       while (reader.Read())
@@ -325,6 +337,9 @@ public partial class CardService
             (string)reader[nameof(DeckEntity.Account_id)],
             (string)reader[nameof(DeckEntity.Name)]
             );
+
+        deck.State = (string)reader[nameof(DeckEntity.State)];
+
         decks.Add(deck);
       }
 

@@ -10,6 +10,9 @@ public class DeckEntity(string id, string account_id, string name)
   public string Account_id { get; init; } = account_id;
   public string Name { get; init; } = name;
 
+  [JsonPropertyName("state")]
+  public string State { get; set; } = "";
+
   public static DeckEntity Create(string user_id, string name)
   {
     return new(IdGererator.GenerateId("DK"), user_id, name);

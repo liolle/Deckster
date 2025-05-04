@@ -56,8 +56,13 @@ BEGIN
     [id] [nvarchar] (100) NOT NULL,
     [account_id] [nvarchar] (100) NOT NULL,
     [name] [nvarchar] (100) NOT NULL,
+    [state] [nvarchar] (50) CONSTRAINT DF_deck_state DEFAULT 'crafting',
     CONSTRAINT PK_deck_id PRIMARY KEY ([id]),
     CONSTRAINT U_deck_name UNIQUE ([name],[account_id]),
+    CONSTRAINT CK_deck_state CHECK(
+      [state] = 'crafting' OR  
+      [state] = 'done'
+    ),
     CONSTRAINT FK_deck_account_id FOREIGN KEY ([account_id]) REFERENCES [Accounts] ([id]) ON DELETE CASCADE ON UPDATE CASCADE
   );
   PRINT 'Table Decks created';

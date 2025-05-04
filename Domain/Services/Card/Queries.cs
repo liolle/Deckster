@@ -18,6 +18,7 @@ public class CardsQuery(int page, int size) : IQueryDefinition<List<CardEntity>>
 public class UserDecksQuery(string account_id) : IQueryDefinition<List<DeckEntity>>
 {
   public string AccountId = account_id;
+  public string State { get; set; } = "";
 }
 
 public class UserDecksInfoQuery(string deck_id) : IQueryDefinition<DeckModel>
