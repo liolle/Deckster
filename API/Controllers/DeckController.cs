@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 using deckster.entities;
-using System.Security.Claims;
 using deckster.exceptions;
 using deckster.services.queries;
 
@@ -17,7 +16,6 @@ namespace deckster.contollers;
 
 public class DeckController(ICardService cards) : ControllerBase
 {
-
   // Deck 
   [HttpPost]
   [Route("deck/add")]
@@ -80,15 +78,14 @@ public class DeckController(ICardService cards) : ControllerBase
     }
   }
 
-  [HttpDelete]
-  [Route("deck")]
+  [HttpDelete("deck/{deckId}")]
   [Authorize]
   [Description("Delete user decks")]
-  public IActionResult DeleteCard([FromBody] DeleteDeckCommand command)
+  public IActionResult DeleteCard(string deckId)
   {
     try
     {
-      this.validModelOrThrow();
+      DeleteDeckCommand command = new(deckId);
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
       command.AccountId = account_id;
 

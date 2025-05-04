@@ -69,13 +69,18 @@ public partial class Decks : ComponentBase
         SelectedTab = "cards";
     }
 
-    private void SelectDeck(Deck d)
+    private void SelectDeck(Deck? d)
     {
-        if (!d.Equals(SelectedDeck))
-        { SelectCard(null); }
-        SelectedDeck = d;
+        if (d is null)
+        {
+            SelectedDeck = null;
+        }
+        else if (!d.Equals(SelectedDeck))
+        {
+            SelectedDeck = d;
+        }
         _ = FetchDeckInfo();
-        StateHasChanged();
+        SelectCard(null);
     }
 
     private void SelectCard(DeckCard? c)
@@ -215,5 +220,18 @@ public partial class Decks : ComponentBase
         {
             StateHasChanged();
         }
+    }
+
+    private async Task DeleteDeck()
+    {
+        if (SelectedDeck is null || cardsService is null)
+        {
+            return;
+        }
+
+        Deck_list.RemoveAll(d => d.Id == SelectedDeck.Id);
+        string error = await cardsService.DeleteDeck(SelectedDeck.Id);
+        SelectDeck(null);
+        StateHasChanged();
     }
 }
