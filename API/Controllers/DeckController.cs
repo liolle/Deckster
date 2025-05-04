@@ -11,6 +11,7 @@ using System.ComponentModel;
 using deckster.entities;
 using deckster.exceptions;
 using deckster.services.queries;
+using edllx.dotnet.csrf;
 
 namespace deckster.contollers;
 
@@ -21,6 +22,7 @@ public class DeckController(ICardService cards) : ControllerBase
   [Route("deck/add")]
   [EnableCors("AllowCredentials")]
   [Authorize]
+  [RequireCSRF]
   [Description("Create a deck")]
   public IActionResult AddDeck([FromBody] AddDeckCommand model)
   {
@@ -80,6 +82,7 @@ public class DeckController(ICardService cards) : ControllerBase
 
   [HttpDelete("deck/{deckId}")]
   [Authorize]
+  [RequireCSRF]
   [Description("Delete user decks")]
   public IActionResult DeleteCard(string deckId)
   {
@@ -136,6 +139,7 @@ public class DeckController(ICardService cards) : ControllerBase
   [Route("deck/cards")]
   [EnableCors("AllowCredentials")]
   [Authorize]
+  [RequireCSRF]
   [Description("Patch deck ")]
   public IActionResult UpdateDeckCard([FromBody] PatchDeckCommand model)
   {
