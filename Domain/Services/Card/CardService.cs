@@ -16,6 +16,7 @@ ICommandHandler<DeleteDeckCommand>,
 ICommandHandler<PatchDeckCommand>,
 ICommandHandler<GetDeckPermission>,
 ICommandHandler<DeleteDeckCardsCommand>,
+ICommandHandler<UpdateDeckStateCommand>,
   IQueryHandler<CardsQuery, List<CardEntity>>,
   IQueryHandler<UserDecksQuery, List<DeckEntity>>,
   IQueryHandler<UserDecksInfoQuery, DeckModel>,
@@ -199,25 +200,28 @@ public partial class CardService
 
     try
     {
-
-
-      using SqlConnection conn = context.CreateConnection();
-      using SqlCommand cmd = new(query, conn);
-
-      cmd.Parameters.AddWithValue($"@DeckId", command.DeckId);
-      for (int i = 0; i < command.Cards.Count; i++)
+      using (SqlConnection conn = context.CreateConnection())
       {
-        cmd.Parameters.AddWithValue($"@Card_{i}", command.Cards[i].CardId);
-        cmd.Parameters.AddWithValue($"@Quantity_{i}", command.Cards[i].Quantity);
+        using SqlCommand cmd = new(query, conn);
+
+        cmd.Parameters.AddWithValue($"@DeckId", command.DeckId);
+        for (int i = 0; i < command.Cards.Count; i++)
+        {
+          cmd.Parameters.AddWithValue($"@Card_{i}", command.Cards[i].CardId);
+          cmd.Parameters.AddWithValue($"@Quantity_{i}", command.Cards[i].Quantity);
+        }
+
+        int rowsAffected = context.ExecuteNonQuery(query, cmd);
+        if (rowsAffected < 1)
+        {
+          return ICommandResult.Failure("Failed to update deck");
+        }
       }
 
-      int rowsAffected = context.ExecuteNonQuery(query, cmd);
-      if (rowsAffected < 1)
-      {
-        return ICommandResult.Failure("Failed to update deck");
-      }
+      string state = command.Count == 30 ? "done" : "crafting";
 
-      return ICommandResult.Success();
+      return Execute(new UpdateDeckStateCommand(command.DeckId, command.AccountId, state));
+
     }
     catch (Exception e)
     {
@@ -253,6 +257,38 @@ public partial class CardService
       return ICommandResult.Failure("Server error", e);
     }
 
+  }
+
+  public CommandResult Execute(UpdateDeckStateCommand command)
+  {
+    string query = @"
+    UPDATE [Decks]
+    SET [state] = @State
+    WHERE [id] = @DeckId AND [account_id] = @AccountId
+    ";
+
+    try
+    {
+      using SqlConnection conn = context.CreateConnection();
+      using SqlCommand cmd = new(query, conn);
+
+      cmd.Parameters.AddWithValue($"@DeckId", command.DeckId);
+      cmd.Parameters.AddWithValue($"@AccountId", command.AccountId);
+      cmd.Parameters.AddWithValue($"@State", command.State);
+
+
+      int rowsAffected = context.ExecuteNonQuery(query, cmd);
+      if (rowsAffected < 1)
+      {
+        return ICommandResult.Failure("", new UnAuthorizeActionException("Permission Denied or Deck does not exist"));
+      }
+
+      return ICommandResult.Success();
+    }
+    catch (Exception e)
+    {
+      return ICommandResult.Failure("Server error", e);
+    }
   }
 }
 
@@ -447,4 +483,6 @@ public partial class CardService
       return IQueryResult<List<DeckCard>>.Failure("", e);
     }
   }
+
+
 }

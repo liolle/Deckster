@@ -56,6 +56,19 @@ public class PatchDeckCommand(string deckId, List<DeckCardEntity> cards) : IComm
   [JsonPropertyName("cards")]
   public List<DeckCardEntity> Cards { get; set; } = cards;
 
+  public int Count
+  {
+    get
+    {
+      int c = 0;
+      Cards.ForEach(el =>
+      {
+        c += el.Quantity;
+      });
+      return c;
+    }
+  }
+
   public List<string> Validate()
   {
     int cnt = 0;
@@ -70,10 +83,18 @@ public class PatchDeckCommand(string deckId, List<DeckCardEntity> cards) : IComm
 
     return errors;
   }
+
 }
 
 public class GetDeckPermission(string deck_id, string account_id) : ICommandDefinition
 {
   public string DeckId { get; set; } = deck_id;
   public string AccountId { get; set; } = account_id;
+}
+
+public class UpdateDeckStateCommand(string deck_id, string account_id, string state) : ICommandDefinition
+{
+  public string DeckId { get; set; } = deck_id;
+  public string AccountId { get; set; } = account_id;
+  public string State { get; set; } = state;
 }

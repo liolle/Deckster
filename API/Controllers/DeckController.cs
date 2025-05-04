@@ -162,7 +162,7 @@ public class DeckController(ICardService cards) : ControllerBase
       }
 
       string account_id = User.FindFirst("AccountId")?.Value ?? "";
-
+      model.AccountId = account_id;
       CommandResult permissionResult = cards.Execute(new GetDeckPermission(model.DeckId, account_id));
       CommandResult res = cards.Execute(new DeleteDeckCardsCommand(model.DeckId));
 
