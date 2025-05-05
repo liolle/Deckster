@@ -1,10 +1,8 @@
-using System.Security.Claims;
 using Blazor.models;
 using Blazor.services;
 using Blazor.services.game;
 using Blazor.services.game.state;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Blazor.Components.Pages.Home;
 
@@ -19,33 +17,19 @@ public partial class Home : ComponentBase, IDisposable
     ICardsService? cardsService { get; set; }
 
     [Inject]
-    private NavigationManager? navigation { get; set; }
-
-
-    [Inject]
     private ClockService? _clockService { get; set; }
 
-    bool TimerVisible { get; set; } = false;
-
-    bool InLobby { get; set; } = false;
-
+    bool FindGameVisible { get; set; } = false;
 
 
     protected override async Task OnInitializedAsync()
     {
-
         await FetchUserDecks();
         if (_clockService is not null)
         {
             _clockService.Visibility += UpdateVisibility;
-            TimerVisible = _clockService.Visible;
+            FindGameVisible = !_clockService.Visible;
         }
-
-
-        if (_matchService is null) { return; }
-
-        _matchService.JoinGame += HandleJoinGame;
-
     }
 
     /* Fetch deck in the where state is done */
@@ -72,55 +56,18 @@ public partial class Home : ComponentBase, IDisposable
     {
         await InvokeAsync(() =>
         {
-            TimerVisible = visible;
+            FindGameVisible = !visible;
             StateHasChanged();
         });
     }
 
-    private void HandleJoinGame(GameMatch gameMatch, Player player)
-    {
-        //navigation?.NavigateTo("/game");
-        _clockService?.Stop();
-        Console.WriteLine("Join Game");
-    }
+
 
     public void Dispose()
     {
         if (_clockService is not null)
         {
-            _clockService.Stop();
             _clockService.Visibility -= UpdateVisibility;
         }
     }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-        {
-            return;
-        }
-
-        if (_matchService is null)
-        {
-            InLobby = true;
-            StateHasChanged();
-            return;
-        }
-        PlayerConnectionState? context = await _matchService.GetGameStateAsync();
-
-        if (context is null)
-        {
-            InLobby = true;
-            StateHasChanged();
-            return;
-        }
-
-
-        InLobby = context.GetType() == typeof(PlayerLobby);
-        await Task.CompletedTask;
-
-        StateHasChanged();
-    }
-
-
 }

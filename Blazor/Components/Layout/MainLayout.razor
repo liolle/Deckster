@@ -1,8 +1,10 @@
 ﻿@using Blazor.Components.FindMatchClock
+@using Blazor.Components.Redirect.Loading
 @using Blazor.Components.ToastContainer
 @inherits LayoutComponentBase
 
 <div class="main-layout">
+    <Loading />
     <ToastContainer />
     <FindMatchClock />
     @Body

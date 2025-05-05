@@ -54,14 +54,20 @@ public partial class FindMatchClock : ComponentBase, IDisposable
 
     private void OnTimerClicked()
     {
-        _matchService?.LeaveGameAsync();
+        _clockService?.Reset();
+        _clockService?.Stop();
+        if (_matchService is not null)
+        {
+            _ = _matchService.LeaveGameAsync();
+        }
+        ShowClock(false);
     }
 
     private void OnGameLeft()
     {
-        Console.WriteLine("---->");
         _clockService?.Reset();
         _clockService?.Stop();
+        StateHasChanged();
     }
 
     public void Dispose()
@@ -69,6 +75,7 @@ public partial class FindMatchClock : ComponentBase, IDisposable
 
         if (_clockService is not null)
         {
+            _clockService.Stop();
             _clockService.Tick -= Tick;
             _clockService.Visibility -= ShowClock;
         }

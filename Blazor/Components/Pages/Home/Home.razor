@@ -1,19 +1,19 @@
 ﻿@page "/"
 
 @using Blazor.Components.Navigation
+@using Blazor.Components.Redirect.Loading
 @using Blazor.services.game
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
-
 <div class="page-container">
     <Navbar />
     <div class="main">
         <AuthorizeView>
             <Authorized>
-                @if (!TimerVisible)
+                @if (FindGameVisible)
                 {
                     <div class="find-match-btn-container">
                         <button @onclick="SearchGame">
