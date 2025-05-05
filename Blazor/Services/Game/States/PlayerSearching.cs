@@ -13,10 +13,10 @@ public class PlayerSearching : PlayerConnectionState
         ConnectionManager? connectionManager = _connectionManager;
         if (context is null || connectionManager is null) { return; }
 
-        bool joined = await connectionManager.JoinQueueAsync(context.Player.id);
+        bool joined = await connectionManager.JoinQueueAsync(context.Player.Id);
         if (joined)
         {
-            Console.WriteLine($"Player {context.Player.id} Is searching for a match");
+            Console.WriteLine($"Player {context.Player.Id} Is searching for a match");
             Random random = new();
             int delay = random.Next(500) + 500;
             await Task.Delay(delay);
@@ -48,7 +48,7 @@ public class PlayerSearching : PlayerConnectionState
         if (player is null) { return false; }
 
         await connectionManager.Searching_semaphore.WaitAsync();
-        connectionManager.Searching_poll.Remove(player.id);
+        connectionManager.Searching_poll.Remove(player.Id);
         connectionManager.Searching_semaphore.Release();
 
         context.TransitionTo(new PlayerLobby());

@@ -17,6 +17,7 @@ public partial class MatchService : IDisposable
     private AuthenticationStateProvider? _authProvider { get; set; }
 
     private string UserId { get; set; } = "";
+    public bool Searching { get; private set; } = false;
 
     public MatchService(IJSRuntime jSRuntime, AuthenticationStateProvider authProvider)
     {
@@ -55,6 +56,7 @@ public partial class MatchService
     {
         JoinGame?.Invoke(match, player);
         OnStateChanged?.Invoke();
+        Searching = false;
     }
 
     [JSInvokable]
@@ -67,6 +69,7 @@ public partial class MatchService
     public void NotifyLeftGame()
     {
         OnGameLeft?.Invoke();
+        Searching = false;
     }
 
 }
@@ -91,6 +94,7 @@ public partial class MatchService
             return;
         }
         await _jsRuntime.InvokeVoidAsync("leaveGame", UserId);
+        Searching = false;
     }
 
     public async Task<GameMatch?> GetGameStateAsync()

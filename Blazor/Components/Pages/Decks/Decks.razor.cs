@@ -92,7 +92,7 @@ public partial class Decks : ComponentBase
     private async Task FetchUserDecks()
     {
         if (cardsService is null) { return; }
-        Deck_list = await cardsService.GetUserDeck();
+        Deck_list = await cardsService.GetUserDeck("");
 
         StateHasChanged();
     }

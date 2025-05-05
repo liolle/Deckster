@@ -15,7 +15,7 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
         ConnectionManager? connectionManager = _connectionManager;
         IHubContext<GameHubService>? clients = _clients;
         if (context is null || connectionManager is null || clients is null) { return; }
-        Console.WriteLine($"Player {context.Player.id} Found a match \n- {_match}");
+        Console.WriteLine($"Player {context.Player.Id} Found a match \n- {_match}");
         await JoinGame();
     }
 

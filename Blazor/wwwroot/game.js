@@ -20,20 +20,20 @@ class GameClient {
 
         this.connection.on("Join_game", (match, player) => {
             // Call the .NET method to trigger the event
-            if (matchServiceReference) {
-                matchServiceReference.invokeMethodAsync("NotifyJoinGame", match, player);
+            if (this.matchServiceReference) {
+                this.matchServiceReference.invokeMethodAsync("NotifyJoinGame", match, player);
             }
         });
 
         this.connection.on("game_has_changed", () => {
-            if (matchServiceReference) {
-                matchServiceReference.invokeMethodAsync("GameHasChanged");
+            if (this.matchServiceReference) {
+                this.matchServiceReference.invokeMethodAsync("GameHasChanged");
             }
         });
 
         this.connection.on("leave_game", () => {
-            if (matchServiceReference) {
-                matchServiceReference.invokeMethodAsync("NotifyLeftGame");
+            if (this.matchServiceReference) {
+                this.matchServiceReference.invokeMethodAsync("NotifyLeftGame");
             }
         });
 
@@ -52,14 +52,19 @@ class GameClient {
         if (this.connection == null) { return }
         this.connection.invoke("LeaveGameAsync", playerId)
     }
+
+    async getGameState() {
+        this.connection.invoke("GetGameStateAsync")
+    }
 }
 
 const GAME_CLIENT = new GameClient();
-window.GAME_CLIENT = GAME_CLIENT
-GAME_CLIENT.setUpConnection()
-GAME_CLIENT.startConnection()
+window.GAME_CLIENT = GAME_CLIENT;
+GAME_CLIENT.setUpConnection();
+GAME_CLIENT.startConnection();
 
 window.initializeMatchService = (dotNetReference) => GAME_CLIENT.initializeMatchService(dotNetReference);
 window.getConnectionId = () => GAME_CLIENT.connection.connection.connectionId;
-window.searchGame = async (playerId) => GAME_CLIENT.searchGame(playerId)
-window.leaveGame = async (playerId) => GAME_CLIENT.leaveGame(playerId)
+window.getGameState = async () => GAME_CLIENT.getGameState();
+window.searchGame = async (playerId) => GAME_CLIENT.searchGame(playerId);
+window.leaveGame = async (playerId) => GAME_CLIENT.leaveGame(playerId);

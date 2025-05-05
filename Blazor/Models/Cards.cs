@@ -203,10 +203,12 @@ public class DeckInfo(Deck deck, List<DeckCard> cards)
 }
 
 
-public class Deck(string id, string name)
+public class Deck(string id, string name, string state)
 {
     public string Id { get; init; } = id;
     public string Name { get; init; } = name;
+
+    public string State { get; set; } = state;
 
     public override bool Equals(object? obj)
     {

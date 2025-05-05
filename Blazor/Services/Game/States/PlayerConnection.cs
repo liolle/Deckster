@@ -71,7 +71,7 @@ public class PlayerConnectionContext
 
         TransitionTo(new PlayerLobby());
         await Task.Delay(100);
-        await _hub.Clients.Client(Player.connectionId).SendAsync("leave_game");
+        await _hub.Clients.Client(Player.ConnectionId).SendAsync("leave_game");
         Console.WriteLine($"Player {Player} left the game");
     }
 

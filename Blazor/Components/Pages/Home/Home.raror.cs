@@ -1,4 +1,7 @@
 using System.Security.Claims;
+using Blazor.models;
+using Blazor.services;
+using Blazor.services.game;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -6,37 +9,81 @@ namespace Blazor.Components.Pages.Home;
 
 public partial class Home : ComponentBase, IDisposable
 {
-    string CurrentUserId = "";
+    List<Deck> Deck_list { get; set; } = [];
 
     [Inject]
-    private AuthenticationStateProvider? AuthProvider { get; set; }
+    private MatchService? _matchService { get; set; }
+
+    [Inject]
+    ICardsService? cardsService { get; set; }
 
     [Inject]
     private NavigationManager? navigation { get; set; }
 
+
+    [Inject]
+    private ClockService? _clockService { get; set; }
+
+    bool TimerVisible { get; set; } = false;
+
+
+
     protected override async Task OnInitializedAsync()
     {
-        if (AuthProvider is null) { return; }
-        AuthenticationState authState = await AuthProvider.GetAuthenticationStateAsync();
-        ClaimsPrincipal user = authState.User;
 
-        if (!(user.Identity?.IsAuthenticated ?? false)) { return; }
+        await FetchUserDecks();
+        if (_clockService is not null)
+        {
+            _clockService.Visibility += UpdateVisibility;
+            TimerVisible = _clockService.Visible;
+        }
 
-        CurrentUserId = user.FindFirst("Id")?.Value ?? "";
-        if (String.IsNullOrEmpty(CurrentUserId)) { return; }
+
+        if (_matchService is null) { return; }
+
+        _matchService.JoinGame += HandleJoinGame;
+
     }
 
-    private void HandleJoinGame()
+    /* Fetch deck in the where state is done */
+    private async Task FetchUserDecks()
     {
-        Console.WriteLine("Join Game");
+        if (cardsService is null) { return; }
+        Deck_list = await cardsService.GetUserDeck("done");
+
+        StateHasChanged();
     }
 
-    public void SearchGame()
+    public async void SearchGame()
     {
+        if (_matchService is null || _matchService.Searching)
+        { return; }
+        await _matchService.SearchGameAsync();
+        _clockService?.Start();
+    }
+
+    private async void UpdateVisibility(bool visible)
+    {
+        await InvokeAsync(() =>
+        {
+            TimerVisible = visible;
+            StateHasChanged();
+        });
+    }
+
+    private void HandleJoinGame(GameMatch gameMatch, Player player)
+    {
+        //navigation?.NavigateTo("/game");
+        _clockService?.Stop();
         Console.WriteLine("Join Game");
     }
 
     public void Dispose()
     {
+        if (_clockService is not null)
+        {
+            _clockService.Stop();
+            _clockService.Visibility -= UpdateVisibility;
+        }
     }
 }

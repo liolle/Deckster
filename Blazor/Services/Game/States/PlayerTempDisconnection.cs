@@ -15,10 +15,10 @@ public class PlayerTempDisconnection(GameMatch match) : PlayerConnectionState
         IHubContext<GameHubService>? hub = _clients;
         if (context is null || connectionManager is null || hub is null) { return; }
 
-        hub.Clients.Client(context.Player.connectionId)
+        hub.Clients.Client(context.Player.ConnectionId)
           .SendAsync("Join_game", match, context.Player).GetAwaiter().OnCompleted(() =>
               {
-                  Console.WriteLine($"Player {_context?.Player.id} Lost connection");
+                  Console.WriteLine($"Player {_context?.Player.Id} Lost connection");
               });
     }
 

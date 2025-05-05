@@ -8,7 +8,7 @@ public interface ICardsService
 {
     Task<List<Card>> GetAllCards();
     Task<string> AddCard(AddCardModel card);
-    Task<List<Deck>> GetUserDeck();
+    Task<List<Deck>> GetUserDeck(string state);
     Task<string> AddDeck(AddDeckModel deck);
     Task<DeckInfo?> GetDeckInfo(string deckId);
     Task<string> PatchDeck(PatchDeckModel deck);
@@ -124,11 +124,14 @@ public partial class CardsService : ICardsService
 // Deck related calls 
 public partial class CardsService
 {
-    public async Task<List<Deck>> GetUserDeck()
+    public async Task<List<Deck>> GetUserDeck(string state)
     {
+        string state_param = state is null ? "" : $"state={state}";
+
         try
         {
-            HttpResponseMessage response = await _client.GetAsync("decks/me");
+
+            HttpResponseMessage response = await _client.GetAsync($"decks/me?{state_param}");
             if (!response.IsSuccessStatusCode)
             {
                 return [];

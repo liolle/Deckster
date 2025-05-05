@@ -12,7 +12,14 @@
     <div class="main">
         <AuthorizeView>
             <Authorized>
-
+                @if (!TimerVisible)
+                {
+                    <div class="find-match-btn-container">
+                        <button @onclick="SearchGame">
+                            Find Game
+                        </button>
+                    </div>
+                }
             </Authorized>
         </AuthorizeView>
     </div>

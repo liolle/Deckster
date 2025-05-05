@@ -20,7 +20,11 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return; }
 
-        Player p = new(id, Context.ConnectionId);
+        Player p = new()
+        {
+            Id = id,
+            ConnectionId = Context.ConnectionId
+        };
 
         await connectionManager.Player_poll_semaphore.WaitAsync();
         if (!connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context))
@@ -45,7 +49,7 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
         await connectionManager.Player_poll_semaphore.WaitAsync();
         if (!connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context))
         {
-            context = new(new PlayerLobby(), new Player(playerId, connectionId), connectionManager, hubContext);
+            context = new(new PlayerLobby(), new Player() { Id = playerId, ConnectionId = connectionId }, connectionManager, hubContext);
             connectionManager.Player_poll.Add(playerId, context);
         }
         _ = context.SearchGame();
@@ -77,7 +81,7 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return; }
 
-        Player p = new(id, Context.ConnectionId);
+        Player p = new() { Id = id, ConnectionId = Context.ConnectionId };
         await connectionManager.Player_poll_semaphore.WaitAsync();
         if (!connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context))
         {
