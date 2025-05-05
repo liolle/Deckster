@@ -1,9 +1,17 @@
 using System.Security.Claims;
 using Blazor.models;
+using Blazor.services.game.state;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
 namespace Blazor.services.game;
+
+public enum MatchState
+{
+    lobby,
+    searching,
+    playing,
+}
 
 public partial class MatchService : IDisposable
 {
@@ -17,7 +25,7 @@ public partial class MatchService : IDisposable
     private AuthenticationStateProvider? _authProvider { get; set; }
 
     private string UserId { get; set; } = "";
-    public bool Searching { get; private set; } = false;
+    public MatchState State { get; private set; } = MatchState.lobby;
 
     public MatchService(IJSRuntime jSRuntime, AuthenticationStateProvider authProvider)
     {
@@ -56,7 +64,7 @@ public partial class MatchService
     {
         JoinGame?.Invoke(match, player);
         OnStateChanged?.Invoke();
-        Searching = false;
+        State = MatchState.playing;
     }
 
     [JSInvokable]
@@ -69,7 +77,6 @@ public partial class MatchService
     public void NotifyLeftGame()
     {
         OnGameLeft?.Invoke();
-        Searching = false;
     }
 
 }
@@ -85,6 +92,7 @@ public partial class MatchService
         }
 
         await _jsRuntime.InvokeVoidAsync("searchGame", UserId);
+        State = MatchState.searching;
     }
 
     public async Task LeaveGameAsync()
@@ -94,11 +102,10 @@ public partial class MatchService
             return;
         }
         await _jsRuntime.InvokeVoidAsync("leaveGame", UserId);
-        Searching = false;
     }
 
-    public async Task<GameMatch?> GetGameStateAsync()
+    public async Task<PlayerConnectionState?> GetGameStateAsync()
     {
-        return await _jsRuntime.InvokeAsync<GameMatch?>("getGameState");
+        return await _jsRuntime.InvokeAsync<PlayerConnectionState?>("getGameState");
     }
 }

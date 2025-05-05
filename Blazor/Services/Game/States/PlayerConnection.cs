@@ -5,7 +5,7 @@ namespace Blazor.services.game.state;
 
 public class PlayerConnectionContext
 {
-    private PlayerConnectionState _state = new EmptyState();
+    public PlayerConnectionState _state { get; private set; } = new EmptyState();
     private readonly ConnectionManager _connectionManager;
     private IHubContext<GameHubService> _hub;
 

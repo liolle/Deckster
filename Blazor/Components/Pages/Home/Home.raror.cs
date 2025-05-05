@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Blazor.models;
 using Blazor.services;
 using Blazor.services.game;
+using Blazor.services.game.state;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -25,6 +26,8 @@ public partial class Home : ComponentBase, IDisposable
     private ClockService? _clockService { get; set; }
 
     bool TimerVisible { get; set; } = false;
+
+    bool InLobby { get; set; } = false;
 
 
 
@@ -56,7 +59,10 @@ public partial class Home : ComponentBase, IDisposable
 
     public async void SearchGame()
     {
-        if (_matchService is null || _matchService.Searching)
+        if (_matchService is null || _matchService.State != MatchState.lobby)
+        { return; }
+        await FetchUserDecks();
+        if (Deck_list.Count < 1)
         { return; }
         await _matchService.SearchGameAsync();
         _clockService?.Start();
@@ -86,4 +92,35 @@ public partial class Home : ComponentBase, IDisposable
             _clockService.Visibility -= UpdateVisibility;
         }
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        if (_matchService is null)
+        {
+            InLobby = true;
+            StateHasChanged();
+            return;
+        }
+        PlayerConnectionState? context = await _matchService.GetGameStateAsync();
+
+        if (context is null)
+        {
+            InLobby = true;
+            StateHasChanged();
+            return;
+        }
+
+
+        InLobby = context.GetType() == typeof(PlayerLobby);
+        await Task.CompletedTask;
+
+        StateHasChanged();
+    }
+
+
 }
