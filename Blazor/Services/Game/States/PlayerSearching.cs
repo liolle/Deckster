@@ -33,6 +33,11 @@ public class PlayerSearching : PlayerConnectionState
         return true;
     }
 
+    public override async Task<bool> Quit()
+    {
+        return await Disconnect();
+    }
+
     public override async Task<bool> Disconnect()
     {
         PlayerConnectionContext? context = _context;

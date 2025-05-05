@@ -1,6 +1,6 @@
-using System.Net;
 using Blazor.Components;
 using Blazor.services;
+using Blazor.services.game;
 using DotNetEnv;
 using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -37,6 +37,8 @@ builder.Services.AddHttpClient("main_api", client =>
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<ConnectionManager>();
 
 builder.Services.AddSingleton<CSRFService>();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthProvider>();
@@ -44,6 +46,9 @@ builder.Services.AddScoped<HttpInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICardsService, CardsService>();
 builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<ClockService>();
+
+builder.Services.AddScoped<MatchService>();
 
 var app = builder.Build();
 

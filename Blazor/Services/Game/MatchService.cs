@@ -1,9 +1,11 @@
+using System.Security.Claims;
 using Blazor.models;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
 namespace Blazor.services.game;
 
-public class MatchService : IDisposable
+public partial class MatchService : IDisposable
 {
     public event Action<GameMatch, Player>? JoinGame;
     public event Func<Task>? OnStateChanged;
@@ -12,14 +14,42 @@ public class MatchService : IDisposable
     private readonly IJSRuntime _jsRuntime;
     private DotNetObjectReference<MatchService>? _dotNetObjectReference;
 
-    public MatchService(IJSRuntime jSRuntime)
+    private AuthenticationStateProvider? _authProvider { get; set; }
+
+    private string UserId { get; set; } = "";
+
+    public MatchService(IJSRuntime jSRuntime, AuthenticationStateProvider authProvider)
     {
         _jsRuntime = jSRuntime;
         _dotNetObjectReference = DotNetObjectReference.Create(this);
         _jsRuntime.InvokeVoidAsync("initializeMatchService", _dotNetObjectReference);
+        _authProvider = authProvider;
+        InitAsync();
     }
 
+    private async void InitAsync()
+    {
+        if (_authProvider is not null)
+        {
+            AuthenticationState authState = await _authProvider.GetAuthenticationStateAsync();
+            ClaimsPrincipal principal = authState.User;
 
+            if (!(principal.Identity?.IsAuthenticated ?? false)) { return; }
+
+            UserId = principal.FindFirst("Id")?.Value ?? "";
+
+        }
+    }
+
+    public void Dispose()
+    {
+        _dotNetObjectReference?.Dispose();
+    }
+}
+
+// JS => Dotnet function calls 
+public partial class MatchService
+{
     [JSInvokable]
     public void NotifyJoinGame(GameMatch match, Player player)
     {
@@ -39,23 +69,32 @@ public class MatchService : IDisposable
         OnGameLeft?.Invoke();
     }
 
-    public async Task SearchGameAsync(int playerId)
+}
+
+// Dotnet => Js function calls
+public partial class MatchService
+{
+    public async Task SearchGameAsync()
     {
-        await _jsRuntime.InvokeVoidAsync("searchGame", playerId);
+        if (string.IsNullOrEmpty(UserId))
+        {
+            return;
+        }
+
+        await _jsRuntime.InvokeVoidAsync("searchGame", UserId);
     }
 
-    public async Task LeaveGameAsync(int playerId)
+    public async Task LeaveGameAsync()
     {
-        await _jsRuntime.InvokeVoidAsync("leaveGame", playerId);
+        if (string.IsNullOrEmpty(UserId))
+        {
+            return;
+        }
+        await _jsRuntime.InvokeVoidAsync("leaveGame", UserId);
     }
 
     public async Task<GameMatch?> GetGameStateAsync()
     {
         return await _jsRuntime.InvokeAsync<GameMatch?>("getGameState");
-    }
-
-    public void Dispose()
-    {
-        _dotNetObjectReference?.Dispose();
     }
 }
