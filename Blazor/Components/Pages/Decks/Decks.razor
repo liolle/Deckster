@@ -86,7 +86,7 @@
                     }
                     else if (SelectedTab == "cards")
                     {
-                        <div class="card-list">
+                        <div class="card-list hide-scrollbar">
                             @foreach (Card c in Card_list)
                             {
                                 <div @onclick="(e) => HandleCardClick(e, c)">
