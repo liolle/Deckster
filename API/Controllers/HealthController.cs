@@ -2,13 +2,13 @@
 using deckster.dto;
 using Microsoft.AspNetCore.Mvc;
 
-namespace deckster.contollers;
+namespace deckster.controllers;
 
 public class HealthController : ControllerBase
 {
   [HttpGet]
   [Route("ping")]
-  public IActionResult  Pong()
+  public IActionResult Pong()
   {
     return IApiOutput.Response("Pong");
   }

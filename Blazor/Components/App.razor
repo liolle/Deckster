@@ -13,8 +13,18 @@
 
 <body>
     <Routes />
+
+    <!-- Load ENV  -->
+
+    <script>
+        window.env = {
+            HUB_ENDPOINT: '@Environment.GetEnvironmentVariable("HUB_ENDPOINT")',
+        };
+    </script>
+
     <script src="_framework/blazor.web.js"></script>
     <script src="auth.js"></script>
+    <script src="Socket/signalR.js"></script>
 </body>
 
 </html>

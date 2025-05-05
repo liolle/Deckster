@@ -229,7 +229,6 @@ public partial class CardsService
         {
             string content = JsonSerializer.Serialize(deck);
 
-            Console.WriteLine(content);
             StringContent httpContent = new(content, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await _client.PatchAsync("deck/cards", httpContent);
 
