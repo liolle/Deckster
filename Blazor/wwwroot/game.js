@@ -45,16 +45,17 @@ class GameClient {
 
     async searchGame(playerId) {
         if (this.connection == null) { return }
-        this.connection.invoke("SearchGameAsync", playerId, this.connection.connection.connectionId)
+        await this.connection.invoke("SearchGameAsync", playerId, this.connection.connection.connectionId)
     }
 
     async leaveGame(playerId) {
         if (this.connection == null) { return }
-        this.connection.invoke("LeaveGameAsync", playerId)
+        await this.connection.invoke("LeaveGameAsync", playerId)
     }
 
     async getGameState() {
-        this.connection.invoke("GetGameStateAsync")
+        let res = await this.connection.invoke("GetGameStateAsync")
+        return res
     }
 }
 

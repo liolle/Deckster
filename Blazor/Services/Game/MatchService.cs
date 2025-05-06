@@ -25,7 +25,7 @@ public partial class MatchService : IDisposable
     private AuthenticationStateProvider? _authProvider { get; set; }
 
     private string UserId { get; set; } = "";
-    public MatchState State { get; private set; } = MatchState.lobby;
+    public MatchState State { get; set; } = MatchState.lobby;
     public bool IsLoading { get; set; } = true;
 
     public MatchService(IJSRuntime jSRuntime, AuthenticationStateProvider authProvider)
@@ -107,8 +107,8 @@ public partial class MatchService
         State = MatchState.lobby;
     }
 
-    public async Task<PlayerConnectionState?> GetGameStateAsync()
+    public async Task<string> GetGameStateAsync()
     {
-        return await _jsRuntime.InvokeAsync<PlayerConnectionState?>("getGameState");
+        return await _jsRuntime.InvokeAsync<string>("getGameState");
     }
 }

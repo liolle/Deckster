@@ -1,9 +1,13 @@
 using Blazor.models;
 using Blazor.services.game;
+using Blazor.services.game.state;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
 namespace Blazor.Components.Redirect.Loading;
+
+
 
 public partial class Loading : ComponentBase, IDisposable
 {
@@ -40,6 +44,44 @@ public partial class Loading : ComponentBase, IDisposable
         if (!Cancelled)
         {
             StopLoading();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        { return; }
+
+        if (_matchService is not null)
+        {
+            string state = await _matchService.GetGameStateAsync();
+
+            HandleGameState(state);
+        }
+    }
+
+    private void HandleGameState(string state)
+    {
+
+        switch (state)
+        {
+            case "Blazor.services.game.state.PlayerLobby":
+                if (_matchService is not null)
+                {
+                    _matchService.State = MatchState.lobby;
+                }
+                StopLoading();
+                break;
+            case "Blazor.services.game.state.PlayerPlaying":
+                if (_matchService is not null)
+                {
+                    _matchService.State = MatchState.playing;
+                }
+                StopLoading();
+                break;
+
+            default:
+                break;
         }
     }
 

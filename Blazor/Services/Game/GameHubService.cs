@@ -65,13 +65,17 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
     }
 
 
-    public async Task<PlayerConnectionState?> GetGameStateAsync()
+    public async Task<string> GetGameStateAsync()
     {
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
-        if (id is null) { return null; }
+        if (id is null) { return ""; }
         connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context);
-        return context?._state;
+        if (context is null)
+        {
+            return "";
+        }
+        return context._state.GetType().ToString();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
