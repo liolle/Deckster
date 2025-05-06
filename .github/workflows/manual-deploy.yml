@@ -1,0 +1,17 @@
+name: Manual Deploy
+
+on:
+  workflow_dispatch:  
+
+jobs:
+  call-webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Webhook  
+        run: |
+          curl -X POST --location 'https://actions.kodevly.online/webhooks/deploy' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "API_KEY":"${{ secrets.API_KEY }}",
+              "PROJECT_ID":"${{ secrets.PROJECT_ID }}"
+            }'
