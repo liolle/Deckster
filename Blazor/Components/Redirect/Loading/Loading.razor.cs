@@ -1,13 +1,11 @@
+using System.Text.RegularExpressions;
 using Blazor.models;
+using Blazor.services;
 using Blazor.services.game;
-using Blazor.services.game.state;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
 
 namespace Blazor.Components.Redirect.Loading;
-
-
 
 public partial class Loading : ComponentBase, IDisposable
 {
@@ -16,6 +14,9 @@ public partial class Loading : ComponentBase, IDisposable
 
     [Inject]
     private NavigationManager? navigation { get; set; }
+
+    [Inject]
+    ClockService? _clockService { get; set; }
 
     private bool IsLoading { get; set; } = true;
     private bool Cancelled { get; set; } = false;
@@ -34,13 +35,14 @@ public partial class Loading : ComponentBase, IDisposable
         IsLoading = _matchService.IsLoading;
 
         _matchService.JoinGame += HandleJoinGame;
+        _matchService.OnGameLeft += OnGameLeft;
 
         Init();
     }
 
     private async void Init()
     {
-        await Task.Delay(3000);
+        await Task.Delay(2000);
         if (!Cancelled)
         {
             StopLoading();
@@ -54,7 +56,7 @@ public partial class Loading : ComponentBase, IDisposable
 
         if (_matchService is not null)
         {
-            string state = await _matchService.GetGameStateAsync();
+            string state = await _matchService.GetPlayerState();
 
             HandleGameState(state);
         }
@@ -62,6 +64,8 @@ public partial class Loading : ComponentBase, IDisposable
 
     private void HandleGameState(string state)
     {
+        Console.WriteLine(navigation?.Uri);
+        Match game_matcher = Regex.Match(navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/game[^\/]*$");
 
         switch (state)
         {
@@ -71,6 +75,11 @@ public partial class Loading : ComponentBase, IDisposable
                     _matchService.State = MatchState.lobby;
                 }
                 StopLoading();
+
+                if (game_matcher.Success)
+                {
+                    navigation?.NavigateTo("/");
+                }
                 break;
             case "Blazor.services.game.state.PlayerPlaying":
                 if (_matchService is not null)
@@ -99,7 +108,20 @@ public partial class Loading : ComponentBase, IDisposable
     {
         Cancelled = true;
         StopLoading();
+
         navigation?.NavigateTo("/game");
+        if (_clockService is not null)
+        {
+            _clockService.Stop();
+            _clockService.Reset();
+            _clockService.ShowClock(false);
+        }
+
+    }
+
+    private void OnGameLeft()
+    {
+        navigation?.NavigateTo("/");
     }
 
     public void Dispose()
@@ -107,6 +129,7 @@ public partial class Loading : ComponentBase, IDisposable
         if (_matchService is not null)
         {
             _matchService.JoinGame -= HandleJoinGame;
+            _matchService.OnGameLeft -= OnGameLeft;
         }
     }
 }

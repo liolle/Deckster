@@ -53,6 +53,11 @@ class GameClient {
         await this.connection.invoke("LeaveGameAsync", playerId)
     }
 
+    async getPlayerState() {
+        let res = await this.connection.invoke("GetPlayerStateAsync")
+        return res
+    }
+
     async getGameState() {
         let res = await this.connection.invoke("GetGameStateAsync")
         return res
@@ -66,6 +71,7 @@ GAME_CLIENT.startConnection();
 
 window.initializeMatchService = (dotNetReference) => GAME_CLIENT.initializeMatchService(dotNetReference);
 window.getConnectionId = () => GAME_CLIENT.connection.connection.connectionId;
+window.getPlayerState = async () => GAME_CLIENT.getPlayerState();
 window.getGameState = async () => GAME_CLIENT.getGameState();
 window.searchGame = async (playerId) => GAME_CLIENT.searchGame(playerId);
 window.leaveGame = async (playerId) => GAME_CLIENT.leaveGame(playerId);

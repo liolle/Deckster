@@ -18,12 +18,14 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
 
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
-        if (id is null) { return; }
+        string? nickname = claims.FirstOrDefault(val => val.Type == "NickName")?.Value;
+        if (id is null || nickname is null) { return; }
 
         Player p = new()
         {
             Id = id,
-            ConnectionId = Context.ConnectionId
+            ConnectionId = Context.ConnectionId,
+            NickName = nickname
         };
 
         await connectionManager.Player_poll_semaphore.WaitAsync();
@@ -65,7 +67,7 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
     }
 
 
-    public async Task<string> GetGameStateAsync()
+    public async Task<string> GetPlayerStateAsync()
     {
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
@@ -76,6 +78,16 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
             return "";
         }
         return context._state.GetType().ToString();
+    }
+
+    public async Task<GameMatch?> GetGameStateAsync()
+    {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null) { return null; }
+        connectionManager.Match_poll.TryGetValue(id, out GameMatch? match);
+
+        return match;
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

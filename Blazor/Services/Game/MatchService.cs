@@ -107,8 +107,13 @@ public partial class MatchService
         State = MatchState.lobby;
     }
 
-    public async Task<string> GetGameStateAsync()
+    public async Task<string> GetPlayerState()
     {
-        return await _jsRuntime.InvokeAsync<string>("getGameState");
+        return await _jsRuntime.InvokeAsync<string>("getPlayerState");
+    }
+
+    public async Task<GameMatch?> GetGameState()
+    {
+        return await _jsRuntime.InvokeAsync<GameMatch?>("getGameState");
     }
 }

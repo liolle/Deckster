@@ -3,10 +3,10 @@
     top: -100%;
 
     width: 80px;
-    height: 80px;
+    height: 40px;
     right: calc(50% - 40px);
     color: var(--secondary-color);
-    border-radius: 100%;
+    border-radius: 1rem;
     outline: 1px solid var(--secondary-color);
     transition: top 0.5s linear, outline 0.3s ease;
     display: flex;
@@ -20,6 +20,6 @@
 }
 
 .showing {
-    top: 1rem;
+    top: .5rem;
     outline: 3px solid var(--secondary-color);
 }

@@ -1,0 +1,27 @@
+@page "/game"
+@rendermode InteractiveServer
+<div class="page-container">
+    <div class="main">
+        <div @onclick="@LeaveGame" class="btn btn-quit">
+            Quit
+        </div>
+        <div class="board">
+            <div class="top board-part">
+                <div class="player-tag">
+                    <span>
+                        @_opponent?.NickName
+                    </span>
+                </div>
+            </div>
+
+            <div class="bottom board-part">
+                <div class="player-tag">
+                    <span>
+                        @_me?.NickName
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
