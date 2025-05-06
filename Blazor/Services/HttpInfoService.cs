@@ -25,9 +25,7 @@ public class ImageLinkChecker
     public static async Task<bool> ImageExistsAsync(string imageUrl)
     {
         using var httpClient = new HttpClient();
-
         if (string.IsNullOrWhiteSpace(imageUrl)) { return false; }
-
         try
         {
             var request = new HttpRequestMessage(HttpMethod.Head, imageUrl);

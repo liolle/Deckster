@@ -10,7 +10,7 @@ services:
     networks:
       - deckster_net
     volumes:
-      - ${DB_VOLUME}:/var/opt/mssql
+      - ${DB_DATA}:/var/opt/mssql
 
   deckster-blazor:
     container_name: deckster-blazor

@@ -64,7 +64,6 @@ public partial class Loading : ComponentBase, IDisposable
 
     private void HandleGameState(string state)
     {
-        Console.WriteLine(navigation?.Uri);
         Match game_matcher = Regex.Match(navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/game[^\/]*$");
 
         switch (state)
