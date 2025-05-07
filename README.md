@@ -1,4 +1,4 @@
-## 🛡️ Bug Bounty Corp — Secure Vulnerability Reporting Platform
+## 🛡️ Deckster
 
 ### 📌 Project Overview
 
