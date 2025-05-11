@@ -1,10 +1,9 @@
-using deckster.exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Shared.exceptions;
 
 namespace deckster.extensions;
 
-public static class ModelStateExtesion
+public static class ModelStateExtension
 {
   public static void validModelOrThrow(this ControllerBase controller)
   {

@@ -2,10 +2,11 @@ using deckster.cqs;
 using deckster.database;
 using deckster.dto;
 using deckster.entities;
-using deckster.exceptions;
 using deckster.services.commands;
 using deckster.services.queries;
 using Microsoft.Data.SqlClient;
+using Shared.exceptions;
+using Shared.models;
 
 namespace deckster.services;
 

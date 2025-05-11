@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using deckster.exceptions;
+using Shared.exceptions;
 namespace deckster.dto;
 public enum ERROR_TYPES
 {

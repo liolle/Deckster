@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using deckster.dto;
 using deckster.services.commands;
-using deckster.exceptions;
 using deckster.services;
 using deckster.cqs;
 using deckster.services.queries;
 using deckster.extensions;
 using Microsoft.AspNetCore.Cors;
+using Shared.exceptions;
 namespace deckster.contollers;
 
 public class AuthController(IAuthService auth, IConfiguration configuration) : ControllerBase
@@ -121,7 +121,7 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
     try
     {
       this.validModelOrThrow();
-      this.validSuperAdminOrThrow(configuration,Request.Headers["X-ADMIN"]);
+      this.validSuperAdminOrThrow(configuration, Request.Headers["X-ADMIN"]);
 
       CommandResult result = auth.Execute(command);
 

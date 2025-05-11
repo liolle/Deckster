@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using deckster.cqs;
 using deckster.dto;
 using deckster.entities;
+using Shared.models;
 
 namespace deckster.services.queries;
 

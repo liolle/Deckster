@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Blazor.Components.Pages.Cards.AddCard;
+using Shared.models;
 
 namespace Blazor.models;
 public class Card(string id, string name, int cost, int defense, int strength, string image)
@@ -60,30 +60,6 @@ public class AddCardModel
         Strength = 0;
     }
 
-}
-
-public class DeckCard(string cardId, string name, int quantity, int defense, int cost, int strength, string image)
-{
-    public string CardId { get; set; } = cardId;
-    public int Quantity { get; set; } = quantity;
-    public string Name { get; set; } = name;
-    public int Defense { get; set; } = defense;
-    public int Cost { get; set; } = cost;
-    public int Strength { get; set; } = strength;
-    public string Image { get; set; } = image;
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not DeckCard other)
-        { return false; }
-
-        return CardId == other.CardId;
-    }
-
-    public override int GetHashCode()
-    {
-        return CardId.GetHashCode();
-    }
 }
 
 public class DeckInfo(Deck deck, List<DeckCard> cards)

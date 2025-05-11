@@ -1,4 +1,4 @@
-namespace deckster.exceptions;
+namespace Shared.exceptions;
 
 public class MissingConfigException(string config_key) : Exception($"Missing configuration:\n- {config_key}\n")
 {
@@ -36,6 +36,5 @@ public class UnAuthorizeActionException(string message) : Exception(message)
 public class InvalidHeaderException(string key) : Exception($"Invalid Header\n - {key}")
 {
   public string Key { get; init; } = key;
-
 }
 

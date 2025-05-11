@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using deckster.entities;
+using Shared.models;
 
 namespace deckster.dto;
 
@@ -93,22 +94,3 @@ public class DeckModel
   }
 }
 
-public class DeckCard(string cardId, string name, int quantity, int defense, int cost, int strength, string image)
-{
-  [JsonPropertyName("cardid")]
-  public string CardId { get; init; } = cardId;
-  [JsonPropertyName("quantity")]
-  public int Quantity { get; init; } = quantity;
-
-  [JsonPropertyName("name")]
-  public string Name { get; init; } = name;
-  [JsonPropertyName("defense")]
-  public int Defense { get; init; } = defense;
-  [JsonPropertyName("cost")]
-  public int Cost { get; init; } = cost;
-  [JsonPropertyName("strength")]
-  public int Strength { get; init; } = strength;
-  [JsonPropertyName("image")]
-  public string Image { get; init; } = image;
-
-}
