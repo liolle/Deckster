@@ -18,8 +18,8 @@ public class AuthService : IAuthService
     public AuthService(IJSRuntime jS, IConfiguration config, ToastService toast)
     {
         JS = jS;
-        string INTER_URL = config["INTER_URL"] ?? throw new Exception("Missing configuration INTER_URL"); ;
-        _ = JS.InvokeVoidAsync("setURL", INTER_URL);
+        string API_INTER_URL = config["API_INTER_URL"] ?? throw new Exception("Missing configuration API_INTER_URL"); ;
+        _ = JS.InvokeVoidAsync("setURL", API_INTER_URL);
     }
 
 
