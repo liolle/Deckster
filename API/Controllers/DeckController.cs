@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 using deckster.entities;
-using deckster.exceptions;
 using deckster.services.queries;
 using edllx.dotnet.csrf;
+using Shared.exceptions;
 
 namespace deckster.contollers;
 

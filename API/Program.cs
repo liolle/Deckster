@@ -8,9 +8,9 @@ using deckster.services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using deckster.exceptions;
 using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.DataProtection;
+using Shared.exceptions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;

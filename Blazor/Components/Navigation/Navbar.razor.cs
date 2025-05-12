@@ -1,11 +1,9 @@
 namespace Blazor.Components.Navigation;
 
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Blazor.services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 public partial class Navbar : ComponentBase
 {
@@ -14,8 +12,6 @@ public partial class Navbar : ComponentBase
     private NavigationManager? Navigation { get; set; }
     public bool IsConnected { get; set; }
 
-    //[Inject]
-    //private AuthenticationStateProvider? AuthProvider { get; set; }
     [Inject]
     private IAuthService? Auth { get; set; }
 

@@ -3,6 +3,7 @@ ARG CACHE_BUSTER
 WORKDIR /src
 
 COPY ./Blazor ./Blazor
+COPY ./Shared ./Shared
 WORKDIR /src/Blazor
 RUN dotnet publish -c Release -o /app
 

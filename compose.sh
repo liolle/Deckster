@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DB_VOLUME="./data"
+export DB_DATA="./data"
 export SHARED_KEYS="./data"
 
 docker compose build --build-arg CACHE_BUSTER=$(date +%s)

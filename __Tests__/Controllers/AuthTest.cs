@@ -8,7 +8,7 @@ using deckster.database;
 using deckster.services;
 using deckster.services.commands;
 using deckster.cqs;
-using deckster.exceptions;
+using Shared.exceptions;
 
 namespace deckster.__Tests__;
 
@@ -21,13 +21,13 @@ public class AuthTest
 
   private readonly AuthService _auth;
 
-  public AuthTest ()
+  public AuthTest()
   {
     _mockHash = new();
     _mockJWT = new();
     _mockDataContext = new();
 
-    _auth = new(_mockDataContext.Object,_mockHash.Object,_mockJWT.Object);
+    _auth = new(_mockDataContext.Object, _mockHash.Object, _mockJWT.Object);
   }
 
   [Fact]
@@ -44,15 +44,15 @@ public class AuthTest
           It.IsAny<SqlCommand>()
           )).Returns(1);
 
-    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=","");
+    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=", "");
 
     //Act
     CommandResult result = _auth.Execute(command);
 
     // Assert
     Assert.True(result.IsSuccess);
-    _mockHash.Verify(s=>s.HashPassword("SIMPLEtest55="),Times.Once);
-    _mockDataContext.Verify(s=>s.CreateConnection(),Times.Once);
+    _mockHash.Verify(s => s.HashPassword("SIMPLEtest55="), Times.Once);
+    _mockDataContext.Verify(s => s.CreateConnection(), Times.Once);
   }
 
   [Fact]
@@ -66,9 +66,9 @@ public class AuthTest
     _mockDataContext.Setup(s => s.ExecuteNonQuery(
           It.Is<string>(q => q == storedProcName),
           It.IsAny<SqlCommand>()
-          )).Returns(()=>throw new DuplicateFieldException(nameof(RegisterUserCommand.UserName)));
+          )).Returns(() => throw new DuplicateFieldException(nameof(RegisterUserCommand.UserName)));
 
-    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=","Vista40");
+    RegisterUserCommand command = new("Victor", "VictorDoe@test.com", "SIMPLEtest55=", "Vista40");
 
     //Act
     CommandResult result = _auth.Execute(command);
@@ -77,8 +77,8 @@ public class AuthTest
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.Exception);
     Assert.IsType<DuplicateFieldException>(result.Exception);
-    _mockHash.Verify(s=>s.HashPassword("SIMPLEtest55="),Times.Once);
-    _mockDataContext.Verify(s=>s.CreateConnection(),Times.Once);
+    _mockHash.Verify(s => s.HashPassword("SIMPLEtest55="), Times.Once);
+    _mockDataContext.Verify(s => s.CreateConnection(), Times.Once);
   }
 }
 
