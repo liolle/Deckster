@@ -25,7 +25,7 @@ public class NotFoundElementException(string key) : Exception($"Not found elemen
   public string Key { get; init; } = key;
 }
 
-public class InvalidCredentialException() : Exception("Invalid Connection Credentials")
+public class InvalidCredException() : Exception("Invalid Connection Credentials")
 {
 }
 

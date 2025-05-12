@@ -26,8 +26,6 @@ public class AddDeckCommand(string name) : ICommandDefinition
   public string DeckId { get; set; } = "";
 }
 
-
-
 public class DeleteDeckCommand(string deckId) : ICommandDefinition
 {
   [Required(ErrorMessage = "Deck id is required")]

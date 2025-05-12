@@ -39,7 +39,7 @@ public interface IApiOutput
       case DuplicateFieldException ex:
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.DUPLICATE_FIELD, ex.Field));
 
-      case InvalidCredentialException ex:
+      case InvalidCredException ex:
         return new BadRequestObjectResult(new ApiError(ERROR_TYPES.INVALID_CREDENTIALS, default));
 
       case InvalidRequestModelException<List<string>> ex:

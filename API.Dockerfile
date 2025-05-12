@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS sdk
 FROM sdk AS build
 WORKDIR src
 COPY ./Domain ./Domain
+COPY ./Shared ./Shared
 ARG CACHE_BUSTER
 COPY ./API ./API
 

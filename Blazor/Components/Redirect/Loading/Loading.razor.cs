@@ -4,6 +4,7 @@ using Blazor.services;
 using Blazor.services.game;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Routing;
 
 namespace Blazor.Components.Redirect.Loading;
 
@@ -38,11 +39,21 @@ public partial class Loading : ComponentBase, IDisposable
         _matchService.OnGameLeft += OnGameLeft;
 
         Init();
+        if (navigation is not null)
+        {
+            navigation.LocationChanged += HandleLocationChange;
+        }
+    }
+
+    private void HandleLocationChange(object? sender, LocationChangedEventArgs e)
+    {
+        Cancelled = true;
+        StopLoading();
     }
 
     private async void Init()
     {
-        await Task.Delay(2000);
+        await Task.Delay(1);
         if (!Cancelled)
         {
             StopLoading();
@@ -129,6 +140,12 @@ public partial class Loading : ComponentBase, IDisposable
         {
             _matchService.JoinGame -= HandleJoinGame;
             _matchService.OnGameLeft -= OnGameLeft;
+        }
+
+        if (navigation is not null)
+        {
+
+            navigation.LocationChanged -= HandleLocationChange;
         }
     }
 }

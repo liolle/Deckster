@@ -1,5 +1,5 @@
 class APIRequest {
-    static ULR = "http://localhost:5002"
+    static URL = "http://localhost:5002"
 
     // Cookie should be set on successful login 
     // so just return a bool
@@ -19,7 +19,7 @@ class APIRequest {
     }
 
     // Cookie should be removed on successful logout 
-    // so just return a bool
+    // So just return a bool
     static async logout() {
         const response = await fetch(`${APIRequest.URL}/logout`, {
             credentials: 'include'
@@ -55,6 +55,7 @@ class APIRequest {
 window.setURL = (url) => {
     APIRequest.URL = url
 }
+
 window.logout = () => APIRequest.logout();
 window.login = (username, password) => APIRequest.login(username, password);
 window.register = (username, password, email, nickname) => APIRequest.register(username, password, email, nickname); 

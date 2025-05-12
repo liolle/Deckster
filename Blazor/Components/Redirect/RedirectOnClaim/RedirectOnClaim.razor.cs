@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -40,12 +41,25 @@ public partial class RedirectOnClaim : ComponentBase
 
         if (!IsValid)
         {
-            navigation.NavigateTo(RedirectOnFailure);
+            handleRedirect(RedirectOnFailure);
             return;
         }
+
         if (!string.IsNullOrEmpty(RedirectOnValid))
         {
-            navigation.NavigateTo(RedirectOnValid);
+            navigation?.NavigateTo(RedirectOnValid);
         }
+    }
+
+    private void handleRedirect(string url)
+    {
+        Match matcher = Regex.Match(navigation?.Uri ?? "", $@"(https|http):\/\/[a-zA-Z0-9.:]*{url}[^\/]*$");
+
+        if (matcher.Success)
+        {
+            return;
+        }
+
+        navigation?.NavigateTo(url);
     }
 }

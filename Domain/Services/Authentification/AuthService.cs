@@ -3,12 +3,13 @@ using Microsoft.Data.SqlClient;
 
 // Refs
 using deckster.cqs;
-using deckster.exceptions;
 using deckster.services.commands;
 using deckster.entities;
 using System.Data;
 using deckster.services.queries;
 using deckster.dto;
+using System.Security.Authentication;
+using Shared.exceptions;
 
 namespace deckster.services;
 
@@ -82,12 +83,12 @@ public partial class AuthService
       QueryResult<CredentialInfoModel?> qr = Execute(new UserFromUserNameQuery(query.UserName));
       if (!qr.IsSuccess)
       {
-        return IQueryResult<string>.Failure("", new InvalidCredentialException());
+        return IQueryResult<string>.Failure("", new InvalidCredException());
       }
 
       if (!hash.VerifyPassword(qr.Result!.Password, query.Password))
       {
-        return IQueryResult<string>.Failure("", new InvalidCredentialException());
+        return IQueryResult<string>.Failure("", new InvalidCredException());
       }
 
       return IQueryResult<string>.Success(jwt.Generate(qr.Result.GetClaims()));
