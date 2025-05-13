@@ -53,12 +53,14 @@ public partial class RedirectOnClaim : ComponentBase
 
     private void handleRedirect(string url)
     {
-        Match matcher = Regex.Match(navigation?.Uri ?? "", $@"(https|http):\/\/[a-zA-Z0-9.:]*{url}[^\/]*$");
+        Match matcher = Regex.Match(navigation?.Uri ?? "", $@"(https|http):\/\/[a-zA-Z0-9.:]*({url}[^\/]*$)");
 
-        if (matcher.Success)
+
+        if (matcher.Groups.Values.Last().Value == url)
         {
             return;
         }
+
 
         navigation?.NavigateTo(url);
     }

@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Blazor.models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
@@ -29,7 +28,6 @@ public class AuthProvider(IHttpContextAccessor httpContextAccessor, IConfigurati
 
     private ClaimsPrincipal ValidateToken(string token)
     {
-
         string jwt_key = config["JWT_KEY"] ?? throw new Exception("Missing configuration JWT_KEY");
         TokenValidationParameters parameters = new TokenValidationParameters
         {
@@ -43,8 +41,7 @@ public class AuthProvider(IHttpContextAccessor httpContextAccessor, IConfigurati
         };
 
         JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken jsonToken = handler.ReadJwtToken(token);
-        ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out var validatedToken);
+        ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out SecurityToken validatedToken);
 
         return principal;
     }

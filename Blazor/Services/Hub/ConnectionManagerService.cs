@@ -8,6 +8,7 @@ public interface IConnectionManager
 {
     public Task<bool> JoinQueueAsync(Player p);
     public Task EndGame(GameMatch game);
+    public Task<string> GetPlayerState(string player_id);
 }
 
 public class ConnectionManager : IConnectionManager
@@ -91,5 +92,14 @@ public class ConnectionManager : IConnectionManager
         context_p2?.QuitGame();
 
         Player_poll_semaphore.Release();
+    }
+
+    public async Task<string> GetPlayerState(string player_id)
+    {
+        await Player_poll_semaphore.WaitAsync();
+        PlayerConnectionState state = Player_poll.FirstOrDefault(val => val.Key == player_id).Value._state;
+        Player_poll_semaphore.Release();
+
+        return state.GetType().Name;
     }
 };

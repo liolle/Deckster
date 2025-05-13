@@ -38,6 +38,7 @@ builder.Services.AddHttpClient("main_api", client =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 builder.Services.AddSingleton<ConnectionManager>();
 
 builder.Services.AddSingleton<CSRFService>();

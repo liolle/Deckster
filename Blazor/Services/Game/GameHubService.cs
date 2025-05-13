@@ -39,8 +39,7 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
             context.Player = p;
         }
         connectionManager.Player_poll_semaphore.Release();
-
-        if (!context.IsSameType(typeof(PlayerLobby)))
+        if (context.IsSameType(typeof(PlayerTempDisconnection)))
         {
             await context.SearchGame();
         }
