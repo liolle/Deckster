@@ -21,6 +21,7 @@ COPY --from=build /src/Blazor/wwwroot/Packages ./wwwroot
 COPY --from=build /src/Blazor/wwwroot/Js ./wwwroot
 COPY --from=build /src/Blazor/wwwroot/app.css ./wwwroot
 COPY --from=npm node_modules/@microsoft/signalr/dist/browser/signalr.min.js ./wwwroot/Packages/signalr
+COPY --from=npm node_modules/pixi.js/dist/pixi.min.js /wwwroot/Packages/pixijs
 
 RUN chmod -R 755 ./wwwroot
 
