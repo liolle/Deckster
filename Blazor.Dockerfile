@@ -1,4 +1,3 @@
-# syntax=docker.io/docker/dockerfile:1.7-labs
 FROM node:20-alpine AS npm
 COPY /Blazor/package.json .
 RUN npm install
@@ -16,8 +15,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 ARG CACHE_BUSTER
 WORKDIR app
 COPY --from=build ./src/Blazor/app .
-COPY --from=npm node_modules/@microsoft/signalr/dist/browser/signalr.min.js ./wwwroot/Packages/signalr
-COPY --from=npm node_modules/pixi.js/dist/pixi.min.js ./wwwroot/Packages/pixijs
+COPY --from=npm node_modules/@microsoft/signalr/dist/browser/signalr.min.js ./wwwroot/Packages/signalr/signalr.min.js
+COPY --from=npm node_modules/pixi.js/dist/pixi.min.js ./wwwroot/Packages/pixijs/pixi.min.js
 
 RUN chmod -R 755 ./wwwroot
 
