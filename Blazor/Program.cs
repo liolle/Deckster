@@ -5,6 +5,7 @@ using DotNetEnv;
 using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Shared.exceptions;
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 
@@ -13,9 +14,9 @@ Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
-string SHARED_KEYS = configuration["SHARED_KEYS"] ?? throw new Exception("Missing configuration:\n- SHARED_KEYS");
-string HUB_ENDPOINT = configuration["HUB_ENDPOINT"] ?? throw new Exception("Missing configuration:\n- HUB_ENDPOINT");
-string API_URL = configuration["API_URL"] ?? throw new Exception("Missing configuration exception:\n- API_URL");
+string SHARED_KEYS = configuration["SHARED_KEYS"] ?? throw new MissingConfigException("SHARED_KEYS");
+string HUB_ENDPOINT = configuration["HUB_ENDPOINT"] ?? throw new MissingConfigException("HUB_ENDPOINT");
+string API_URL = configuration["API_URL"] ?? throw new MissingConfigException("API_URL");
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -37,18 +38,25 @@ builder.Services.AddHttpClient("main_api", client =>
 });
 
 builder.Services.AddHttpContextAccessor();
+
+// Websocket server
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 builder.Services.AddSingleton<ConnectionManager>();
 
+// CSRF
+builder.Services.AddSingleton(typeof(Program).Assembly);
 builder.Services.AddSingleton<CSRFService>();
+
+// Auth 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthProvider>();
+
+
 builder.Services.AddScoped<HttpInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICardsService, CardsService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ClockService>();
-
 builder.Services.AddScoped<MatchService>();
 
 var app = builder.Build();

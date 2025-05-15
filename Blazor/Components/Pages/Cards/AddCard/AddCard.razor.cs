@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Components;
 
 namespace Blazor.Components.Pages.Cards.AddCard;
 
-[RequireCSRF]
 public partial class AddCard : ComponentBase
 {
 

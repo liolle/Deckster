@@ -1,7 +1,6 @@
 
 using Blazor.models;
 using Blazor.services;
-using edllx.dotnet.csrf;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Shared.models;
@@ -10,7 +9,6 @@ using DefaultD = Blazor.Components.DefaultDialog.DefaultDialog;
 
 namespace Blazor.Components.Pages.Decks;
 
-[RequireCSRF]
 public partial class Decks : ComponentBase
 {
     private bool SubmittingDeck { get; set; } = false;
@@ -40,6 +38,7 @@ public partial class Decks : ComponentBase
 
     protected override void OnInitialized()
     {
+
         _ = FetchUserDecks();
         _ = FetchCards();
     }
