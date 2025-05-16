@@ -42,8 +42,6 @@ public partial class Loading : ComponentBase, IDisposable
       navigation.LocationChanged += HandleLocationChange;
 
     }
-
-    Init(200);
   }
 
   private async void HandleLocationChange(object? sender, LocationChangedEventArgs e)
@@ -62,7 +60,7 @@ public partial class Loading : ComponentBase, IDisposable
 
   private async void Init(int timeout)
   {
-    if (timeout > 5000 || !IsLoading)
+    if (Resolved || timeout > 5000)
     {
       StopLoading();
       StateHasChanged();
@@ -76,7 +74,7 @@ public partial class Loading : ComponentBase, IDisposable
   {
     if (!firstRender)
     { return; }
-
+    Init(200);
     await UpdateGameState();
   }
 
@@ -92,7 +90,6 @@ public partial class Loading : ComponentBase, IDisposable
 
   private void HandleGameState(string state)
   {
-    Match game_matcher = Regex.Match(navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/game[^\/]*$");
 
     switch (state)
     {
@@ -110,11 +107,14 @@ public partial class Loading : ComponentBase, IDisposable
           _matchService.State = MatchState.playing;
         }
 
-        StopLoading();
-        StateHasChanged();
+        Navigate("/game");
         break;
 
       default:
+        if (_matchService is not null)
+        {
+          _matchService.State = MatchState.lobby;
+        }
         Navigate("/");
         break;
     }
@@ -147,8 +147,17 @@ public partial class Loading : ComponentBase, IDisposable
 
   private void Navigate(string location)
   {
-    navigation?.NavigateTo(location);
+    Match matcher = Regex.Match(navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/([a-zA-Z0-9]*)[^\/]*$");
+    string loc = matcher.Groups[2].Value;
     StopLoading();
+    Resolved = true;
+    if (location == $"/{loc}")
+    {
+      StateHasChanged();
+      return;
+    }
+
+    navigation?.NavigateTo(location);
   }
 
   public void Dispose()
