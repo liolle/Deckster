@@ -20,7 +20,7 @@ public partial class Loading : ComponentBase, IDisposable
   ClockService? _clockService { get; set; }
 
   private bool IsLoading { get; set; } = true;
-  private bool Cancelled { get; set; } = false;
+  private bool Resolved { get; set; } = false;
 
   public bool ValidateClaims(AuthenticationState context)
   {
@@ -43,7 +43,7 @@ public partial class Loading : ComponentBase, IDisposable
 
     }
 
-    Init();
+    Init(200);
   }
 
   private async void HandleLocationChange(object? sender, LocationChangedEventArgs e)
@@ -60,13 +60,16 @@ public partial class Loading : ComponentBase, IDisposable
     }
   }
 
-  private async void Init()
+  private async void Init(int timeout)
   {
-    await Task.Delay(1000);
-    if (!Cancelled)
+    if (timeout > 5000 || !IsLoading)
     {
       StopLoading();
+      StateHasChanged();
+      return;
     }
+    await Task.Delay(timeout);
+    Init(timeout * 2);
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -74,14 +77,18 @@ public partial class Loading : ComponentBase, IDisposable
     if (!firstRender)
     { return; }
 
+    await UpdateGameState();
+  }
+
+  private async Task UpdateGameState()
+  {
     if (_matchService is not null)
     {
       string state = await _matchService.GetPlayerState();
-
       HandleGameState(state);
+      return;
     }
   }
-
 
   private void HandleGameState(string state)
   {
@@ -95,20 +102,20 @@ public partial class Loading : ComponentBase, IDisposable
           _matchService.State = MatchState.lobby;
         }
 
-        if (game_matcher.Success)
-        {
-          navigation?.NavigateTo("/");
-        }
+        Navigate("/");
         break;
       case "Blazor.services.game.state.PlayerPlaying":
         if (_matchService is not null)
         {
           _matchService.State = MatchState.playing;
         }
+
         StopLoading();
+        StateHasChanged();
         break;
 
       default:
+        Navigate("/");
         break;
     }
   }
@@ -120,26 +127,28 @@ public partial class Loading : ComponentBase, IDisposable
     {
       _matchService.IsLoading = false;
     }
-    StateHasChanged();
   }
 
   private void HandleJoinGame(GameMatch gameMatch, Player player)
   {
-    Cancelled = true;
-    StopLoading();
-
-    navigation?.NavigateTo("/game");
     if (_clockService is not null)
     {
       _clockService.Stop();
       _clockService.Reset();
       _clockService.ShowClock(false);
     }
+    Navigate("/game");
   }
 
   private void OnGameLeft()
   {
-    navigation?.NavigateTo("/");
+    Navigate("/");
+  }
+
+  private void Navigate(string location)
+  {
+    navigation?.NavigateTo(location);
+    StopLoading();
   }
 
   public void Dispose()
