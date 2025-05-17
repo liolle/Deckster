@@ -81,6 +81,12 @@ public partial class MatchService
         State = MatchState.lobby;
     }
 
+    [JSInvokable]
+    public string GetUserId()
+    {
+        return UserId;
+    }
+
 }
 
 // Dotnet => Js function calls

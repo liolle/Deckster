@@ -58,6 +58,7 @@ builder.Services.AddScoped<ICardsService, CardsService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ClockService>();
 builder.Services.AddScoped<MatchService>();
+builder.Services.AddScoped<BoardService>();
 
 var app = builder.Build();
 
