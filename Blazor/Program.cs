@@ -70,6 +70,6 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapHub<GameHubService>($"/{HUB_ENDPOINT}");
+app.MapHub<GameHub>($"/{HUB_ENDPOINT}");
 
 app.Run();

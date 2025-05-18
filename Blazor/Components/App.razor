@@ -21,13 +21,14 @@
             HUB_ENDPOINT: '@Environment.GetEnvironmentVariable("HUB_ENDPOINT")',
         };
     </script>
-
+    <script type="module" src="Js/main.js"></script>
     <script src="_framework/blazor.web.js"></script>
     <script src="Packages/signalr/signalr.min.js"></script>
     <script src="Packages/pixijs/pixi.min.js"></script>
-    <script src="Js/auth.js"></script>
-    <script src="Js/pixi.js"></script>
-    <script src="Js/game.js"></script>
+    <script type="module" src="Js/auth.js"></script>
+    <script type="module" src="Js/board.js"></script>
+    <script type="module" src="Js/game.js"></script>
+    <script type="module" src="Js/main.js"></script>
 </body>
 
 </html>

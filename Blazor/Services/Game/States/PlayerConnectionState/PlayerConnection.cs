@@ -5,25 +5,25 @@ namespace Blazor.services.game.state;
 
 public class PlayerConnectionContext
 {
-    public PlayerConnectionState _state { get; private set; } = new EmptyState();
+    public PlayerConnectionState State { get; private set; } = new EmptyState();
     private readonly ConnectionManager _connectionManager;
-    private IHubContext<GameHubService> _hub;
+    private IHubContext<GameHub> _hub;
 
     public Player Player { get; set; }
     public Type Type
     {
         get
         {
-            return _state.GetType();
+            return State.GetType();
         }
     }
 
-    public void UpdateHub(IHubContext<GameHubService> hub)
+    public void UpdateHub(IHubContext<GameHub> hub)
     {
         _hub = hub;
     }
 
-    public PlayerConnectionContext(PlayerConnectionState state, Player player, ConnectionManager connectionManager, IHubContext<GameHubService> clients)
+    public PlayerConnectionContext(PlayerConnectionState state, Player player, ConnectionManager connectionManager, IHubContext<GameHub> clients)
     {
         _connectionManager = connectionManager;
         Player = player;
@@ -33,37 +33,37 @@ public class PlayerConnectionContext
 
     public bool IsSameType(Type type)
     {
-        return _state.GetType() == type;
+        return State.GetType() == type;
     }
 
     public void TransitionTo(PlayerConnectionState state)
     {
-        _state = state;
-        _state.SetContext(this, _connectionManager, _hub);
+        State = state;
+        State.SetContext(this, _connectionManager, _hub);
     }
 
     public Task<bool> SearchGame()
     {
-        return _state.SearchGame();
+        return State.SearchGame();
     }
 
     public Task<bool> MatchFound(GameMatch match)
     {
-        return _state.MatchFound(match);
+        return State.MatchFound(match);
     }
 
     public Task<bool> Disconnect()
     {
-        return _state.Disconnect();
+        return State.Disconnect();
     }
 
     public Task<bool> Quit()
     {
-        return _state.Quit();
+        return State.Quit();
     }
     public Task<bool> JoinGame()
     {
-        return _state.JoinGame();
+        return State.JoinGame();
     }
 
     public async Task QuitGame()
@@ -81,7 +81,7 @@ public abstract class PlayerConnectionState
 {
     protected PlayerConnectionContext? _context;
     protected ConnectionManager? _connectionManager;
-    protected IHubContext<GameHubService>? _clients;
+    protected IHubContext<GameHub>? _clients;
 
     public PlayerConnectionState()
     {
@@ -93,7 +93,7 @@ public abstract class PlayerConnectionState
         await Task.Delay(20);
     }
 
-    public void SetContext(PlayerConnectionContext context, ConnectionManager connectionManager, IHubContext<GameHubService> clients)
+    public void SetContext(PlayerConnectionContext context, ConnectionManager connectionManager, IHubContext<GameHub> clients)
     {
         _context = context;
         _connectionManager = connectionManager;

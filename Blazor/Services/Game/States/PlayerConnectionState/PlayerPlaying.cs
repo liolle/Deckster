@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Blazor.services.game.state;
 
-public class PlayerTempDisconnection(GameMatch match) : PlayerConnectionState
+public class PlayerPlaying(GameMatch match) : PlayerConnectionState
 {
     private readonly GameMatch match = match;
 
@@ -12,22 +12,33 @@ public class PlayerTempDisconnection(GameMatch match) : PlayerConnectionState
         await base.AfterInit();
         PlayerConnectionContext? context = _context;
         ConnectionManager? connectionManager = _connectionManager;
-        IHubContext<GameHubService>? hub = _clients;
+        IHubContext<GameHub>? hub = _clients;
         if (context is null || connectionManager is null || hub is null) { return; }
 
         hub.Clients.Client(context.Player.ConnectionId)
           .SendAsync("Join_game", match, context.Player).GetAwaiter().OnCompleted(() =>
               {
-                  Console.WriteLine($"Player {_context?.Player.Id} Lost connection");
+                  Console.WriteLine($"Player {_context?.Player} Is Playing");
               });
     }
 
-    public override async Task<bool> SearchGame()
+    public override async Task<bool> Disconnect()
     {
         await Task.Delay(50);
         PlayerConnectionContext? context = _context;
         if (context is null) { return false; }
-        context.TransitionTo(new PlayerPlaying(match));
+        context.TransitionTo(new PlayerTempDisconnection(match));
         return true;
     }
+
+
+    public override async Task<bool> Quit()
+    {
+        await Task.Delay(50);
+        ConnectionManager? connectionManager = _connectionManager;
+        if (connectionManager is null) { return false; }
+        await connectionManager.EndGame(match);
+        return true;
+    }
+
 }

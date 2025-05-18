@@ -5,6 +5,8 @@ services:
       context: ./Domain/Database
     env_file:
       - api.env
+    ports:
+      - 1435:1433
     networks:
       - deckster_net
     volumes:

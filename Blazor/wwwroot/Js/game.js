@@ -1,77 +1,111 @@
-class GameClient {
-    matchServiceReference = null;
-
+class GameHub {
     connection = null
-
-    initializeMatchService(dotNetReference) {
-        this.matchServiceReference = dotNetReference;
-        setUpConnection()
-    }
-
-    setUpConnection() {
-        // Create SignalR hub
-        // Need a way to have the URL as env variable.
-
-        if (this.connection != null) { return }
-
+    constructor() {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${window.location.origin}/${window.env["HUB_ENDPOINT"]}`)
-            .build();
-
-        this.connection.on("Join_game", (match, player) => {
-            // Call the .NET method to trigger the event
-            if (this.matchServiceReference) {
-                this.matchServiceReference.invokeMethodAsync("NotifyJoinGame", match, player);
-            }
-        });
-
-        this.connection.on("game_has_changed", () => {
-            if (this.matchServiceReference) {
-                this.matchServiceReference.invokeMethodAsync("GameHasChanged");
-            }
-        });
-
-        this.connection.on("leave_game", () => {
-            if (this.matchServiceReference) {
-                this.matchServiceReference.invokeMethodAsync("NotifyLeftGame");
-            }
-        });
-
+            .build(); 
+        
     }
-
-    startConnection() {
-        this.connection.start().catch(err => console.error(err.toString()));
-    }
-
-    async searchGame(playerId) {
-        if (this.connection == null) { return }
-        await this.connection.invoke("SearchGameAsync", playerId, this.connection.connection.connectionId)
-    }
-
-    async leaveGame(playerId) {
-        if (this.connection == null) { return }
-        await this.connection.invoke("LeaveGameAsync", playerId)
-    }
-
-    async getPlayerState() {
-        let res = await this.connection.invoke("GetPlayerStateAsync")
-        return res
-    }
-
-    async getGameState() {
-        let res = await this.connection.invoke("GetGameStateAsync")
-        return res
+    async start() {
+        try {
+            await this.connection.start();
+            console.info("SignalR Connected.");
+        } catch (err) {
+            console.error(err);
+        }
     }
 }
 
-const GAME_CLIENT = new GameClient();
-window.GAME_CLIENT = GAME_CLIENT;
-GAME_CLIENT.setUpConnection();
-GAME_CLIENT.startConnection();
+class DotNetRef {
+   refTable = {} 
+    
+    register(name,reference){
+       this.refTable[name] = reference;
+    }
+    
+   get(name){
+       return this.refTable[name];
+   } 
+}
 
-window.initializeMatchService = (dotNetReference) => GAME_CLIENT.initializeMatchService(dotNetReference);
-window.getConnectionId = () => GAME_CLIENT.connection.connection.connectionId;
-window.getPlayerState = async () => GAME_CLIENT.getPlayerState();
-window.getGameState = async () => GAME_CLIENT.getGameState();
-window.searchGame = async (playerId) => GAME_CLIENT.searchGame(playerId);
-window.leaveGame = async (playerId) => GAME_CLIENT.leaveGame(playerId);
+class GameClient {
+    #refTable = null;
+    #hub = null
+    constructor(hub,refTable) {
+       if (!hub.connection) {
+           console.error("Missing connection");
+           return;
+       }
+       this.#hub = hub;
+       this.#refTable = refTable;
+       this.setUpConnection()
+    }
+    
+    initializeMatchService(dotNetReference) {
+        if (!dotNetReference) {
+            console.error("Missing dotNetReference");
+            return;
+        }
+        this.#refTable.register("match",dotNetReference) 
+    }
+
+    setUpConnection() {
+        if (this.#hub != null) { 
+            this.clearListeners()
+        }
+
+        this.#hub.connection.on("Join_game", this.#JoinGame);
+        this.#hub.connection.on("game_has_changed", this.#GameHasChanged);
+        this.#hub.connection.on("leave_game", this.#LeaveGame);
+    }
+    
+    #JoinGame(match, player){
+        let ref = this.#refTable("match")
+        if (ref) {
+            ref.invokeMethodAsync("NotifyJoinGame", match, player);
+        }
+    }
+    
+    #GameHasChanged() {
+        let ref = this.#refTable("match")
+        if (ref) {
+            ref.invokeMethodAsync("GameHasChanged");
+        }
+    }
+    
+    #LeaveGame() {
+        let ref = this.#refTable("match")
+        if (ref) {
+            ref.invokeMethodAsync("NotifyLeaveGame");
+        }
+    }
+    
+    clearListeners (){
+        if (this.#hub.connection == null) { return }
+        this.#hub.connection.off("Join_game");
+        this.#hub.connection.off("game_has_changed");
+        this.#hub.connection.off("leave_game");
+    }
+
+    async searchGame(playerId) {
+        if (this.#hub.connection == null) { return }
+        await this.#hub.connection.invoke("SearchGameAsync", playerId, this.connection.connection.connectionId)
+    }
+
+    async leaveGame(playerId) {
+        if (this.#hub.connection == null) { return }
+        await this.#hub.connection.invoke("LeaveGameAsync", playerId)
+    }
+
+    async getPlayerState() {
+        if (this.#hub.connection == null) { return }
+        return await this.#hub.connection.invoke("GetPlayerStateAsync")
+    }
+
+    async getGameState() {
+        if (this.#hub.connection == null) { return }
+        return await this.#hub.connection.invoke("GetGameStateAsync")
+    }
+}
+
+export {GameHub, GameClient};

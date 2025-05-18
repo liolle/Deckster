@@ -13,7 +13,7 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
         await base.AfterInit();
         PlayerConnectionContext? context = _context;
         ConnectionManager? connectionManager = _connectionManager;
-        IHubContext<GameHubService>? clients = _clients;
+        IHubContext<GameHub>? clients = _clients;
         if (context is null || connectionManager is null || clients is null) { return; }
         Console.WriteLine($"Player {context.Player.Id} Found a match \n- {_match}");
         await JoinGame();

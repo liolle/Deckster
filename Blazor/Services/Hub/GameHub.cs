@@ -6,16 +6,23 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Blazor.services;
 
-public class GameHubService(ConnectionManager connectionManager, AuthenticationStateProvider authProvider, IHubContext<GameHubService> hubContext) : Hub
+// Setup 
+
+public partial class GameHub(
+    ConnectionManager connectionManager,
+    AuthenticationStateProvider authProvider,
+    IHubContext<GameHub> hubContext) : Hub
 {
     private async Task<IEnumerable<Claim>> GetClaims()
     {
         return (await authProvider.GetAuthenticationStateAsync()).User.Claims;
     }
-
+}
+// Player connection methods
+public partial class GameHub
+{
     public override async Task OnConnectedAsync()
     {
-
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         string? nickname = claims.FirstOrDefault(val => val.Type == "NickName")?.Value;
@@ -44,51 +51,6 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
             await context.SearchGame();
         }
     }
-
-    public async Task SearchGameAsync(string playerId, string connectionId)
-    {
-        await connectionManager.Player_poll_semaphore.WaitAsync();
-        if (!connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context))
-        {
-            context = new(new PlayerLobby(), new Player() { Id = playerId, ConnectionId = connectionId }, connectionManager, hubContext);
-            connectionManager.Player_poll.Add(playerId, context);
-        }
-        _ = context.SearchGame();
-        connectionManager.Player_poll_semaphore.Release();
-    }
-
-    public async Task LeaveGameAsync(string playerId)
-    {
-        await connectionManager.Player_poll_semaphore.WaitAsync();
-        connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context);
-        _ = context?.Quit();
-        connectionManager.Player_poll_semaphore.Release();
-    }
-
-
-    public async Task<string> GetPlayerStateAsync()
-    {
-        IEnumerable<Claim> claims = await GetClaims();
-        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
-        if (id is null) { return ""; }
-        connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context);
-        if (context is null)
-        {
-            return "";
-        }
-        return context._state.GetType().ToString();
-    }
-
-    public async Task<GameMatch?> GetGameStateAsync()
-    {
-        IEnumerable<Claim> claims = await GetClaims();
-        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
-        if (id is null) { return null; }
-        connectionManager.Match_poll.TryGetValue(id, out GameMatch? match);
-
-        return match;
-    }
-
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         IEnumerable<Claim> claims = await GetClaims();
@@ -108,4 +70,54 @@ public class GameHubService(ConnectionManager connectionManager, AuthenticationS
         await context.Disconnect();
         await base.OnDisconnectedAsync(exception);
     }
+    
+    public async Task SearchGameAsync(string playerId, string connectionId)
+    {
+        await connectionManager.Player_poll_semaphore.WaitAsync();
+        if (!connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context))
+        {
+            context = new(new PlayerLobby(), new Player() { Id = playerId, ConnectionId = connectionId }, connectionManager, hubContext);
+            connectionManager.Player_poll.Add(playerId, context);
+        }
+        _ = context.SearchGame();
+        connectionManager.Player_poll_semaphore.Release();
+    }
+
+    public async Task LeaveGameAsync(string playerId)
+    {
+        await connectionManager.Player_poll_semaphore.WaitAsync();
+        connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context);
+        _ = context?.Quit();
+        connectionManager.Player_poll_semaphore.Release();
+    }
+    
+    public async Task<string> GetPlayerStateAsync()
+    {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null) { return ""; }
+        connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context);
+        if (context is null)
+        {
+            return "";
+        }
+        return context.State.GetType().ToString();
+    }
+    
 }
+
+// Game methods
+public partial class GameHub
+{
+    public async Task<GameMatch?> GetGameStateAsync()
+    {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null) { return null; }
+        connectionManager.Match_poll.TryGetValue(id, out GameMatch? match);
+
+        return match;
+    }   
+}
+
+

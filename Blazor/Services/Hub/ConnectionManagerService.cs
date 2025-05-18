@@ -79,14 +79,14 @@ public class ConnectionManager : IConnectionManager
     public async Task EndGame(GameMatch match)
     {
         await Match_semaphore.WaitAsync();
-        Match_poll.Remove(match.player1.Id);
-        Match_poll.Remove(match.player2.Id);
+        Match_poll.Remove(match.Player1.Id);
+        Match_poll.Remove(match.Player2.Id);
         Match_semaphore.Release();
 
         await Player_poll_semaphore.WaitAsync();
 
-        Player_poll.TryGetValue(match.player1.Id, out PlayerConnectionContext? context_p1);
-        Player_poll.TryGetValue(match.player2.Id, out PlayerConnectionContext? context_p2);
+        Player_poll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? context_p1);
+        Player_poll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? context_p2);
 
         context_p1?.QuitGame();
         context_p2?.QuitGame();
@@ -97,7 +97,7 @@ public class ConnectionManager : IConnectionManager
     public async Task<string> GetPlayerState(string player_id)
     {
         await Player_poll_semaphore.WaitAsync();
-        PlayerConnectionState state = Player_poll.FirstOrDefault(val => val.Key == player_id).Value._state;
+        PlayerConnectionState state = Player_poll.FirstOrDefault(val => val.Key == player_id).Value.State;
         Player_poll_semaphore.Release();
 
         return state.GetType().Name;

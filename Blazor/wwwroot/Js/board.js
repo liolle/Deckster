@@ -1,5 +1,15 @@
 class GameBoard {
     app = null
+    #refTable = null;
+    #hub = null
+    constructor(hub,refTable) {
+        if (!hub.connection) {
+            console.error("Missing connection");
+            return;
+        }
+        this.#hub = hub;
+        this.#refTable = refTable;
+    }
     async init(container_name) {
         this.app = new PIXI.Application();
         await this.app.init({ background: '#222222', resizeTo: window });
@@ -7,7 +17,6 @@ class GameBoard {
         if (!!board) {
             board.appendChild(this.app.view)
         }
-
     }
 
     drawBoard(game) {
@@ -159,10 +168,11 @@ class GameBoard {
     }
 }
 
-
-
+export {GameBoard}
+/*
 const GAME_BOARD = new GameBoard()
 window.GAME_BOARD = GAME_BOARD;
 
 window.initializeBoard = async (game_board_container) => GAME_BOARD.init(game_board_container);
 window.drawBoard = (gameState) => GAME_BOARD.drawBoard(gameState)
+*/
