@@ -1,4 +1,4 @@
-class GameBoard {
+export  class GameBoard {
     app = null
     #refTable = null;
     #hub = null
@@ -88,7 +88,7 @@ class GameBoard {
         buttonContainer.on('pointerdown', async () => {
             if (this.quitPending) { return }
             this.quitPending = true
-            let userId = await window.GAME_CLIENT.matchServiceReference.invokeMethodAsync("GetUserId")
+            let userId = await this.#refTable.table["match"].invokeMethodAsync("GetUserId")
             if (!userId) {
                 console.log("LoggedOut")
                 return
@@ -167,12 +167,3 @@ class GameBoard {
         text.position.set((config.width + config.padding) / 2, (config.height + config.padding * 2) / 2);
     }
 }
-
-export {GameBoard}
-/*
-const GAME_BOARD = new GameBoard()
-window.GAME_BOARD = GAME_BOARD;
-
-window.initializeBoard = async (game_board_container) => GAME_BOARD.init(game_board_container);
-window.drawBoard = (gameState) => GAME_BOARD.drawBoard(gameState)
-*/

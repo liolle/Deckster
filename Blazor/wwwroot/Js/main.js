@@ -1,15 +1,16 @@
 import {GameBoard} from "./board.js";
-import {GameHub,GameClient} from "./game.js";
+import { GameClient,GameHub, DotNetRef} from "./game.js";
 
 try {
+    const REF_TABLE = new DotNetRef()
     const GAME_HUB = new GameHub();
     window.GAME_HUB = GAME_HUB;
     await GAME_HUB.start();
 
-    const GAME_CLIENT = new GameClient(GAME_HUB);
+    const GAME_CLIENT = new GameClient(GAME_HUB,REF_TABLE);
     window.GAME_CLIENT = GAME_CLIENT;
 
-    const GAME_BOARD = new GameBoard(GAME_HUB)
+    const GAME_BOARD = new GameBoard(GAME_HUB,REF_TABLE)
     window.GAME_BOARD = GAME_BOARD;
 
     window.initializeBoard = async (game_board_container) => GAME_BOARD.init(game_board_container);

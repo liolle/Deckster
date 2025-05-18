@@ -1,4 +1,4 @@
-class GameHub {
+export  class GameHub {
     connection = null
     constructor() {
         this.connection = new signalR.HubConnectionBuilder()
@@ -16,21 +16,24 @@ class GameHub {
     }
 }
 
-class DotNetRef {
-   refTable = {} 
+export class DotNetRef {
+   table = {} 
     
     register(name,reference){
-       this.refTable[name] = reference;
+       this.table[name] = reference;
     }
     
    get(name){
-       return this.refTable[name];
+       return this.table[name];
    } 
 }
 
-class GameClient {
-    #refTable = null;
+export  class GameClient {
+    #refTable = null
     #hub = null
+    
+    #clearHubListenersCb = []
+    
     constructor(hub,refTable) {
        if (!hub.connection) {
            console.error("Missing connection");
@@ -50,62 +53,78 @@ class GameClient {
     }
 
     setUpConnection() {
-        if (this.#hub != null) { 
-            this.clearListeners()
-        }
+        let conn = this.#hub.connection
 
-        this.#hub.connection.on("Join_game", this.#JoinGame);
-        this.#hub.connection.on("game_has_changed", this.#GameHasChanged);
-        this.#hub.connection.on("leave_game", this.#LeaveGame);
+        let join = this.#JoinGame.bind(this)
+        let game_change = this.#GameHasChanged.bind(this)
+        let leave = this.#LeaveGame.bind(this)
+        
+        conn.on("Join_game", join);
+        conn.on("game_has_changed", game_change);
+        conn.on("leave_game", leave);
+
+        this.#clearHubListenersCb.push(()=>{
+            conn.off("Join_game", join)
+        })
+        
+        this.#clearHubListenersCb.push(()=>{
+            conn.off("game_has_changed", game_change)
+        })
+        
+        this.#clearHubListenersCb.push(()=>{
+            conn.off("leave_game", leave)
+        })
     }
-    
+
     #JoinGame(match, player){
-        let ref = this.#refTable("match")
+        let ref = this.#refTable.table["match"]
+
         if (ref) {
             ref.invokeMethodAsync("NotifyJoinGame", match, player);
         }
     }
-    
+
     #GameHasChanged() {
-        let ref = this.#refTable("match")
+        let ref = this.#refTable.table["match"]
         if (ref) {
             ref.invokeMethodAsync("GameHasChanged");
         }
     }
-    
+
     #LeaveGame() {
-        let ref = this.#refTable("match")
+        let ref = this.#refTable.table["match"]
         if (ref) {
-            ref.invokeMethodAsync("NotifyLeaveGame");
+            ref.invokeMethodAsync("NotifyLeftGame");
         }
     }
-    
+
     clearListeners (){
-        if (this.#hub.connection == null) { return }
-        this.#hub.connection.off("Join_game");
-        this.#hub.connection.off("game_has_changed");
-        this.#hub.connection.off("leave_game");
+        for (const cb in this.#clearHubListenersCb) {
+           cb() 
+        } 
     }
 
     async searchGame(playerId) {
-        if (this.#hub.connection == null) { return }
-        await this.#hub.connection.invoke("SearchGameAsync", playerId, this.connection.connection.connectionId)
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        await conn.invoke("SearchGameAsync", playerId, conn.connection.connectionId)
     }
 
     async leaveGame(playerId) {
-        if (this.#hub.connection == null) { return }
-        await this.#hub.connection.invoke("LeaveGameAsync", playerId)
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        await conn.invoke("LeaveGameAsync", playerId)
     }
 
     async getPlayerState() {
-        if (this.#hub.connection == null) { return }
-        return await this.#hub.connection.invoke("GetPlayerStateAsync")
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        return await conn.invoke("GetPlayerStateAsync")
     }
 
     async getGameState() {
-        if (this.#hub.connection == null) { return }
-        return await this.#hub.connection.invoke("GetGameStateAsync")
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        return await conn.invoke("GetGameStateAsync")
     }
 }
-
-export {GameHub, GameClient};
