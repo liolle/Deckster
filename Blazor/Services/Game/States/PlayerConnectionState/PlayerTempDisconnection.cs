@@ -27,7 +27,7 @@ public class PlayerTempDisconnection(GameMatch match) : PlayerConnectionState
         await Task.Delay(50);
         PlayerConnectionContext? context = _context;
         if (context is null) { return false; }
-        context.TransitionTo(new PlayerPlaying(match));
+        context.TransitionTo(new PlayerInGame(match));
         return true;
     }
 }

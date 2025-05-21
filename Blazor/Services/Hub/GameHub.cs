@@ -114,9 +114,9 @@ public partial class GameHub
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return null; }
-        connectionManager.Match_poll.TryGetValue(id, out GameMatch? match);
+        connectionManager.Match_poll.TryGetValue(id, out GameContext? context);
 
-        return match;
+        return context?.Match;
     }   
 }
 

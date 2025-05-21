@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Blazor.services.game.state;
 
-public class PlayerPlaying(GameMatch match) : PlayerConnectionState
+public class PlayerInGame(GameMatch match) : PlayerConnectionState
 {
     private readonly GameMatch match = match;
 

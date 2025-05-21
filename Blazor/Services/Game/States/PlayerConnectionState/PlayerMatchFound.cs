@@ -15,7 +15,7 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
         ConnectionManager? connectionManager = _connectionManager;
         IHubContext<GameHub>? clients = _clients;
         if (context is null || connectionManager is null || clients is null) { return; }
-        Console.WriteLine($"Player {context.Player.Id} Found a match \n- {_match}");
+        Console.WriteLine($"Player {context.Player.Id} Found a match");
         await JoinGame();
     }
 
@@ -24,7 +24,7 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
         await Task.Delay(50);
         PlayerConnectionContext? context = _context;
         if (context is null) { return false; }
-        context.TransitionTo(new PlayerPlaying(_match));
+        context.TransitionTo(new PlayerInGame(_match));
         return true;
     }
 

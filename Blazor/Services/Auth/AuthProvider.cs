@@ -21,7 +21,7 @@ public class AuthProvider(IHttpContextAccessor httpContextAccessor, IConfigurati
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine($"{e}");
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
     }

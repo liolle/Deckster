@@ -18,7 +18,7 @@ public class ConnectionManager : IConnectionManager
     public OwnedSemaphore Match_semaphore { get; } = new(1, 1);
     public HashSet<Player> Searching_poll { get; } = [];
     public Dictionary<string, PlayerConnectionContext> Player_poll { get; } = [];
-    public Dictionary<string, GameMatch> Match_poll { get; } = [];
+    public Dictionary<string, GameContext> Match_poll { get; } = [];
 
     public async Task<bool> JoinQueueAsync(Player p)
     {
@@ -66,10 +66,11 @@ public class ConnectionManager : IConnectionManager
         }
 
         GameMatch match = new(playerId1, playerId2);
+        GameContext context = new GameContext(new GameInit(),match);
 
         await Match_semaphore.WaitAsync();
-        Match_poll.Add(playerId1.Id, match);
-        Match_poll.Add(playerId2.Id, match);
+        Match_poll.Add(playerId1.Id, context);
+        Match_poll.Add(playerId2.Id, context);
         Match_semaphore.Release();
 
         _ = p1Context.MatchFound(match);

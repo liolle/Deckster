@@ -1,3 +1,4 @@
+using Blazor.models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Blazor.services.game.state;
@@ -5,6 +6,7 @@ namespace Blazor.services.game.state;
 public class GameContext
 {
     public GameState State { get; }
+    public GameMatch Match { get; }
     
     public Type Type
     {
@@ -14,9 +16,10 @@ public class GameContext
         }
     }
 
-    public GameContext(GameState state)
+    public GameContext(GameState state, GameMatch match)
     {
         State = state;
+        Match = match;
     }
 }
 
@@ -36,5 +39,7 @@ public abstract class GameState
     }
     
     // TODO Add actions to pass from states to change state
+    
+    
     
 }
