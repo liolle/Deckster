@@ -8,33 +8,33 @@ public interface IConnectionManager
 {
     public Task<bool> JoinQueueAsync(Player p);
     public Task EndGame(GameMatch game);
-    public Task<string> GetPlayerState(string player_id);
+    public Task<string> GetPlayerState(string playerId);
 }
 
 public class ConnectionManager : IConnectionManager
 {
-    public OwnedSemaphore Searching_semaphore { get; } = new(1, 1);
-    public OwnedSemaphore Player_poll_semaphore { get; } = new(1, 1);
-    public OwnedSemaphore Match_semaphore { get; } = new(1, 1);
-    public HashSet<Player> Searching_poll { get; } = [];
-    public Dictionary<string, PlayerConnectionContext> Player_poll { get; } = [];
-    public Dictionary<string, GameContext> Match_poll { get; } = [];
+    public OwnedSemaphore SearchingSemaphore { get; } = new(1, 1);
+    public OwnedSemaphore PlayerPollSemaphore { get; } = new(1, 1);
+    public OwnedSemaphore MatchSemaphore { get; } = new(1, 1);
+    public HashSet<Player> SearchingPoll { get; } = [];
+    public Dictionary<string, PlayerConnectionContext> PlayerPoll { get; } = [];
+    public Dictionary<string, GameContext> MatchPoll { get; } = [];
 
     public async Task<bool> JoinQueueAsync(Player p)
     {
-        await Searching_semaphore.WaitAsync();
-        Searching_poll.Add(p);
-        Searching_semaphore.Release();
+        await SearchingSemaphore.WaitAsync();
+        SearchingPoll.Add(p);
+        SearchingSemaphore.Release();
         return true;
     }
 
     public async Task FindMatchUp()
     {
-        await Searching_semaphore.WaitAsync();
-        if (Searching_poll.Count < 2) { return; }
+        await SearchingSemaphore.WaitAsync();
+        if (SearchingPoll.Count < 2) { return; }
         Random random = new();
 
-        List<Player> players = [.. Searching_poll];
+        List<Player> players = [.. SearchingPoll];
         int p1 = random.Next(players.Count);
         int p2;
         do
@@ -45,18 +45,18 @@ public class ConnectionManager : IConnectionManager
         Player player1 = players[p1];
         Player player2 = players[p2];
 
-        Searching_poll.Remove(player1);
-        Searching_poll.Remove(player2);
+        SearchingPoll.Remove(player1);
+        SearchingPoll.Remove(player2);
         await CreateMatch(player1, player2);
-        Searching_semaphore.Release();
+        SearchingSemaphore.Release();
     }
 
     private async Task CreateMatch(Player playerId1, Player playerId2)
     {
-        await Player_poll_semaphore.WaitAsync();
-        Player_poll.TryGetValue(playerId1.Id, out PlayerConnectionContext? p1Context);
-        Player_poll.TryGetValue(playerId2.Id, out PlayerConnectionContext? p2Context);
-        Player_poll_semaphore.Release();
+        await PlayerPollSemaphore.WaitAsync();
+        PlayerPoll.TryGetValue(playerId1.Id, out PlayerConnectionContext? p1Context);
+        PlayerPoll.TryGetValue(playerId2.Id, out PlayerConnectionContext? p2Context);
+        PlayerPollSemaphore.Release();
 
         if (p1Context is null || p2Context is null)
         {
@@ -68,10 +68,10 @@ public class ConnectionManager : IConnectionManager
         GameMatch match = new(playerId1, playerId2);
         GameContext context = new GameContext(new GameInit(),match);
 
-        await Match_semaphore.WaitAsync();
-        Match_poll.Add(playerId1.Id, context);
-        Match_poll.Add(playerId2.Id, context);
-        Match_semaphore.Release();
+        await MatchSemaphore.WaitAsync();
+        MatchPoll.Add(playerId1.Id, context);
+        MatchPoll.Add(playerId2.Id, context);
+        MatchSemaphore.Release();
 
         _ = p1Context.MatchFound(match);
         _ = p2Context.MatchFound(match);
@@ -79,27 +79,27 @@ public class ConnectionManager : IConnectionManager
 
     public async Task EndGame(GameMatch match)
     {
-        await Match_semaphore.WaitAsync();
-        Match_poll.Remove(match.Player1.Id);
-        Match_poll.Remove(match.Player2.Id);
-        Match_semaphore.Release();
+        await MatchSemaphore.WaitAsync();
+        MatchPoll.Remove(match.Player1.Id);
+        MatchPoll.Remove(match.Player2.Id);
+        MatchSemaphore.Release();
 
-        await Player_poll_semaphore.WaitAsync();
+        await PlayerPollSemaphore.WaitAsync();
 
-        Player_poll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? context_p1);
-        Player_poll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? context_p2);
+        PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1);
+        PlayerPoll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? contextP2);
 
-        context_p1?.QuitGame();
-        context_p2?.QuitGame();
+        contextP1?.QuitGame();
+        contextP2?.QuitGame();
 
-        Player_poll_semaphore.Release();
+        PlayerPollSemaphore.Release();
     }
 
-    public async Task<string> GetPlayerState(string player_id)
+    public async Task<string> GetPlayerState(string playerId)
     {
-        await Player_poll_semaphore.WaitAsync();
-        PlayerConnectionState state = Player_poll.FirstOrDefault(val => val.Key == player_id).Value.State;
-        Player_poll_semaphore.Release();
+        await PlayerPollSemaphore.WaitAsync();
+        PlayerConnectionState state = PlayerPoll.FirstOrDefault(val => val.Key == playerId).Value.State;
+        PlayerPollSemaphore.Release();
 
         return state.GetType().Name;
     }

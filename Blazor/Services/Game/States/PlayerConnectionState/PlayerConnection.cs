@@ -80,25 +80,25 @@ public class PlayerConnectionContext
 
 public abstract class PlayerConnectionState
 {
-    protected PlayerConnectionContext? _context;
-    protected ConnectionManager? _connectionManager;
-    protected IHubContext<GameHub>? _clients;
+    protected PlayerConnectionContext? Context;
+    protected ConnectionManager? ConnectionManager;
+    protected IHubContext<GameHub>? Clients;
 
-    public PlayerConnectionState()
+    protected PlayerConnectionState()
     {
         _ = AfterInit();
     }
 
-    public async virtual Task AfterInit()
+    public virtual async Task AfterInit()
     {
         await Task.Delay(20);
     }
 
     public void SetContext(PlayerConnectionContext context, ConnectionManager connectionManager, IHubContext<GameHub> clients)
     {
-        _context = context;
-        _connectionManager = connectionManager;
-        _clients = clients;
+        Context = context;
+        ConnectionManager = connectionManager;
+        Clients = clients;
     }
 
 

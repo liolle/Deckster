@@ -9,8 +9,8 @@ public class PlayerSearching : PlayerConnectionState
     {
         await base.AfterInit();
 
-        PlayerConnectionContext? context = _context;
-        ConnectionManager? connectionManager = _connectionManager;
+        PlayerConnectionContext? context = Context;
+        ConnectionManager? connectionManager = ConnectionManager;
         if (context is null || connectionManager is null) { return; }
 
         bool joined = await connectionManager.JoinQueueAsync(context.Player);
@@ -27,7 +27,7 @@ public class PlayerSearching : PlayerConnectionState
     public override async Task<bool> MatchFound(GameMatch match)
     {
         await Task.Delay(50);
-        PlayerConnectionContext? context = _context;
+        PlayerConnectionContext? context = Context;
         if (context is null) { return false; }
         context.TransitionTo(new PlayerMathFound(match));
         return true;
@@ -40,16 +40,15 @@ public class PlayerSearching : PlayerConnectionState
 
     public override async Task<bool> Disconnect()
     {
-        PlayerConnectionContext? context = _context;
-        ConnectionManager? connectionManager = _connectionManager;
+        PlayerConnectionContext? context = Context;
+        ConnectionManager? connectionManager = ConnectionManager;
 
         if (context is null || connectionManager is null) { return false; }
         Player player = context.Player;
-        if (player is null) { return false; }
 
-        await connectionManager.Searching_semaphore.WaitAsync();
-        connectionManager.Searching_poll.Remove(player);
-        connectionManager.Searching_semaphore.Release();
+        await connectionManager.SearchingSemaphore.WaitAsync();
+        connectionManager.SearchingPoll.Remove(player);
+        connectionManager.SearchingSemaphore.Release();
 
         context.TransitionTo(new PlayerLobby());
         return true;

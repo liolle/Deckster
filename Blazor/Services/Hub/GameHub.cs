@@ -35,17 +35,17 @@ public partial class GameHub
             NickName = nickname
         };
 
-        await connectionManager.Player_poll_semaphore.WaitAsync();
-        if (!connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context))
+        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        if (!connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context))
         {
             context = new(new PlayerLobby(), p, connectionManager, hubContext);
-            connectionManager.Player_poll.Add(id, context);
+            connectionManager.PlayerPoll.Add(id, context);
         }
         else
         {
             context.Player = p;
         }
-        connectionManager.Player_poll_semaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release();
         if (context.IsSameType(typeof(PlayerTempDisconnection)))
         {
             await context.SearchGame();
@@ -59,13 +59,13 @@ public partial class GameHub
         if (id is null) { return; }
 
         Player p = new() { Id = id, ConnectionId = Context.ConnectionId };
-        await connectionManager.Player_poll_semaphore.WaitAsync();
-        if (!connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context))
+        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        if (!connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context))
         {
             context = new(new PlayerLobby(), p, connectionManager, hubContext);
-            connectionManager.Player_poll.Add(id, context);
+            connectionManager.PlayerPoll.Add(id, context);
         }
-        connectionManager.Player_poll_semaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release();
 
         await context.Disconnect();
         await base.OnDisconnectedAsync(exception);
@@ -73,22 +73,22 @@ public partial class GameHub
     
     public async Task SearchGameAsync(string playerId, string connectionId)
     {
-        await connectionManager.Player_poll_semaphore.WaitAsync();
-        if (!connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context))
+        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        if (!connectionManager.PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context))
         {
             context = new(new PlayerLobby(), new Player() { Id = playerId, ConnectionId = connectionId }, connectionManager, hubContext);
-            connectionManager.Player_poll.Add(playerId, context);
+            connectionManager.PlayerPoll.Add(playerId, context);
         }
         _ = context.SearchGame();
-        connectionManager.Player_poll_semaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release();
     }
 
     public async Task LeaveGameAsync(string playerId)
     {
-        await connectionManager.Player_poll_semaphore.WaitAsync();
-        connectionManager.Player_poll.TryGetValue(playerId, out PlayerConnectionContext? context);
+        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        connectionManager.PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context);
         _ = context?.Quit();
-        connectionManager.Player_poll_semaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release();
     }
     
     public async Task<string> GetPlayerStateAsync()
@@ -96,7 +96,7 @@ public partial class GameHub
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return ""; }
-        connectionManager.Player_poll.TryGetValue(id, out PlayerConnectionContext? context);
+        connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context);
         if (context is null)
         {
             return "";
@@ -114,7 +114,7 @@ public partial class GameHub
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return null; }
-        connectionManager.Match_poll.TryGetValue(id, out GameContext? context);
+        connectionManager.MatchPoll.TryGetValue(id, out GameContext? context);
 
         return context?.Match;
     }   

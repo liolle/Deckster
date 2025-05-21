@@ -11,9 +11,9 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
     public override async Task AfterInit()
     {
         await base.AfterInit();
-        PlayerConnectionContext? context = _context;
-        ConnectionManager? connectionManager = _connectionManager;
-        IHubContext<GameHub>? clients = _clients;
+        PlayerConnectionContext? context = Context;
+        ConnectionManager? connectionManager = ConnectionManager;
+        IHubContext<GameHub>? clients = Clients;
         if (context is null || connectionManager is null || clients is null) { return; }
         Console.WriteLine($"Player {context.Player.Id} Found a match");
         await JoinGame();
@@ -22,7 +22,7 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
     public override async Task<bool> JoinGame()
     {
         await Task.Delay(50);
-        PlayerConnectionContext? context = _context;
+        PlayerConnectionContext? context = Context;
         if (context is null) { return false; }
         context.TransitionTo(new PlayerInGame(_match));
         return true;
@@ -31,7 +31,7 @@ public class PlayerMathFound(GameMatch match) : PlayerConnectionState
     public override async Task<bool> Disconnect()
     {
         await Task.Delay(50);
-        PlayerConnectionContext? context = _context;
+        PlayerConnectionContext? context = Context;
         if (context is null) { return false; }
         context.TransitionTo(new PlayerTempDisconnection(_match));
         return true;

@@ -46,7 +46,7 @@ public partial class Game
         if (_matchService is null) { return; }
         if (firstRender)
         {
-            _ = _board?.initAsync("game-board-container");
+            _ = _board?.InitAsync("game-board-container");
         }
         await Task.CompletedTask;
     }

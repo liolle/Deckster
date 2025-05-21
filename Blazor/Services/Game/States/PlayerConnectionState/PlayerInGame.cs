@@ -5,29 +5,29 @@ namespace Blazor.services.game.state;
 
 public class PlayerInGame(GameMatch match) : PlayerConnectionState
 {
-    private readonly GameMatch match = match;
+    private readonly GameMatch _match = match;
 
     public override async Task AfterInit()
     {
         await base.AfterInit();
-        PlayerConnectionContext? context = _context;
-        ConnectionManager? connectionManager = _connectionManager;
-        IHubContext<GameHub>? hub = _clients;
+        PlayerConnectionContext? context = Context;
+        ConnectionManager? connectionManager = ConnectionManager;
+        IHubContext<GameHub>? hub = Clients;
         if (context is null || connectionManager is null || hub is null) { return; }
 
         hub.Clients.Client(context.Player.ConnectionId)
-          .SendAsync("Join_game", match, context.Player).GetAwaiter().OnCompleted(() =>
+          .SendAsync("Join_game", _match, context.Player).GetAwaiter().OnCompleted(() =>
               {
-                  Console.WriteLine($"Player {_context?.Player} Is Playing");
+                  Console.WriteLine($"Player {Context?.Player} Is Playing");
               });
     }
 
     public override async Task<bool> Disconnect()
     {
         await Task.Delay(50);
-        PlayerConnectionContext? context = _context;
+        PlayerConnectionContext? context = Context;
         if (context is null) { return false; }
-        context.TransitionTo(new PlayerTempDisconnection(match));
+        context.TransitionTo(new PlayerTempDisconnection(_match));
         return true;
     }
 
@@ -35,9 +35,9 @@ public class PlayerInGame(GameMatch match) : PlayerConnectionState
     public override async Task<bool> Quit()
     {
         await Task.Delay(50);
-        ConnectionManager? connectionManager = _connectionManager;
+        ConnectionManager? connectionManager = ConnectionManager;
         if (connectionManager is null) { return false; }
-        await connectionManager.EndGame(match);
+        await connectionManager.EndGame(_match);
         return true;
     }
 

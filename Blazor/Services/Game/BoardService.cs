@@ -6,14 +6,14 @@ namespace Blazor.services;
 
 public interface IBoardService
 {
-    Task initAsync(string boar_container_name);
+    Task InitAsync(string boarContainerName);
 }
 
 public class BoardService : IBoardService
 {
     private readonly IJSRuntime _jsRuntime;
 
-    private GameMatch _gameState { get; set; } = new(new(), new());
+    private GameMatch GameState { get; set; } = new(new(), new());
 
     private readonly MatchService _match;
 
@@ -23,15 +23,15 @@ public class BoardService : IBoardService
         _match = match;
     }
 
-    public async Task initAsync(string boar_container_name)
+    public async Task InitAsync(string boarContainerName)
     {
-        await _jsRuntime.InvokeVoidAsync("initializeBoard", boar_container_name);
+        await _jsRuntime.InvokeVoidAsync("initializeBoard", boarContainerName);
 
         GameMatch? g = await _match.GetGameState();
         if (g is not null)
         {
-            _gameState = g;
+            GameState = g;
         }
-        await _jsRuntime.InvokeVoidAsync("drawBoard", _gameState);
+        await _jsRuntime.InvokeVoidAsync("drawBoard", GameState);
     }
 }
