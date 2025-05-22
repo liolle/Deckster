@@ -66,7 +66,8 @@ public class ConnectionManager : IConnectionManager
         }
 
         GameMatch match = new(playerId1, playerId2);
-        GameContext context = new GameContext(new GameInit(),match);
+        GameContext context = new GameContext(new GameInit(),match,new BoardManager(),p1Context.Hub);
+        
 
         await MatchSemaphore.WaitAsync();
         MatchPoll.Add(playerId1.Id, context);

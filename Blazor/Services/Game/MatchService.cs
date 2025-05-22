@@ -20,9 +20,9 @@ public partial class MatchService : IDisposable
     public event Action? OnGameLeft;
     public event Action<GameMatch>? OnGameChange;
     private readonly IJSRuntime _jsRuntime;
-    private DotNetObjectReference<MatchService>? _dotNetObjectReference;
+    private readonly DotNetObjectReference<MatchService>? _dotNetObjectReference;
 
-    private AuthenticationStateProvider? _authProvider { get; set; }
+    private AuthenticationStateProvider? AuthProvider { get; set; }
 
     private string UserId { get; set; } = "";
     public MatchState State { get; set; } = MatchState.lobby;
@@ -33,15 +33,15 @@ public partial class MatchService : IDisposable
         _jsRuntime = jSRuntime;
         _dotNetObjectReference = DotNetObjectReference.Create(this);
         _jsRuntime.InvokeVoidAsync("initializeMatchService", _dotNetObjectReference);
-        _authProvider = authProvider;
+        AuthProvider = authProvider;
         InitAsync();
     }
 
     private async void InitAsync()
     {
-        if (_authProvider is not null)
+        if (AuthProvider is not null)
         {
-            AuthenticationState authState = await _authProvider.GetAuthenticationStateAsync();
+            AuthenticationState authState = await AuthProvider.GetAuthenticationStateAsync();
             ClaimsPrincipal principal = authState.User;
 
             if (!(principal.Identity?.IsAuthenticated ?? false)) { return; }

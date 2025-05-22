@@ -8,27 +8,16 @@ public class PlayerConnectionContext
     public PlayerConnectionState State { get; private set; } = new EmptyState();
     public GameContext? GameContext { get; private set; } 
     private readonly ConnectionManager _connectionManager;
-    private IHubContext<GameHub> _hub;
+    public IHubContext<GameHub> Hub;
 
     public Player Player { get; set; }
-    public Type Type
-    {
-        get
-        {
-            return State.GetType();
-        }
-    }
-
-    public void UpdateHub(IHubContext<GameHub> hub)
-    {
-        _hub = hub;
-    }
+    public Type Type => State.GetType();
 
     public PlayerConnectionContext(PlayerConnectionState state, Player player, ConnectionManager connectionManager, IHubContext<GameHub> clients)
     {
         _connectionManager = connectionManager;
         Player = player;
-        _hub = clients;
+        Hub = clients;
         TransitionTo(state);
     }
 
@@ -40,7 +29,7 @@ public class PlayerConnectionContext
     public void TransitionTo(PlayerConnectionState state)
     {
         State = state;
-        State.SetContext(this, _connectionManager, _hub);
+        State.SetContext(this, _connectionManager, Hub);
     }
 
     public Task<bool> SearchGame()
@@ -72,7 +61,7 @@ public class PlayerConnectionContext
 
         TransitionTo(new PlayerLobby());
         await Task.Delay(100);
-        await _hub.Clients.Client(Player.ConnectionId).SendAsync("leave_game");
+        await Hub.Clients.Client(Player.ConnectionId).SendAsync("leave_game");
         Console.WriteLine($"Player {Player} left the game");
     }
 

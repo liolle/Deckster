@@ -9,17 +9,17 @@ namespace Blazor.Components.Pages.Game;
 public partial class Game
 {
     [Inject]
-    private MatchService? _matchService { get; set; }
+    private MatchService? MatchService { get; set; }
 
     [Inject]
-    private AuthenticationStateProvider? _authProvider { get; set; }
+    private AuthenticationStateProvider? AuthProvider { get; set; }
 
     [Inject]
-    private BoardService? _board { get; set; }
+    private BoardService? Board { get; set; }
 
 
-    public Player? _me { get; private set; }
-    public Player? _opponent { get; private set; }
+    public Player? Me { get; private set; }
+    public Player? Opponent { get; private set; }
 
     private void HandleGameStateChange(GameMatch game)
     {
@@ -28,32 +28,33 @@ public partial class Game
 
     protected override async Task OnInitializedAsync()
     {
-        if (_matchService is null) { return; }
-        _matchService.OnGameChange += HandleGameStateChange;
+        if (MatchService is null) { return; }
+        MatchService.OnGameChange += HandleGameStateChange;
 
         await Task.CompletedTask;
     }
 
     private void LeaveGame()
     {
-        if (_me is null) { return; }
-        _ = _matchService?.LeaveGameAsync();
+        if (Me is null) { return; }
+        _ = MatchService?.LeaveGameAsync();
     }
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_matchService is null) { return; }
+        if (MatchService is null) { return; }
         if (firstRender)
         {
-            _ = _board?.InitAsync("game-board-container");
+            _ = Board?.InitAsync("game-board-container");
+            // TODO send ready to play message.
         }
         await Task.CompletedTask;
     }
 
     public void Dispose()
     {
-        if (_matchService is null) { return; }
-        _matchService.OnGameChange -= HandleGameStateChange;
+        if (MatchService is null) { return; }
+        MatchService.OnGameChange -= HandleGameStateChange;
     }
 }
