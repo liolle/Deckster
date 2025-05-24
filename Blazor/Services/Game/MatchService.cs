@@ -13,6 +13,9 @@ public enum MatchState
     playing,
 }
 
+/*
+ * Scoped service facilitating communication with the GameHub 
+ */
 public partial class MatchService : IDisposable
 {
     public event Action<GameMatch, Player>? JoinGame;

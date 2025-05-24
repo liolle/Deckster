@@ -7,9 +7,13 @@ using Microsoft.AspNetCore.SignalR;
 namespace Blazor.services;
 
 // Setup 
-
+/*
+ * Singleton service responsible for managing SignalR messages (we need to use the connection manager to modify the player context)
+ * Those methods are called on the client using the signalrR js library 
+ */
 public partial class GameHub(
     ConnectionManager connectionManager,
+    BoardManager boardManager,
     AuthenticationStateProvider authProvider,
     IHubContext<GameHub> hubContext) : Hub
 {
@@ -114,9 +118,26 @@ public partial class GameHub
         IEnumerable<Claim> claims = await GetClaims();
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return null; }
-        connectionManager.MatchPoll.TryGetValue(id, out GameContext? context);
 
-        return context?.Match;
+        return await boardManager.GetPlayerMatch(id);
+    }   
+    
+    public async Task ReadyToPlayAsync()
+    {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null)
+        {
+            return;
+        }
+        
+        // get the game context base on the player 
+        // return if not found
+
+        
+        // Send Player ready transformation
+        
+        Console.WriteLine($"PlayerId: {id} is ready to play");
     }   
 }
 

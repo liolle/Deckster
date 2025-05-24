@@ -2,6 +2,7 @@ namespace Blazor.models;
 
 public class GameMatch
 {
+    public string Id { get; init; }
     public Player Player1 { get; } 
     public Player Player2 { get; }
    
@@ -14,17 +15,19 @@ public class GameMatch
         
         // Pick First to play
         NexToPlay = player1;
+        Id = GenerateId();
     }
-    
-    
-    
+
+    private string GenerateId()
+    {
+        string gui = Guid.NewGuid().ToString().Replace("-","");
+        return $"GAME{gui}";
+    }
 }
 
 public record Player
 {
-
     public string Id { get; init; } = "";
     public string ConnectionId { get; init; } = "";
     public string NickName { get; set; } = "";
 }
-

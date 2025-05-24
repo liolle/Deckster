@@ -19,10 +19,13 @@ export  class GameBoard {
         }
     }
 
-    drawBoard(game) {
-        this.drawPlayerTag(game["player1"]["nickName"], game["player2"]["nickName"])
+    drawBoard(game,playerId) {
+        if(game["player1"]["id"] === playerId) {
+            this.drawPlayerTag(game["player1"]["nickName"], game["player2"]["nickName"])
+        }else{
+            this.drawPlayerTag(game["player2"]["nickName"], game["player1"]["nickName"])
+        }
         this.drawQuitGameButton()
-
     }
 
     drawQuitGameButton() {
@@ -158,12 +161,18 @@ export  class GameBoard {
         while (text.height > (h * 6 / 10) && text.style.fontSize > 4) { // 70 = rect height - padding
             text.style.fontSize--;
         }
-        console.log(text.width)
     }
 
     #centerText(text, config) {
 
         text.anchor.set(0.5);
         text.position.set((config.width + config.padding) / 2, (config.height + config.padding * 2) / 2);
+    }
+
+    async readyToPlay()
+    {
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        return await conn.invoke("ReadyToPlayAsync")
     }
 }

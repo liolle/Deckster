@@ -127,4 +127,6 @@ export  class GameClient {
         if (conn == null) { return }
         return await conn.invoke("GetGameStateAsync")
     }
+    
+    
 }

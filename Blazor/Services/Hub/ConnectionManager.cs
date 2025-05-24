@@ -11,14 +11,15 @@ public interface IConnectionManager
     public Task<string> GetPlayerState(string playerId);
 }
 
-public class ConnectionManager : IConnectionManager
+/*
+ * Singleton service responsible for holding and managing playerContext.
+ */
+public class ConnectionManager(BoardManager boardManager) : IConnectionManager
 {
     public OwnedSemaphore SearchingSemaphore { get; } = new(1, 1);
     public OwnedSemaphore PlayerPollSemaphore { get; } = new(1, 1);
-    public OwnedSemaphore MatchSemaphore { get; } = new(1, 1);
     public HashSet<Player> SearchingPoll { get; } = [];
     public Dictionary<string, PlayerConnectionContext> PlayerPoll { get; } = [];
-    public Dictionary<string, GameContext> MatchPoll { get; } = [];
 
     public async Task<bool> JoinQueueAsync(Player p)
     {
@@ -66,13 +67,10 @@ public class ConnectionManager : IConnectionManager
         }
 
         GameMatch match = new(playerId1, playerId2);
-        GameContext context = new GameContext(new GameInit(),match,new BoardManager(),p1Context.Hub);
+        GameContext gameContext = new GameContext(new GameInit(),match,new BoardManager(),p1Context.Hub);
         
 
-        await MatchSemaphore.WaitAsync();
-        MatchPoll.Add(playerId1.Id, context);
-        MatchPoll.Add(playerId2.Id, context);
-        MatchSemaphore.Release();
+        await boardManager.RegisterGame(gameContext);
 
         _ = p1Context.MatchFound(match);
         _ = p2Context.MatchFound(match);
@@ -80,11 +78,7 @@ public class ConnectionManager : IConnectionManager
 
     public async Task EndGame(GameMatch match)
     {
-        await MatchSemaphore.WaitAsync();
-        MatchPoll.Remove(match.Player1.Id);
-        MatchPoll.Remove(match.Player2.Id);
-        MatchSemaphore.Release();
-
+        await boardManager.DeleteGame(match.Id);
         await PlayerPollSemaphore.WaitAsync();
 
         PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1);

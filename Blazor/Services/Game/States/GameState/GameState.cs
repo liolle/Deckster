@@ -35,7 +35,7 @@ public class GameContext
 public abstract class GameState
 {
     protected GameContext? Context;
-    protected BoardManager BoardManager;
+    protected BoardManager? BoardManager;
     protected IHubContext<GameHub>?  Clients;
     
     protected GameState()

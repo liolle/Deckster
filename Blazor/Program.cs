@@ -42,6 +42,7 @@ builder.Services.AddHttpContextAccessor();
 // Websocket server
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+builder.Services.AddSingleton<BoardManager>();
 builder.Services.AddSingleton<ConnectionManager>();
 
 // CSRF
@@ -50,9 +51,8 @@ builder.Services.AddSingleton<CSRFService>();
 
 // Auth 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthProvider>();
-
-
 builder.Services.AddScoped<HttpInfoService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICardsService, CardsService>();
 builder.Services.AddScoped<ToastService>();

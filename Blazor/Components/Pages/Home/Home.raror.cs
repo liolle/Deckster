@@ -8,16 +8,15 @@ namespace Blazor.Components.Pages.Home;
 
 public partial class Home : ComponentBase, IDisposable
 {
-    List<Deck> Deck_list { get; set; } = [];
+    private List<Deck> DeckList { get; set; } = [];
 
     [Inject]
-    private MatchService? _matchService { get; set; }
+    private MatchService? MatchService { get; set; }
+
+    [Inject] private ICardsService? CardsService { get; set; }
 
     [Inject]
-    ICardsService? cardsService { get; set; }
-
-    [Inject]
-    private ClockService? _clockService { get; set; }
+    private ClockService? ClockService { get; set; }
 
     bool FindGameVisible { get; set; } = false;
 
@@ -25,31 +24,31 @@ public partial class Home : ComponentBase, IDisposable
     protected override async Task OnInitializedAsync()
     {
         await FetchUserDecks();
-        if (_clockService is not null)
+        if (ClockService is not null)
         {
-            _clockService.Visibility += UpdateVisibility;
-            FindGameVisible = !_clockService.Visible;
+            ClockService.Visibility += UpdateVisibility;
+            FindGameVisible = !ClockService.Visible;
         }
     }
 
     /* Fetch deck in the where state is done */
     private async Task FetchUserDecks()
     {
-        if (cardsService is null) { return; }
-        Deck_list = await cardsService.GetUserDeck("done");
+        if (CardsService is null) { return; }
+        DeckList = await CardsService.GetUserDeck("done");
 
         StateHasChanged();
     }
 
     public async void SearchGame()
     {
-        if (_matchService is null || _matchService.State != MatchState.lobby)
+        if (MatchService is null || MatchService.State != MatchState.lobby)
         { return; }
         await FetchUserDecks();
-        if (Deck_list.Count < 1)
+        if (DeckList.Count < 1)
         { return; }
-        await _matchService.SearchGameAsync();
-        _clockService?.Start();
+        await MatchService.SearchGameAsync();
+        ClockService?.Start();
     }
 
     private async void UpdateVisibility(bool visible)
@@ -65,9 +64,9 @@ public partial class Home : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        if (_clockService is not null)
+        if (ClockService is not null)
         {
-            _clockService.Visibility -= UpdateVisibility;
+            ClockService.Visibility -= UpdateVisibility;
         }
     }
 }

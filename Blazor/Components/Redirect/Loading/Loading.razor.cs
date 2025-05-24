@@ -11,13 +11,13 @@ namespace Blazor.Components.Redirect.Loading;
 public partial class Loading : ComponentBase, IDisposable
 {
   [Inject]
-  private MatchService? _matchService { get; set; }
+  private MatchService? MatchService { get; set; }
 
   [Inject]
-  private NavigationManager? navigation { get; set; }
+  private NavigationManager? Navigation { get; set; }
 
   [Inject]
-  ClockService? _clockService { get; set; }
+  ClockService? ClockService { get; set; }
 
   private bool IsLoading { get; set; } = true;
   private bool Resolved { get; set; } = false;
@@ -29,32 +29,32 @@ public partial class Loading : ComponentBase, IDisposable
 
   protected override void OnInitialized()
   {
-    if (_matchService is null)
+    if (MatchService is null)
     {
       return;
     }
 
-    _matchService.JoinGame += HandleJoinGame;
-    _matchService.OnGameLeft += OnGameLeft;
+    MatchService.JoinGame += HandleJoinGame;
+    MatchService.OnGameLeft += OnGameLeft;
 
-    if (navigation is not null)
+    if (Navigation is not null)
     {
-      navigation.LocationChanged += HandleLocationChange;
+      Navigation.LocationChanged += HandleLocationChange;
 
     }
   }
 
   private async void HandleLocationChange(object? sender, LocationChangedEventArgs e)
   {
-    if (_matchService is null)
+    if (MatchService is null)
     {
       return;
     }
 
-    string state = await _matchService.GetPlayerState() ?? "";
+    string state = await MatchService.GetPlayerState() ?? "";
     if (state.Split('.').Last() == "PlayerTempDisconnection")
     {
-      _ = _matchService.SearchGameAsync();
+      _ = MatchService.SearchGameAsync();
     }
   }
 
@@ -80,9 +80,9 @@ public partial class Loading : ComponentBase, IDisposable
 
   private async Task UpdateGameState()
   {
-    if (_matchService is not null)
+    if (MatchService is not null)
     {
-      string state = await _matchService.GetPlayerState();
+      string state = await MatchService.GetPlayerState();
       HandleGameState(state);
       return;
     }
@@ -94,26 +94,26 @@ public partial class Loading : ComponentBase, IDisposable
     switch (state)
     {
       case "Blazor.services.game.state.PlayerLobby":
-        if (_matchService is not null)
+        if (MatchService is not null)
         {
-          _matchService.State = MatchState.lobby;
+          MatchService.State = MatchState.lobby;
         }
 
         Navigate("/");
         break;
       case "Blazor.services.game.state.PlayerPlaying":
-        if (_matchService is not null)
+        if (MatchService is not null)
         {
-          _matchService.State = MatchState.playing;
+          MatchService.State = MatchState.playing;
         }
 
         Navigate("/game");
         break;
 
       default:
-        if (_matchService is not null)
+        if (MatchService is not null)
         {
-          _matchService.State = MatchState.lobby;
+          MatchService.State = MatchState.lobby;
         }
         Navigate("/");
         break;
@@ -123,19 +123,19 @@ public partial class Loading : ComponentBase, IDisposable
   private void StopLoading()
   {
     IsLoading = false;
-    if (_matchService is not null)
+    if (MatchService is not null)
     {
-      _matchService.IsLoading = false;
+      MatchService.IsLoading = false;
     }
   }
 
   private void HandleJoinGame(GameMatch gameMatch, Player player)
   {
-    if (_clockService is not null)
+    if (ClockService is not null)
     {
-      _clockService.Stop();
-      _clockService.Reset();
-      _clockService.ShowClock(false);
+      ClockService.Stop();
+      ClockService.Reset();
+      ClockService.ShowClock(false);
     }
     Navigate("/game");
   }
@@ -147,7 +147,7 @@ public partial class Loading : ComponentBase, IDisposable
 
   private void Navigate(string location)
   {
-    Match matcher = Regex.Match(navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/([a-zA-Z0-9]*)[^\/]*$");
+    Match matcher = Regex.Match(Navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/([a-zA-Z0-9]*)[^\/]*$");
     string loc = matcher.Groups[2].Value;
     StopLoading();
     Resolved = true;
@@ -157,20 +157,20 @@ public partial class Loading : ComponentBase, IDisposable
       return;
     }
 
-    navigation?.NavigateTo(location);
+    Navigation?.NavigateTo(location);
   }
 
   public void Dispose()
   {
-    if (_matchService is not null)
+    if (MatchService is not null)
     {
-      _matchService.JoinGame -= HandleJoinGame;
-      _matchService.OnGameLeft -= OnGameLeft;
+      MatchService.JoinGame -= HandleJoinGame;
+      MatchService.OnGameLeft -= OnGameLeft;
     }
 
-    if (navigation is not null)
+    if (Navigation is not null)
     {
-      navigation.LocationChanged -= HandleLocationChange;
+      Navigation.LocationChanged -= HandleLocationChange;
     }
   }
 }

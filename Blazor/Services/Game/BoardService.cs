@@ -26,12 +26,23 @@ public class BoardService : IBoardService
     public async Task InitAsync(string boarContainerName)
     {
         await _jsRuntime.InvokeVoidAsync("initializeBoard", boarContainerName);
+    }
 
-        GameMatch? g = await _match.GetGameState();
-        if (g is not null)
-        {
-            GameState = g;
-        }
-        await _jsRuntime.InvokeVoidAsync("drawBoard", GameState);
+    public async Task DrawBoard(Player player)
+    {
+        await UpdateGameState();
+        await _jsRuntime.InvokeVoidAsync("drawBoard", GameState, player.Id);
+    }
+
+    public async Task UpdateGameState()
+    {
+        GameMatch? m = await _match.GetGameState();
+        if (m is null){return;}
+        GameState = m;
+    }
+
+    public void ReadyToPlay()
+    {
+       _ = _jsRuntime.InvokeVoidAsync("readyToPlay");
     }
 }
