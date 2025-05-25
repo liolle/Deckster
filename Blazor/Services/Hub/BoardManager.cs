@@ -33,7 +33,7 @@ public class BoardManager : IBoardManager, IDisposable
         {
             bool unique = await IsUniqueCall(key);
             if (!unique){return;}
-            Console.WriteLine($"{playerId} is ready to play");
+            _ = Ready(playerId);
         }
         finally
         {
@@ -41,11 +41,29 @@ public class BoardManager : IBoardManager, IDisposable
         }
     }
 
+
+    private async Task Ready(string playerId)
+    {
+        try
+        {
+            await MatchSemaphore.WaitAsync();
+            MatchMapping.TryGetValue(playerId, out string? gameId);
+            if (gameId is null){return;}
+            MatchPoll.TryGetValue(gameId, out GameContext? matchContext);
+            if (matchContext is null){return;}
+
+            _ = matchContext.PlayerReady(playerId);
+        }
+        finally
+        {
+            MatchSemaphore.Release();
+        }
+    }
+
     public async Task RegisterGame(GameContext context)
     {
         try
         {
-            Console.WriteLine($"Creating game: {context.Match.Id}");
             await MatchSemaphore.WaitAsync();
             MatchPoll.Add(context.Match.Id,context);
             MatchMapping.Add(context.Match.Player1.Id,context.Match.Id);
@@ -61,7 +79,6 @@ public class BoardManager : IBoardManager, IDisposable
     {
         try
         {
-            Console.WriteLine($"DeleteGame: {matchId}");
             await MatchSemaphore.WaitAsync();
             GameContext context = MatchPoll.FirstOrDefault(val => val.Key == matchId).Value;
             MatchPoll.Remove(matchId);

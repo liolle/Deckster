@@ -24,11 +24,17 @@ public class GameContext
         Match = match;
         _boardManager = boardManager;
         _hub = hub;
+        TransitionTo(state);
     }
 
     public Task<bool> PickPlayer()
     {
         return State.PickPlayer();
+    }
+
+    public Task<bool> PlayerReady(string playerId)
+    {
+        return State.PlayerReady(playerId);
     }
 }
 
@@ -42,7 +48,6 @@ public abstract class GameState
     {
         _ = AfterInit();
     }
-
     
     public async virtual Task AfterInit()
     {
@@ -59,8 +64,9 @@ public abstract class GameState
     {
         return Task.FromResult(false);
     }
-    
-    
-    
-    
+
+    public virtual Task<bool> PlayerReady(string playerId)
+    {
+        return Task.FromResult(false);
+    }
 }

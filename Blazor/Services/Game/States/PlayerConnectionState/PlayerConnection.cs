@@ -64,7 +64,6 @@ public class PlayerConnectionContext
         await Hub.Clients.Client(Player.ConnectionId).SendAsync("leave_game");
         Console.WriteLine($"Player {Player} left the game");
     }
-
 }
 
 public abstract class PlayerConnectionState
@@ -90,13 +89,11 @@ public abstract class PlayerConnectionState
         Clients = clients;
     }
 
-
     public virtual async Task<bool> Disconnect()
     {
         await Task.Delay(10);
         return false;
     }
-
 
     public virtual async Task<bool> JoinGame()
     {
@@ -115,6 +112,7 @@ public abstract class PlayerConnectionState
         await Task.Delay(10);
         return false;
     }
+    
     public virtual async Task<bool> Quit()
     {
         await Task.Delay(10);

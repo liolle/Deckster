@@ -100,10 +100,8 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
     {
         await boardManager.DeleteGame(match.Id);
         await PlayerPollSemaphore.WaitAsync();
-
-        try
-        {
-            PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1);
+        try { 
+            PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1); 
             PlayerPoll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? contextP2);
 
             if (contextP1 is null || contextP2 is null)
@@ -123,10 +121,14 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
     public async Task<string> GetPlayerState(string playerId)
     {
         await PlayerPollSemaphore.WaitAsync();
-        PlayerConnectionState state = PlayerPoll.FirstOrDefault(val => val.Key == playerId).Value.State;
+        PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context) ;
+        if (context is null)
+        {
+            return "";
+        }
         PlayerPollSemaphore.Release();
 
-        return nameof(state);
+        return nameof(context.State);
     }
 
     public void Dispose()
