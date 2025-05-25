@@ -14,42 +14,61 @@ public interface IConnectionManager
 /*
  * Singleton service responsible for holding and managing playerContext.
  */
-public class ConnectionManager(BoardManager boardManager) : IConnectionManager
+public class ConnectionManager(BoardManager boardManager) : IConnectionManager,IDisposable
 {
-    public OwnedSemaphore SearchingSemaphore { get; } = new(1, 1);
-    public OwnedSemaphore PlayerPollSemaphore { get; } = new(1, 1);
+    public OwnedSemaphore SearchingSemaphore { get; } = new(1, 1,"Searching");
+    public OwnedSemaphore PlayerPollSemaphore { get; } = new(1, 1,"PlayerPoll");
     public HashSet<Player> SearchingPoll { get; } = [];
     public Dictionary<string, PlayerConnectionContext> PlayerPoll { get; } = [];
-
+    
     public async Task<bool> JoinQueueAsync(Player p)
     {
-        await SearchingSemaphore.WaitAsync();
-        SearchingPoll.Add(p);
-        SearchingSemaphore.Release();
-        return true;
+        try
+        {
+            await SearchingSemaphore.WaitAsync();
+            SearchingPoll.Add(p);
+            return true;
+        }
+        finally
+        {
+            
+            SearchingSemaphore.Release();
+        }
     }
+    
 
     public async Task FindMatchUp()
     {
-        await SearchingSemaphore.WaitAsync();
-        if (SearchingPoll.Count < 2) { return; }
-        Random random = new();
-
-        List<Player> players = [.. SearchingPoll];
-        int p1 = random.Next(players.Count);
-        int p2;
-        do
+        try
         {
-            p2 = random.Next(players.Count);
-        } while (p1 == p2);
+            await SearchingSemaphore.WaitAsync();
+            if (SearchingPoll.Count < 2)
+            {
+                SearchingSemaphore.Release();
+                return;
+            }
+            Random random = new();
 
-        Player player1 = players[p1];
-        Player player2 = players[p2];
+            List<Player> players = [.. SearchingPoll];
+            int p1 = random.Next(players.Count);
+            int p2;
+            do
+            {
+                p2 = random.Next(players.Count);
+            } while (p1 == p2);
 
-        SearchingPoll.Remove(player1);
-        SearchingPoll.Remove(player2);
-        await CreateMatch(player1, player2);
-        SearchingSemaphore.Release();
+            Player player1 = players[p1];
+            Player player2 = players[p2];
+
+            SearchingPoll.Remove(player1);
+            SearchingPoll.Remove(player2);
+            await CreateMatch(player1, player2);
+        }
+        finally
+        {
+            
+            SearchingSemaphore.Release();
+        }
     }
 
     private async Task CreateMatch(Player playerId1, Player playerId2)
@@ -74,6 +93,7 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager
 
         _ = p1Context.MatchFound(match);
         _ = p2Context.MatchFound(match);
+        
     }
 
     public async Task EndGame(GameMatch match)
@@ -81,13 +101,23 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager
         await boardManager.DeleteGame(match.Id);
         await PlayerPollSemaphore.WaitAsync();
 
-        PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1);
-        PlayerPoll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? contextP2);
+        try
+        {
+            PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1);
+            PlayerPoll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? contextP2);
 
-        contextP1?.QuitGame();
-        contextP2?.QuitGame();
+            if (contextP1 is null || contextP2 is null)
+            {
+                return;
+            }
 
-        PlayerPollSemaphore.Release();
+            _ = contextP1.QuitGame();
+            _ =  contextP2.QuitGame();
+        }
+        finally
+        {
+            PlayerPollSemaphore.Release();
+        }
     }
 
     public async Task<string> GetPlayerState(string playerId)
@@ -96,6 +126,14 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager
         PlayerConnectionState state = PlayerPoll.FirstOrDefault(val => val.Key == playerId).Value.State;
         PlayerPollSemaphore.Release();
 
-        return state.GetType().Name;
+        return nameof(state);
     }
+
+    public void Dispose()
+    {
+        boardManager.Dispose();
+        SearchingSemaphore.Dispose();
+        PlayerPollSemaphore.Dispose();
+    }
+   
 };

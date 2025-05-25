@@ -12,7 +12,9 @@ public class PlayerLobby : PlayerConnectionState
     {
         PlayerConnectionContext? context = Context;
         ConnectionManager? connectionManager = ConnectionManager;
+        
         if (context is null || connectionManager is null) { return false; }
+        
         await connectionManager.JoinQueueAsync(context.Player);
         context.TransitionTo(new PlayerSearching());
         return true;

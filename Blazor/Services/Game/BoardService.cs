@@ -1,5 +1,6 @@
 using Blazor.models;
 using Blazor.services.game;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.JSInterop;
 
 namespace Blazor.services;

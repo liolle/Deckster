@@ -14,7 +14,7 @@ try {
     window.GAME_BOARD = GAME_BOARD;
 
     window.initializeBoard = async (game_board_container) => GAME_BOARD.init(game_board_container);
-    window.drawBoard = (gameState) => GAME_BOARD.drawBoard(gameState)
+    window.drawBoard = (gameState,playerId) => GAME_BOARD.drawBoard(gameState,playerId);
 
     window.initializeMatchService = (dotNetReference) => GAME_CLIENT.initializeMatchService(dotNetReference);
     window.getConnectionId = () => GAME_HUB.connection.connection.connectionId;

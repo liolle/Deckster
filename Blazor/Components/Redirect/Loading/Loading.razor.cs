@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Blazor.models;
 using Blazor.services;
 using Blazor.services.game;
+using Blazor.services.game.state;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
@@ -90,10 +91,9 @@ public partial class Loading : ComponentBase, IDisposable
 
   private void HandleGameState(string state)
   {
-
     switch (state)
     {
-      case "Blazor.services.game.state.PlayerLobby":
+      case nameof(PlayerLobby):
         if (MatchService is not null)
         {
           MatchService.State = MatchState.lobby;
@@ -101,7 +101,7 @@ public partial class Loading : ComponentBase, IDisposable
 
         Navigate("/");
         break;
-      case "Blazor.services.game.state.PlayerPlaying":
+      case nameof(PlayerInGame):
         if (MatchService is not null)
         {
           MatchService.State = MatchState.playing;

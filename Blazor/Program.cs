@@ -59,7 +59,7 @@ builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ClockService>();
 builder.Services.AddScoped<MatchService>();
 builder.Services.AddScoped<BoardService>();
-
+builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.None);
 var app = builder.Build();
 
 app.UseStaticFiles();

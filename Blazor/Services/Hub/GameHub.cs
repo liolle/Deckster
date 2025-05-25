@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Blazor.models;
 using Blazor.services.game.state;
+using Blazor.utils;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -9,19 +10,21 @@ namespace Blazor.services;
 // Setup 
 /*
  * Singleton service responsible for managing SignalR messages (we need to use the connection manager to modify the player context)
- * Those methods are called on the client using the signalrR js library 
+ * Those methods are called on the client using the signalrR js library
  */
 public partial class GameHub(
     ConnectionManager connectionManager,
     BoardManager boardManager,
     AuthenticationStateProvider authProvider,
-    IHubContext<GameHub> hubContext) : Hub
+    IHubContext<GameHub> hubContext) : Hub 
 {
+    
     private async Task<IEnumerable<Claim>> GetClaims()
     {
         return (await authProvider.GetAuthenticationStateAsync()).User.Claims;
     }
-}
+    
+} 
 // Player connection methods
 public partial class GameHub
 {
@@ -130,15 +133,7 @@ public partial class GameHub
         {
             return;
         }
-        
-        // get the game context base on the player 
-        // return if not found
 
-        
-        // Send Player ready transformation
-        
-        Console.WriteLine($"PlayerId: {id} is ready to play");
-    }   
+        _ = boardManager.ReadyToPlay(id);
+    }
 }
-
-

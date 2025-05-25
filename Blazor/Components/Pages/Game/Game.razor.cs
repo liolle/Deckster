@@ -50,6 +50,7 @@ public partial class Game
     {
         if (!firstRender){return;}
         if (MatchService is null) { return; }
+        
         {
             await SetPlayer();
             if (Board is null || Me is null) { return; }
@@ -63,7 +64,6 @@ public partial class Game
     {
         if (MatchService is null) { return; }
         GameMatch? m = await MatchService.GetGameState();
-        Console.WriteLine(m?.Id ?? "-->");
         if (m is null || string.IsNullOrEmpty(_myId)){return;}
         if (m.Player1.Id == _myId)
         {

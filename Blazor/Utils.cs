@@ -23,46 +23,51 @@ public static class Utils
 
     public static int? ExtractIntFromClaim(IEnumerable<Claim> claims, string type)
     {
-        string? id_str = claims.FirstOrDefault(val => val.Type == type)?.Value;
-        if (id_str is null || !int.TryParse(id_str, out int id)) { return null; }
+        string? idStr = claims.FirstOrDefault(val => val.Type == type)?.Value;
+        if (idStr is null || !int.TryParse(idStr, out int id)) { return null; }
         return id;
     }
 
 }
 
-public class OwnedSemaphore
+public class OwnedSemaphore : IDisposable
 {
     private readonly SemaphoreSlim _semaphore;
     private readonly HashSet<object> _owners;
+    private readonly string _name;
 
-    public OwnedSemaphore(int initialCount, int maxCount)
+    public OwnedSemaphore(int initialCount, int maxCount,string name)
     {
         _semaphore = new SemaphoreSlim(initialCount, maxCount);
         _owners = new HashSet<object>();
+        _name = name;
     }
 
     public async Task WaitAsync()
     {
-        int? CurrentId = Task.CurrentId;
-        if (CurrentId is null) { return; }
+            await _semaphore.WaitAsync();
+            int id = Environment.CurrentManagedThreadId;    
+            lock (_owners)
+            {
+                _owners.Add(id);
+            }
 
-        await _semaphore.WaitAsync();
-        lock (_owners)
-        {
-            _owners.Add(CurrentId);
-        }
     }
 
     public void Release()
     {
-        int? CurrentId = Task.CurrentId;
-        if (CurrentId is null) { return; }
+        
+        int id = Environment.CurrentManagedThreadId;    
         lock (_owners)
         {
-            if (!_owners.Contains(CurrentId)) { return; }
-
+            if (!_owners.Contains(id)) { return; }
             _semaphore.Release();
-            _owners.Remove(CurrentId);
+            _owners.Remove(id);
         }
+    }
+
+    public void Dispose()
+    {
+        _semaphore.Dispose();
     }
 }
