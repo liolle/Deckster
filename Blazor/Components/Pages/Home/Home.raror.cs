@@ -17,6 +17,9 @@ public partial class Home : ComponentBase, IDisposable
 
     [Inject]
     private ClockService? ClockService { get; set; }
+    
+    [Inject]
+    private ToastService? ToastService { get; set; }
 
     bool FindGameVisible { get; set; } = false;
 
@@ -46,7 +49,11 @@ public partial class Home : ComponentBase, IDisposable
         { return; }
         await FetchUserDecks();
         if (DeckList.Count < 1)
-        { return; }
+        {
+            ToastService?.Add(new CToast(TOAST_TYPE.WARNING,"You have no deck ready",0));
+            return;
+        }
+        
         await MatchService.SearchGameAsync();
         ClockService?.Start();
     }
