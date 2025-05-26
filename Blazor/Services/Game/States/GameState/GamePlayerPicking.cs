@@ -5,6 +5,16 @@ public class GamePlayerPicking : GameState
     public override async Task AfterInit()
     {
         await base.AfterInit();
-        Console.WriteLine($"Game: {Context?.Match.Id}\n [Player picking]\n");
+        
+       if(Context is null) { return; }
+
+       if (Context.Match.NextToPlay is null)
+       {
+           Context.Match.NextToPlay = 0;
+           return;
+       }
+       
+       Context.Match.NextToPlay += 1;
+       Context.Match.NextToPlay %= 2;
     }
 }

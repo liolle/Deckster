@@ -5,16 +5,19 @@ public class GameMatch
     public string Id { get; init; }
     public Player Player1 { get; } 
     public Player Player2 { get; }
-   
-    public Player NexToPlay { get;  }
+    
+    public List<Player> Players { get; init; }
+
+    public int? NextToPlay { get; set; }  
 
     public GameMatch(Player player1, Player player2)
     {
-        Player1 = player1;
-        Player2 = player2;
+        Players = [
+            Player1 = player1,
+            Player2 = player2
+        ];
         
         // Pick First to play
-        NexToPlay = player1;
         Id = GenerateId();
     }
 
