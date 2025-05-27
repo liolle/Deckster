@@ -101,8 +101,8 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
         await boardManager.DeleteGame(match.Id);
         await PlayerPollSemaphore.WaitAsync();
         try { 
-            PlayerPoll.TryGetValue(match.Player1.Id, out PlayerConnectionContext? contextP1); 
-            PlayerPoll.TryGetValue(match.Player2.Id, out PlayerConnectionContext? contextP2);
+            PlayerPoll.TryGetValue(match.Players[0].Id, out PlayerConnectionContext? contextP1); 
+            PlayerPoll.TryGetValue(match.Players[1].Id, out PlayerConnectionContext? contextP2);
 
             if (contextP1 is null || contextP2 is null)
             {

@@ -66,8 +66,8 @@ public class BoardManager : IBoardManager, IDisposable
         {
             await MatchSemaphore.WaitAsync();
             MatchPoll.Add(context.Match.Id,context);
-            MatchMapping.Add(context.Match.Player1.Id,context.Match.Id);
-            MatchMapping.Add(context.Match.Player2.Id,context.Match.Id);
+            MatchMapping.Add(context.Match.Players[0].Id,context.Match.Id);
+            MatchMapping.Add(context.Match.Players[1].Id,context.Match.Id);
         }
         finally
         {
@@ -82,8 +82,9 @@ public class BoardManager : IBoardManager, IDisposable
             await MatchSemaphore.WaitAsync();
             GameContext context = MatchPoll.FirstOrDefault(val => val.Key == matchId).Value;
             MatchPoll.Remove(matchId);
-            MatchMapping.Remove(context.Match.Player1.Id);
-            MatchMapping.Remove(context.Match.Player2.Id);
+            
+            MatchMapping.Remove(context.Match.Players[0].Id);
+            MatchMapping.Remove(context.Match.Players[1].Id);
         }
         finally
         {

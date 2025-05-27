@@ -5,10 +5,12 @@ namespace Blazor.services.game.state;
 
 public class GameContext
 {
+    const int TurnTimeLimit = 60;
     public GameState State { get; private set; }
     public GameMatch Match { get; }
     private readonly BoardManager _boardManager;
     private readonly IHubContext<GameHub> _hub;
+    public readonly GameClockService GameClockService;
     
     public Type Type => State.GetType();
 
@@ -25,6 +27,7 @@ public class GameContext
         _boardManager = boardManager;
         _hub = hub;
         TransitionTo(state);
+        GameClockService = new(TurnTimeLimit);
     }
 
     public Task<bool> PickPlayer()
@@ -68,5 +71,25 @@ public abstract class GameState
     public virtual Task<bool> PlayerReady(string playerId)
     {
         return Task.FromResult(false);
+    }
+
+    public virtual Task<bool> EndTurn(string playerId)
+    {
+        return Task.FromResult(false);
+    }
+
+    protected bool IsPlayerTurn(string playerId)
+    {
+        if (Context is null)
+        {
+            return false;
+        }
+        int? idx = Context.Match.NextToPlay;
+        if (idx is null)
+        {
+            return false;
+        }
+        
+        return Context.Match.Players[idx.Value].Id == playerId;
     }
 }

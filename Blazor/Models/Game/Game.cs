@@ -3,8 +3,6 @@ namespace Blazor.models;
 public class GameMatch
 {
     public string Id { get; init; }
-    public Player Player1 { get; } 
-    public Player Player2 { get; }
     
     public List<Player> Players { get; init; }
 
@@ -13,8 +11,8 @@ public class GameMatch
     public GameMatch(Player player1, Player player2)
     {
         Players = [
-            Player1 = player1,
-            Player2 = player2
+             player1,
+             player2
         ];
         
         // Pick First to play

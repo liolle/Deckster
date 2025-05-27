@@ -8,8 +8,8 @@ public class GameInit : GameState
         await base.AfterInit();
         if (Context is not null)
         {
-            _playerWaiting.Add(Context.Match.Player1.Id);
-            _playerWaiting.Add(Context.Match.Player2.Id);
+            _playerWaiting.Add(Context.Match.Players[0].Id);
+            _playerWaiting.Add(Context.Match.Players[1].Id);
         }
         
         Console.WriteLine("Initializing game");
@@ -24,7 +24,7 @@ public class GameInit : GameState
         }
         
         await Task.CompletedTask;
-        _playerWaiting.Remove(Context.Match.Player1.Id);
+        _playerWaiting.Remove(playerId);
 
         if (_playerWaiting.Count == 0)
         {
@@ -32,4 +32,5 @@ public class GameInit : GameState
         }
         return true;
     }
+    
 }

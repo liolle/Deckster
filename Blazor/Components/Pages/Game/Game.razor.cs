@@ -65,15 +65,15 @@ public partial class Game
         if (MatchService is null) { return; }
         GameMatch? m = await MatchService.GetGameState();
         if (m is null || string.IsNullOrEmpty(_myId)){return;}
-        if (m.Player1.Id == _myId)
+        if (m.Players[0].Id == _myId)
         {
-            Me = m.Player1;
-            Opponent = m.Player2;
+            Me = m.Players[0];
+            Opponent = m.Players[1];
         }
         else
         {
-            Opponent = m.Player1;
-            Me = m.Player2;
+            Opponent = m.Players[0];
+            Me = m.Players[1];
         } 
     }
 
