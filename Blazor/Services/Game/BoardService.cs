@@ -14,7 +14,7 @@ public class BoardService : IBoardService
 {
     private readonly IJSRuntime _jsRuntime;
 
-    private GameMatch GameState { get; set; } = new(new(), new());
+    private GameMatch GameState { get; set; } = new([new Player(),new Player()]);
 
     private readonly MatchService _match;
 

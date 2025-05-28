@@ -32,6 +32,7 @@ public class BoardManager : IBoardManager, IDisposable
         try
         {
             bool unique = await IsUniqueCall(key);
+            Console.WriteLine($"{key}: {unique}");
             if (!unique){return;}
             _ = Ready(playerId);
         }
@@ -48,6 +49,7 @@ public class BoardManager : IBoardManager, IDisposable
         {
             await MatchSemaphore.WaitAsync();
             MatchMapping.TryGetValue(playerId, out string? gameId);
+            
             if (gameId is null){return;}
             MatchPoll.TryGetValue(gameId, out GameContext? matchContext);
             if (matchContext is null){return;}
@@ -120,7 +122,6 @@ public class BoardManager : IBoardManager, IDisposable
         {
             CallsKeysSemaphore.Release();
         }
-        return false;
     }
 
     private async void ResetCallsKeys(string key)

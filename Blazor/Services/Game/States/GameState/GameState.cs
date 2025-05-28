@@ -54,8 +54,10 @@ public abstract class GameState
     
     public async virtual Task AfterInit()
     {
-        await Task.CompletedTask;
+        // Needed to let the to make sure the context is set after state transition using SetContext
+        await Task.Delay(20);
     }
+    
     public void SetContext(GameContext context,BoardManager boardManager, IHubContext<GameHub> clients)
     {
         Context = context;
@@ -78,7 +80,7 @@ public abstract class GameState
         return Task.FromResult(false);
     }
 
-    protected bool IsPlayerTurn(string playerId)
+    public bool IsPlayerTurn(string playerId)
     {
         if (Context is null)
         {

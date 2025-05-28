@@ -133,7 +133,6 @@ public partial class GameHub
         {
             return;
         }
-
         _ = boardManager.ReadyToPlay(id);
     }
 }

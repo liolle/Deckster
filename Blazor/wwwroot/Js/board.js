@@ -20,10 +20,13 @@ export  class GameBoard {
     }
 
     drawBoard(game,playerId) {
-        if(game["player1"]["id"] === playerId) {
-            this.drawPlayerTag(game["player1"]["nickName"], game["player2"]["nickName"])
+        let player1 = game["players"][0] 
+        let player2 = game["players"][1]
+        console.log(player1, player2)
+        if(playerId === player1["id"]) {
+            this.drawPlayerTag(player1["nickName"], player2["nickName"])
         }else{
-            this.drawPlayerTag(game["player2"]["nickName"], game["player1"]["nickName"])
+            this.drawPlayerTag(player2["nickName"], player1["nickName"])
         }
         this.drawQuitGameButton()
     }

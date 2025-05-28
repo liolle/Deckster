@@ -5,16 +5,18 @@ public class GamePlayerPicking : GameState
     public override async Task AfterInit()
     {
         await base.AfterInit();
-        
-       if(Context is null) { return; }
 
-       if (Context.Match.NextToPlay is null)
-       {
-           Context.Match.NextToPlay = 0;
-           return;
-       }
+        if (Context is null)
+        {
+            return;
+        }
+        
+        Console.WriteLine($"GamePlayerPicking: [{Context.Match.Id}]");
        
-       Context.Match.NextToPlay += 1;
-       Context.Match.NextToPlay %= 2;
+        Context.Match.NextToPlay = (Context.Match.NextToPlay + 1)%2;
+     
+        Context.GameClockService.Stop();
+        Context.GameClockService.Reset();
+        Context.TransitionTo(new GamePlayerPlaying());
     }
 }

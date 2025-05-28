@@ -85,7 +85,7 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
             return;
         }
 
-        GameMatch match = new(playerId1, playerId2);
+        GameMatch match = new([playerId1, playerId2]);
         GameContext gameContext = new GameContext(new GameInit(),match,new BoardManager(),p1Context.Hub);
         
 
