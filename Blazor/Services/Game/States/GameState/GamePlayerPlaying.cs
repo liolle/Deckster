@@ -52,8 +52,9 @@ public class GamePlayerPlaying : GameState, IDisposable
         {
             return false;
         }
-        Context.TransitionTo(new GamePlayerPicking()); 
+        
         Dispose();
+        Context.TransitionTo(new GamePlayerPicking()); 
         return true;
     }
 

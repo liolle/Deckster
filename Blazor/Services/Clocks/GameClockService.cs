@@ -25,8 +25,6 @@ public class GameClockService
 
     public void Stop()
     {
-        if (State == ClockState.stopped)
-        { return; }
         State = ClockState.stopped;
         _timer?.Dispose();
     }
