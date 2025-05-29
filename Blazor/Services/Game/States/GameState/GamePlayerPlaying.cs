@@ -27,7 +27,7 @@ public class GamePlayerPlaying : GameState, IDisposable
         
         BroadcastMessage("GameTurnTick", (P) =>
         {
-            return [Context.Match.Players[Context.Match.NextToPlay], time];
+            return [Context.Match.Players[Context.Match.NextToPlay].Id, ClockService.FormatSecondsToHHMMSS(time)];
         }); 
         if (Context is not null && time <= 0)
         {

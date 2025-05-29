@@ -34,6 +34,7 @@ export  class GameBoard {
         let btnActive = nextToPlay>=0 ? game["players"][nextToPlay]["id"] === playerId : false
         
         this.drawTurnButton(btnActive)
+        this.drawTurnTimer()
     }
     
     drawTurnButton(active){
@@ -64,6 +65,21 @@ export  class GameBoard {
         this.updateTurnButton(active);
         btn.setPosition(vw - padding - buttonConfig.width, vh/2 - buttonConfig.height);
         btn.render()
+    }
+    
+    drawTurnTimer() {
+
+        const config = {
+            color: 0xd2d2d2,
+            textSize: 20,
+            text: "00:00"
+        };
+        this.turnTimer = new TurnTimer(config,this.app)
+    }
+    
+    updateTurnTimer(time)
+    {
+        this.turnTimer.update(time);
     }
     
     updateTurnButton(active){
@@ -190,6 +206,34 @@ export  class GameBoard {
         let conn = this.#hub.connection
         if (conn == null) { return }
         return await conn.invoke("ReadyToPlayAsync")
+    }
+}
+
+class TurnTimer {
+    app = null
+    textBox = null 
+    
+    constructor(config,app) {
+        this.app = app;
+
+        let padding = 5
+        let vh = this.app.screen.height
+        let vw = this.app.screen.width
+
+        this.textBox = new PIXI.HTMLText({
+            text: `<span>${config.text}<span>` ,
+            style: {
+                fontFamily: 'DM Sans',
+                fontSize: config.textSize,
+                fill: config.color,
+            },
+        });
+        this.textBox.position.set(vw-padding- this.textBox.width -40 , vh/2 - 40 - this.textBox.height - 5 , 1);
+        this.app.stage.addChild(this.textBox)
+    }
+    
+    update(time) {
+        this.textBox.text =`<span>${time}<span>`
     }
 }
 

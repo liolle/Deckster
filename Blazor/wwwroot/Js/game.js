@@ -95,6 +95,9 @@ export  class GameClient {
 
     #OnGameTurnTick(args){
         // Update timer
+
+        let board = window.GAME_BOARD
+        board.updateTurnTimer(args[1])
     }
 
     #JoinGame(match, player){

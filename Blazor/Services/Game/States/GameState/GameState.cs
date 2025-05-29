@@ -95,24 +95,7 @@ public abstract class GameState
         return Context.Match.Players[idx.Value].Id == playerId;
     }
 
-    /*
-    protected void BroadcastMessage(string type, params object[] args)
-    {
-        if (Context is null || Clients is null)
-        {
-            return;
-        }
 
-        IHubContext<GameHub>? hub = Clients;
-
-        foreach (Player p in  Context.Match.Players)
-        {
-            hub.Clients.Clients(p.ConnectionId)
-                .SendAsync(type, args);
-        }
-       
-    }
-    */
     protected void BroadcastMessage(string type, Func<Player, object[]> callback)
     {
         if (Context is null || Clients is null)
