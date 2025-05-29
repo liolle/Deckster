@@ -1,6 +1,6 @@
 namespace Blazor.services.game.state;
 
-public class GamePlayerPlaying : GameState, IDisposable 
+public class GamePlayerPlaying : GameState 
 {
     public override async Task AfterInit()
     {
@@ -58,11 +58,12 @@ public class GamePlayerPlaying : GameState, IDisposable
         return true;
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (Context is not null)
         {
             Context.GameClockService.Tick -= HandleClockTick;
+            Context.GameClockService.Stop();
         }
     }
 }

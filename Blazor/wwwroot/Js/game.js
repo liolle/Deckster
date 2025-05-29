@@ -66,6 +66,7 @@ export  class GameClient {
         conn.on("leave_game", leave);
         conn.on("GameTurnTick",OnGameTurnTick)
         conn.on("GamePlayerTurn",OnGamePlayerTurn)
+        conn.on("GameEnded",leave)
 
         this.#clearHubListenersCb.push(()=>{
             conn.off("Join_game", join)
@@ -85,6 +86,10 @@ export  class GameClient {
 
         this.#clearHubListenersCb.push(()=>{
             conn.off("GamePlayerTurn", OnGamePlayerTurn)
+        })
+
+        this.#clearHubListenersCb.push(()=>{
+            conn.off("GameEnded", leave)
         })
     }
     

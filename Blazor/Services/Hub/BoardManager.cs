@@ -56,6 +56,32 @@ public class BoardManager : IBoardManager, IDisposable
         }
     }
 
+    public async Task<bool> QuitGame(string playerId)
+    {
+        int randomId = Random.Shared.Next(1000,10000);
+        string? gameId = null;
+        try
+        {
+            await MatchSemaphore.WaitAsync(randomId);
+            MatchMapping.TryGetValue(playerId, out gameId);
+            
+            if (gameId is null){return false;}
+            MatchPoll.TryGetValue(gameId, out GameContext? gContext);
+            if (gContext is null){return false;}
+
+            _ = gContext.QuitGame(playerId);
+            return true;
+        }
+        finally
+        {
+            MatchSemaphore.Release(randomId);
+            if (gameId is not null)
+            {
+                _ = DeleteGame(gameId);
+            }
+        }
+    }
+
     private async Task EndPlayerTurn(string playerId)
     {
         int randomId = Random.Shared.Next(1000,10000);
@@ -111,15 +137,22 @@ public class BoardManager : IBoardManager, IDisposable
             MatchSemaphore.Release(randomId);
         }
     }
-
+    
+    /**
+     * Responsible for the cleean the game instance from the match pool
+     */
     public async Task DeleteGame(string matchId)
     {
         int randomId = Random.Shared.Next(1000,10000);
         try
         {
             await MatchSemaphore.WaitAsync(randomId);
-            GameContext context = MatchPoll.FirstOrDefault(val => val.Key == matchId).Value;
+            MatchPoll.TryGetValue(matchId, out GameContext? context);
             MatchPoll.Remove(matchId);
+            if(context is null){return;}
+            
+            // Depending on the state we may need to release some event and or stoping the timer
+            context.Dispose();
             
             MatchMapping.Remove(context.Match.Players[0].Id);
             MatchMapping.Remove(context.Match.Players[1].Id);

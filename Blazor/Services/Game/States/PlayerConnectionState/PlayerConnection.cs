@@ -6,7 +6,7 @@ namespace Blazor.services.game.state;
 public class PlayerConnectionContext
 {
     public PlayerConnectionState State { get; private set; } = new EmptyState();
-    public GameContext? GameContext { get; private set; } 
+    public GameContext? GContext { get; private set; } 
     private readonly ConnectionManager _connectionManager;
     public IHubContext<GameHub> Hub;
     public string ConnectionId { get; set; } = "";
@@ -49,23 +49,20 @@ public class PlayerConnectionContext
     {
         return State.Disconnect();
     }
-
-    public Task<bool> Quit()
-    {
-        return State.Quit();
-    }
+   
     public Task<bool> JoinGame()
     {
         return State.JoinGame();
     }
 
-    public async Task QuitGame()
+    public Task<bool> LeaveGame()
     {
+        return State.LeaveGame();
+    }
 
-        TransitionTo(new PlayerLobby());
-        await Task.Delay(100);
-        await Hub.Clients.Client(ConnectionId).SendAsync("leave_game");
-        Console.WriteLine($"Player {Player} left the game");
+    public Task<bool> QuitGame()
+    {
+        return State.QuitGame();
     }
 }
 
@@ -115,8 +112,20 @@ public abstract class PlayerConnectionState
         await Task.Delay(10);
         return false;
     }
-    
-    public virtual async Task<bool> Quit()
+
+    public async Task<bool> LeaveGame()
+    {
+        IHubContext<GameHub>? hub = Clients;
+        if (Context is null || hub is null) { return false; }
+        
+        Context.TransitionTo(new PlayerLobby());
+
+        await hub.Clients.Client(Context.Player.ConnectionId)
+            .SendAsync("leave_game");
+        return true; 
+    }
+
+    public virtual async Task<bool> QuitGame()
     {
         await Task.Delay(10);
         return false;

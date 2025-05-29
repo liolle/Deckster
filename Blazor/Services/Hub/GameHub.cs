@@ -107,17 +107,7 @@ public partial class GameHub
         connectionManager.PlayerPollSemaphore.Release(randomId);
     }
 
-    public async Task LeaveGameAsync()
-    {
-        IEnumerable<Claim> claims = await GetClaims();
-        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
-        if (id is null) { return ; }
-        int randomId = Random.Shared.Next(1000,10000);
-        await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
-        connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context);
-        _ = context?.Quit();
-        connectionManager.PlayerPollSemaphore.Release(randomId);
-    }
+   
     
     public async Task<string> GetPlayerStateAsync()
     {
@@ -167,5 +157,22 @@ public partial class GameHub
             return;
         }
         _ = boardManager.EndTurn(id);
+    }
+    
+    public async Task LeaveGameAsync()
+    {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null) { return ; }
+        
+        bool valid = await boardManager.QuitGame(id);
+        if (!valid)
+        {
+            int randomId = Random.Shared.Next(1000,10000);
+            await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
+            connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context);
+            connectionManager.PlayerPollSemaphore.Release(randomId);
+            _ = context?.QuitGame();
+        }
     }
 }

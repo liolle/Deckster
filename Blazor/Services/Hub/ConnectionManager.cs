@@ -7,7 +7,6 @@ namespace Blazor.services;
 public interface IConnectionManager
 {
     public Task<bool> JoinQueueAsync(Player p);
-    public Task EndGame(GameMatch game);
     public Task<string> GetPlayerState(string playerId);
 }
 
@@ -98,29 +97,6 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
         
     }
 
-    public async Task EndGame(GameMatch match)
-    {
-        int randomId = Random.Shared.Next(1000,10000);
-        await boardManager.DeleteGame(match.Id);
-        await PlayerPollSemaphore.WaitAsync(randomId);
-        try { 
-            PlayerPoll.TryGetValue(match.Players[0].Id, out PlayerConnectionContext? contextP1); 
-            PlayerPoll.TryGetValue(match.Players[1].Id, out PlayerConnectionContext? contextP2);
-
-            if (contextP1 is null || contextP2 is null)
-            {
-                return;
-            }
-
-            _ = contextP1.QuitGame();
-            _ =  contextP2.QuitGame();
-        }
-        finally
-        {
-            PlayerPollSemaphore.Release(randomId);
-        }
-    }
-
     public async Task<string> GetPlayerState(string playerId)
     {
         int randomId = Random.Shared.Next(1000,10000);
@@ -147,5 +123,4 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
         SearchingSemaphore.Dispose();
         PlayerPollSemaphore.Dispose();
     }
-   
 };

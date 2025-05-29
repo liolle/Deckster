@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Blazor.services.game.state;
 
-public class GameContext
+public class GameContext : IDisposable
 {
     const int TurnTimeLimit = 21;
     public GameState State { get; private set; }
@@ -44,9 +44,19 @@ public class GameContext
     {
         return State.EndTurn(playerId);
     }
+
+    public Task<bool> QuitGame(string playerId)
+    {
+        return State.QuitGame(playerId);
+    }
+
+    public void Dispose()
+    {
+        State.Dispose();
+    }
 }
 
-public abstract class GameState
+public abstract class GameState: IDisposable
 {
     protected GameContext? Context;
     protected BoardManager? BoardManager;
@@ -85,21 +95,36 @@ public abstract class GameState
         return Task.FromResult(false);
     }
 
+    protected void EndGame()
+    {
+        if (Context is null )
+        {
+            return;
+        }
+        
+        foreach (Player p in  Context.Match.Players)
+        {
+            p.Context?.QuitGame();
+        }
+    }
+    
+
+    public Task<bool> QuitGame(string playerId)
+    {
+        EndGame();
+        Console.WriteLine($"Player {playerId} left the match");
+        return Task.FromResult(true);
+    }
+
     public bool IsPlayerTurn(string playerId)
     {
         if (Context is null)
         {
             return false;
         }
-        int? idx = Context.Match.NextToPlay;
-        if (idx is null)
-        {
-            return false;
-        }
         
-        return Context.Match.Players[idx.Value].Id == playerId;
+        return Context.Match.Players[Context.Match.NextToPlay].Id == playerId;
     }
-
 
     protected void BroadcastMessage(string type, Func<Player, object[]> callback)
     {
@@ -115,6 +140,9 @@ public abstract class GameState
             hub.Clients.Clients(p.ConnectionId)
                 .SendAsync(type, callback(p));
         }
-       
+    }
+
+    public virtual void Dispose()
+    {
     }
 }

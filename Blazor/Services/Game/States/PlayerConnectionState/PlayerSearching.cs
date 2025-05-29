@@ -33,7 +33,7 @@ public class PlayerSearching : PlayerConnectionState
         return true;
     }
 
-    public override async Task<bool> Quit()
+    public override async Task<bool> QuitGame()
     {
         return await Disconnect();
     }

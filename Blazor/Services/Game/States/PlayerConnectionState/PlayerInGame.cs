@@ -16,10 +16,10 @@ public class PlayerInGame(GameMatch match) : PlayerConnectionState
         if (context is null || connectionManager is null || hub is null) { return; }
 
         hub.Clients.Client(context.Player.ConnectionId)
-          .SendAsync("Join_game", _match, context.Player).GetAwaiter().OnCompleted(() =>
-              {
-                  Console.WriteLine($"Player {Context?.Player} Is Playing");
-              });
+            .SendAsync("Join_game", _match, context.Player).GetAwaiter().OnCompleted(() =>
+            {
+                Console.WriteLine($"Player {Context?.Player} Is Playing");
+            });
     }
 
     public override async Task<bool> Disconnect()
@@ -32,13 +32,13 @@ public class PlayerInGame(GameMatch match) : PlayerConnectionState
     }
 
 
-    public override async Task<bool> Quit()
+    public override async Task<bool> QuitGame()
     {
         await Task.Delay(50);
-        ConnectionManager? connectionManager = ConnectionManager;
-        if (connectionManager is null) { return false; }
-        await connectionManager.EndGame(_match);
-        return true;
+        PlayerConnectionContext? context = Context;
+        if (context is null) { return false; }
+        
+        return await context.LeaveGame();
     }
 
 }

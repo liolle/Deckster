@@ -3,6 +3,7 @@ export  class GameBoard {
     #refTable = null;
     #hub = null
     #userId = null
+    turnButton = null
     constructor(hub,refTable) {
         if (!hub.connection) {
             console.error("Missing connection");
@@ -34,15 +35,12 @@ export  class GameBoard {
         let nextToPlay = game["nextToPlay"] 
         let btnActive = nextToPlay>=0 ? game["players"][nextToPlay]["id"] === playerId : false
         
+        
         this.drawTurnButton(btnActive)
         this.drawTurnTimer(game["turnTime"])
     }
     
     drawTurnButton(active){
-        if(!!this.turnButton){
-            this.updateTurnButton(active);
-            return
-        }
         
         let padding = 5
         let vh = this.app.screen.height
@@ -69,8 +67,6 @@ export  class GameBoard {
     }
     
     drawTurnTimer(time) {
-        console.log(time);
-
         const config = {
             color: 0xd2d2d2,
             textSize: 20,
@@ -94,7 +90,7 @@ export  class GameBoard {
         }else{
             btn.setText("Opponent turn")
             btn.buttonContainer.cursor = 'default'
-        } 
+        }
     }
 
     drawQuitGameButton() {
