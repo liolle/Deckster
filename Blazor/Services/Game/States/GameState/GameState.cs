@@ -5,7 +5,7 @@ namespace Blazor.services.game.state;
 
 public class GameContext : IDisposable
 {
-    const int TurnTimeLimit = 21;
+    const int TurnTimeLimit = 81;
     public GameState State { get; private set; }
     public GameMatch Match { get; }
     private readonly BoardManager _boardManager;

@@ -30,9 +30,18 @@
     <script type="module" src="Js/game.js"></script>
     <script type="module" src="Js/main.js"></script>
     <script>
-        setTimeout(()=>{
-            window.Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {document.location.reload();}
-        },1000)
+        function setDefaultReconnectionHandler() {
+           let handler = window.Blazor.defaultReconnectionHandler  
+            if (!handler) {
+                setTimeout(()=>{
+                    setDefaultReconnectionHandler()
+                },1000)
+                
+            }else{
+               handler._reconnectCallback = function (d) {document.location.reload();} 
+            }
+        }
+        setDefaultReconnectionHandler()
     </script>
 </body>
 

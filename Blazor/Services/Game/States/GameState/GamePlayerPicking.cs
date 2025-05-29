@@ -10,8 +10,6 @@ public class GamePlayerPicking : GameState
         {
             return;
         }
-        
-        Console.WriteLine($"GamePlayerPicking: [{Context.Match.Id}]");
        
         Context.Match.NextToPlay = (Context.Match.NextToPlay + 1)%2;
      
