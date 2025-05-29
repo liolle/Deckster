@@ -88,6 +88,7 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
 
         GameMatch match = new([playerId1, playerId2]);
         GameContext gameContext = new GameContext(new GameInit(),match,new BoardManager(),p1Context.Hub);
+        match.SetContext(gameContext);
         
 
         await boardManager.RegisterGame(gameContext);

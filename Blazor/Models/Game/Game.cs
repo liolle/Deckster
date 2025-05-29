@@ -1,10 +1,28 @@
 using System.Text.Json.Serialization;
+using Blazor.services;
 using Blazor.services.game.state;
 
 namespace Blazor.models;
 
 public class GameMatch
 {
+    [JsonIgnore]
+    public GameContext? Context { get; private set; }
+
+    public string TurnTime
+    {
+        get
+        {
+            if (Context is null)
+            {
+                return "00:00";
+                
+            }
+
+            return ClockService.FormatSecondsToHHMMSS(Context.GameClockService.Time);
+        }
+    }
+
     public string Id { get; init; }
     
     public List<Player> Players { get; init; }
@@ -25,6 +43,11 @@ public class GameMatch
     {
         string gui = Guid.NewGuid().ToString().Replace("-","");
         return $"GAME{gui}";
+    }
+    
+    public void SetContext( GameContext context )
+    {
+        Context = context;
     }
 }
 

@@ -2,6 +2,7 @@ export  class GameBoard {
     app = null
     #refTable = null;
     #hub = null
+    #userId = null
     constructor(hub,refTable) {
         if (!hub.connection) {
             console.error("Missing connection");
@@ -34,7 +35,7 @@ export  class GameBoard {
         let btnActive = nextToPlay>=0 ? game["players"][nextToPlay]["id"] === playerId : false
         
         this.drawTurnButton(btnActive)
-        this.drawTurnTimer()
+        this.drawTurnTimer(game["turnTime"])
     }
     
     drawTurnButton(active){
@@ -67,12 +68,13 @@ export  class GameBoard {
         btn.render()
     }
     
-    drawTurnTimer() {
+    drawTurnTimer(time) {
+        console.log(time);
 
         const config = {
             color: 0xd2d2d2,
             textSize: 20,
-            text: "00:00"
+            text: time
         };
         this.turnTimer = new TurnTimer(config,this.app)
     }
@@ -115,27 +117,45 @@ export  class GameBoard {
         };
         
         const btn = new Button(buttonConfig, this.app);
+        btn.buttonContainer.cursor = 'pointer'
+        btn.setActive(true)
         btn.onClick(()=> this.#OnQuit())
         btn.setPosition(vw - padding - buttonConfig.width, padding)
         btn.render()
 
     }
     
-    async #EndTurn() {
-        console.log("End turn");
+    async #GetUserId (){
+        if(!this.#userId){
+            this.#userId = await this.#refTable.table["match"].invokeMethodAsync("GetUserId")
+        }
+        
+       return this.#userId 
     }
-    async #OnQuit(){
-        if (this.quitPending) { return }
-        this.quitPending = true
-        let userId = await this.#refTable.table["match"].invokeMethodAsync("GetUserId")
+    
+    async #EndTurn() {
+        if(this.endTurnPending){return}
+        this.endTurnPending = true;
+        let userId = await this.#GetUserId() 
         if (!userId) {
             console.log("LoggedOut")
             return
         }
 
-        await window.leaveGame(userId)
+        await window.endTurn()
+        this.endTurnPending = false;
+    }
+    async #OnQuit(){
+        if (this.quitPending) { return }
+        this.quitPending = true
+        let userId = await this.#GetUserId()
+        if (!userId) {
+            console.log("LoggedOut")
+            return
+        }
+
+        await window.leaveGame()
         this.quitPending = false
-        
     }
 
     drawPlayerTag(top_player_name, bottom_player_name) {
@@ -201,18 +221,13 @@ export  class GameBoard {
         text.position.set((config.width + config.padding) / 2, (config.height + config.padding * 2) / 2);
     }
 
-    async readyToPlay()
-    {
-        let conn = this.#hub.connection
-        if (conn == null) { return }
-        return await conn.invoke("ReadyToPlayAsync")
-    }
+    
 }
 
 class TurnTimer {
     app = null
-    textBox = null 
-    
+    textBox = null
+
     constructor(config,app) {
         this.app = app;
 
@@ -231,7 +246,7 @@ class TurnTimer {
         this.textBox.position.set(vw-padding- this.textBox.width -40 , vh/2 - 40 - this.textBox.height - 5 , 1);
         this.app.stage.addChild(this.textBox)
     }
-    
+
     update(time) {
         this.textBox.text =`<span>${time}<span>`
     }
@@ -242,7 +257,7 @@ class Button {
     #ClickObservers = []
     active = false
     buttonText = null
-    
+
     constructor(config,app) {
         this.config = config;
         this.active = config.active;
@@ -259,7 +274,7 @@ class Button {
             })
         });
     }
-    
+
     onClick(callback) {
         this.#ClickObservers.push(callback);
     }
@@ -271,7 +286,7 @@ class Button {
             .roundRect(0, 0, this.config.width, this.config.height, this.config.radius)
             .fill(this.config.fillColor);
 
-        
+
         // Center the text
         this.buttonText.anchor.set(0.5);
         this.buttonText.position.set(this.config.width / 2, (this.config.height + this.config.padding * 2) / 2);

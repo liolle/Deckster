@@ -21,9 +21,10 @@ try {
     window.getConnectionId = () => GAME_HUB.connection.connection.connectionId;
     window.getPlayerState = async () => GAME_CLIENT.getPlayerState();
     window.getGameState = async () => GAME_CLIENT.getGameState();
-    window.searchGame = async (playerId) => GAME_CLIENT.searchGame(playerId);
-    window.leaveGame = async (playerId) => GAME_CLIENT.leaveGame(playerId);
-    window.readyToPlay = async (playerId) => GAME_BOARD.readyToPlay(playerId);
+    window.searchGame = async (playerId) => GAME_CLIENT.searchGame();
+    window.leaveGame = async (playerId) => GAME_CLIENT.leaveGame();
+    window.readyToPlay = async () => GAME_CLIENT.readyToPlay();
+    window.endTurn = async  () => GAME_CLIENT.endTurn();
 }catch (e){
     console.error(e);
 }

@@ -94,15 +94,12 @@ export  class GameClient {
     }
 
     #OnGameTurnTick(args){
-        // Update timer
-
         let board = window.GAME_BOARD
         board.updateTurnTimer(args[1])
     }
 
     #JoinGame(match, player){
         let ref = this.#refTable.table["match"]
-
         if (ref) {
             ref.invokeMethodAsync("NotifyJoinGame", match, player);
         }
@@ -128,16 +125,16 @@ export  class GameClient {
         } 
     }
 
-    async searchGame(playerId) {
+    async searchGame() {
         let conn = this.#hub.connection
         if (conn == null) { return }
-        await conn.invoke("SearchGameAsync", playerId, conn.connection.connectionId)
+        await conn.invoke("SearchGameAsync")
     }
 
-    async leaveGame(playerId) {
+    async leaveGame() {
         let conn = this.#hub.connection
         if (conn == null) { return }
-        await conn.invoke("LeaveGameAsync", playerId)
+        await conn.invoke("LeaveGameAsync")
     }
 
     async getPlayerState() {
@@ -152,4 +149,17 @@ export  class GameClient {
         return await conn.invoke("GetGameStateAsync")
     }
     
+    async readyToPlay()
+    {
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        return await conn.invoke("ReadyToPlayAsync")
+    }
+    
+    async endTurn()
+    {
+        let conn = this.#hub.connection
+        if (conn == null) { return }
+        return await conn.invoke("EndTurnAsync")
+    }
 }

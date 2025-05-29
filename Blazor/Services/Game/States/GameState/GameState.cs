@@ -5,7 +5,7 @@ namespace Blazor.services.game.state;
 
 public class GameContext
 {
-    const int TurnTimeLimit = 10;
+    const int TurnTimeLimit = 21;
     public GameState State { get; private set; }
     public GameMatch Match { get; }
     private readonly BoardManager _boardManager;
@@ -38,6 +38,11 @@ public class GameContext
     public Task<bool> PlayerReady(string playerId)
     {
         return State.PlayerReady(playerId);
+    }
+
+    public Task<bool> EndTurn(string playerId)
+    {
+        return State.EndTurn(playerId);
     }
 }
 

@@ -32,7 +32,6 @@ public class BoardManager : IBoardManager, IDisposable
         try
         {
             bool unique = await IsUniqueCall(key);
-            Console.WriteLine($"{key}: {unique}");
             if (!unique){return;}
             _ = Ready(playerId);
         }
@@ -41,7 +40,41 @@ public class BoardManager : IBoardManager, IDisposable
             ResetCallsKeys(key);
         }
     }
+    
+    public async Task EndTurn(string playerId)
+    {
+        string key = $"{playerId}:EndTurn";
+        try
+        {
+            bool unique = await IsUniqueCall(key);
+            if (!unique){return;}
+            _ = EndPlayerTurn(playerId);
+        }
+        finally
+        {
+            ResetCallsKeys(key);
+        }
+    }
 
+    private async Task EndPlayerTurn(string playerId)
+    {
+        int randomId = Random.Shared.Next(1000,10000);
+        try
+        {
+            await MatchSemaphore.WaitAsync(randomId);
+            MatchMapping.TryGetValue(playerId, out string? gameId);
+            
+            if (gameId is null){return;}
+            MatchPoll.TryGetValue(gameId, out GameContext? matchContext);
+            if (matchContext is null){return;}
+
+            _ = matchContext.EndTurn(playerId);
+        }
+        finally
+        {
+            MatchSemaphore.Release(randomId);
+        }
+    }
 
     private async Task Ready(string playerId)
     {

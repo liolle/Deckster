@@ -90,24 +90,31 @@ public partial class GameHub
 
     }
     
-    public async Task SearchGameAsync(string playerId, string connectionId)
+    public async Task SearchGameAsync()
     {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null) { return ; }
+        
         int randomId = Random.Shared.Next(1000,10000);
         await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
-        if (!connectionManager.PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context))
+        if (!connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context))
         {
-            context = new(new PlayerLobby(), new Player() { Id = playerId },Context.ConnectionId, connectionManager, hubContext);
-            connectionManager.PlayerPoll.Add(playerId, context);
+            context = new(new PlayerLobby(), new Player() { Id = id },Context.ConnectionId, connectionManager, hubContext);
+            connectionManager.PlayerPoll.Add(id, context);
         }
         _ = context.SearchGame();
         connectionManager.PlayerPollSemaphore.Release(randomId);
     }
 
-    public async Task LeaveGameAsync(string playerId)
+    public async Task LeaveGameAsync()
     {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null) { return ; }
         int randomId = Random.Shared.Next(1000,10000);
         await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
-        connectionManager.PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context);
+        connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context);
         _ = context?.Quit();
         connectionManager.PlayerPollSemaphore.Release(randomId);
     }
@@ -149,5 +156,16 @@ public partial class GameHub
             return;
         }
         _ = boardManager.ReadyToPlay(id);
+    }
+    
+    public async Task EndTurnAsync()
+    {
+        IEnumerable<Claim> claims = await GetClaims();
+        string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
+        if (id is null)
+        {
+            return;
+        }
+        _ = boardManager.EndTurn(id);
     }
 }
