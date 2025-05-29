@@ -28,6 +28,9 @@ public partial class GameHub(
 // Player connection methods
 public partial class GameHub
 {
+    
+    
+    
     public override async Task OnConnectedAsync()
     {
         IEnumerable<Claim> claims = await GetClaims();
@@ -35,24 +38,26 @@ public partial class GameHub
         string? nickname = claims.FirstOrDefault(val => val.Type == "NickName")?.Value;
         if (id is null || nickname is null) { return; }
 
-        Player p = new()
-        {
-            Id = id,
-            ConnectionId = Context.ConnectionId,
-            NickName = nickname
-        };
 
-        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        int randomId = Random.Shared.Next(1000,10000);
+        await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
         if (!connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context))
         {
-            context = new(new PlayerLobby(), p, connectionManager, hubContext);
+            
+            Player p = new()
+            {
+                Id = id,
+                NickName = nickname
+            };
+            context = new(new PlayerLobby(), p,Context.ConnectionId, connectionManager, hubContext);
+            p.SetContext(context);
             connectionManager.PlayerPoll.Add(id, context);
         }
         else
         {
-            context.Player = p;
+            context.ConnectionId = Context.ConnectionId; 
         }
-        connectionManager.PlayerPollSemaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release(randomId);
         if (context.IsSameType(typeof(PlayerTempDisconnection)))
         {
             await context.SearchGame();
@@ -64,38 +69,47 @@ public partial class GameHub
 
         string? id = claims.FirstOrDefault(val => val.Type == "Id")?.Value;
         if (id is null) { return; }
+        
+        int randomId = Random.Shared.Next(1000,10000);
 
-        Player p = new() { Id = id, ConnectionId = Context.ConnectionId };
-        await connectionManager.PlayerPollSemaphore.WaitAsync();
-        if (!connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context))
+        try
         {
-            context = new(new PlayerLobby(), p, connectionManager, hubContext);
-            connectionManager.PlayerPoll.Add(id, context);
-        }
-        connectionManager.PlayerPollSemaphore.Release();
+            await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
+            if (!connectionManager.PlayerPoll.TryGetValue(id, out PlayerConnectionContext? context))
+            {
+                return;
+            }
 
-        await context.Disconnect();
-        await base.OnDisconnectedAsync(exception);
+            await context.Disconnect();
+            await base.OnDisconnectedAsync(exception);
+        }
+        finally
+        {
+            connectionManager.PlayerPollSemaphore.Release(randomId);
+        }
+
     }
     
     public async Task SearchGameAsync(string playerId, string connectionId)
     {
-        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        int randomId = Random.Shared.Next(1000,10000);
+        await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
         if (!connectionManager.PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context))
         {
-            context = new(new PlayerLobby(), new Player() { Id = playerId, ConnectionId = connectionId }, connectionManager, hubContext);
+            context = new(new PlayerLobby(), new Player() { Id = playerId },Context.ConnectionId, connectionManager, hubContext);
             connectionManager.PlayerPoll.Add(playerId, context);
         }
         _ = context.SearchGame();
-        connectionManager.PlayerPollSemaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release(randomId);
     }
 
     public async Task LeaveGameAsync(string playerId)
     {
-        await connectionManager.PlayerPollSemaphore.WaitAsync();
+        int randomId = Random.Shared.Next(1000,10000);
+        await connectionManager.PlayerPollSemaphore.WaitAsync(randomId);
         connectionManager.PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context);
         _ = context?.Quit();
-        connectionManager.PlayerPollSemaphore.Release();
+        connectionManager.PlayerPollSemaphore.Release(randomId);
     }
     
     public async Task<string> GetPlayerStateAsync()
@@ -108,7 +122,8 @@ public partial class GameHub
         {
             return "";
         }
-        return context.State.GetType().ToString();
+
+        return context.State.GetType().ToString().Split(".").Last() ;
     }
     
 }

@@ -22,21 +22,69 @@ export  class GameBoard {
     drawBoard(game,playerId) {
         let player1 = game["players"][0] 
         let player2 = game["players"][1]
-        console.log(player1, player2)
         if(playerId === player1["id"]) {
             this.drawPlayerTag(player1["nickName"], player2["nickName"])
         }else{
             this.drawPlayerTag(player2["nickName"], player1["nickName"])
         }
+        
         this.drawQuitGameButton()
+        
+        let nextToPlay = game["nextToPlay"] 
+        let btnActive = nextToPlay>=0 ? game["players"][nextToPlay]["id"] === playerId : false
+        
+        this.drawTurnButton(btnActive)
+    }
+    
+    drawTurnButton(active){
+        if(!!this.turnButton){
+            this.updateTurnButton(active);
+            return
+        }
+        
+        let padding = 5
+        let vh = this.app.screen.height
+        let vw = this.app.screen.width
+        
+        const buttonConfig = {
+            width: 100,
+            height: 40,
+            radius: 10,
+            fillColor: 0xd2d2d2,
+            hoverColor: 0x2952fc,
+            textColor: 0x222222,
+            textSize: 12,
+            padding: 6,
+            text: ""
+        };
+
+        const btn = new Button(buttonConfig, this.app);
+        this.turnButton = btn;
+        btn.onClick(()=> this.#EndTurn())
+        this.updateTurnButton(active);
+        btn.setPosition(vw - padding - buttonConfig.width, vh/2 - buttonConfig.height);
+        btn.render()
+    }
+    
+    updateTurnButton(active){
+        let btn = this.turnButton ;
+        if(!btn){return}
+        btn.setActive(active)
+        if(active){
+            btn.setText("End turn")
+            btn.buttonContainer.cursor = 'pointer'
+        }else{
+            btn.setText("Opponent turn")
+            btn.buttonContainer.cursor = 'default'
+        } 
     }
 
     drawQuitGameButton() {
 
         let padding = 5
         let vh = this.app.screen.height
-        let vw = this.app.screen.width
-
+        let vw = this.app.screen.width      
+        
         // Button configuration
         const buttonConfig = {
             width: 100,
@@ -45,67 +93,33 @@ export  class GameBoard {
             fillColor: 0xd2d2d2,
             hoverColor: 0x2952fc,
             textColor: 0x222222,
-            padding: 2,
+            textSize: 14,
+            padding: 6,
             text: 'Quit'
         };
+        
+        const btn = new Button(buttonConfig, this.app);
+        btn.onClick(()=> this.#OnQuit())
+        btn.setPosition(vw - padding - buttonConfig.width, padding)
+        btn.render()
 
-        // Create button graphics
-        const button = new PIXI.Graphics()
-            .roundRect(0, 0, buttonConfig.width, buttonConfig.height, buttonConfig.radius)
-            .fill(buttonConfig.fillColor);
+    }
+    
+    async #EndTurn() {
+        console.log("End turn");
+    }
+    async #OnQuit(){
+        if (this.quitPending) { return }
+        this.quitPending = true
+        let userId = await this.#refTable.table["match"].invokeMethodAsync("GetUserId")
+        if (!userId) {
+            console.log("LoggedOut")
+            return
+        }
 
-        // Create button text
-        const buttonText = new PIXI.Text({
-            text: buttonConfig.text,
-            style: new PIXI.TextStyle({
-                fontSize: 16,
-                fontFamily: "Verdana",
-                fontStyle: "italic",
-                fontWeight: "bold",
-                padding: buttonConfig.padding
-            })
-        });
-
-        // Center the text
-        buttonText.anchor.set(0.5);
-        buttonText.position.set(buttonConfig.width / 2, (buttonConfig.height + buttonConfig.padding * 2) / 2);
-
-        // Create container for button elements
-        const buttonContainer = new PIXI.Container();
-        buttonContainer.addChild(button, buttonText);
-        buttonContainer.position.set(vw - padding - buttonConfig.width, padding);
-        buttonContainer.eventMode = 'static'; // Make interactive
-        buttonContainer.cursor = 'pointer'
-
-        // Add hover effects
-        buttonContainer.on('pointerover', () => {
-            button.clear().roundRect(0, 0, buttonConfig.width, buttonConfig.height, buttonConfig.radius)
-                .fill(buttonConfig.hoverColor);
-            buttonText.style.fill = buttonConfig.fillColor
-        });
-
-        buttonContainer.on('pointerout', () => {
-            button.clear().roundRect(0, 0, buttonConfig.width, buttonConfig.height, buttonConfig.radius)
-                .fill(buttonConfig.fillColor);
-            buttonText.style.fill = buttonConfig.textColor
-        });
-
-        // Add click handler
-        buttonContainer.on('pointerdown', async () => {
-            if (this.quitPending) { return }
-            this.quitPending = true
-            let userId = await this.#refTable.table["match"].invokeMethodAsync("GetUserId")
-            if (!userId) {
-                console.log("LoggedOut")
-                return
-            }
-
-            await window.leaveGame(userId)
-            this.quitPending = false
-        });
-
-        this.app.stage.addChild(buttonContainer)
-
+        await window.leaveGame(userId)
+        this.quitPending = false
+        
     }
 
     drawPlayerTag(top_player_name, bottom_player_name) {
@@ -167,7 +181,6 @@ export  class GameBoard {
     }
 
     #centerText(text, config) {
-
         text.anchor.set(0.5);
         text.position.set((config.width + config.padding) / 2, (config.height + config.padding * 2) / 2);
     }
@@ -177,5 +190,104 @@ export  class GameBoard {
         let conn = this.#hub.connection
         if (conn == null) { return }
         return await conn.invoke("ReadyToPlayAsync")
+    }
+}
+
+class Button {
+    config = null
+    #ClickObservers = []
+    active = false
+    buttonText = null
+    
+    constructor(config,app) {
+        this.config = config;
+        this.active = config.active;
+        this.app = app;
+        this.buttonContainer = new PIXI.Container();
+        this.buttonText = new PIXI.Text({
+            text: this.config.text,
+            style: new PIXI.TextStyle({
+                fontSize: config.textSize ?? 16,
+                fontFamily: "Verdana",
+                fontStyle: "italic",
+                fontWeight: "bold",
+                padding: this.config.padding
+            })
+        });
+    }
+    
+    onClick(callback) {
+        this.#ClickObservers.push(callback);
+    }
+
+    render(container){
+        if(!this.buttonText) {return;}
+        // Create button graphics
+        const button = new PIXI.Graphics()
+            .roundRect(0, 0, this.config.width, this.config.height, this.config.radius)
+            .fill(this.config.fillColor);
+
+        
+        // Center the text
+        this.buttonText.anchor.set(0.5);
+        this.buttonText.position.set(this.config.width / 2, (this.config.height + this.config.padding * 2) / 2);
+        this.scaleTextToFit()
+
+        // Create container for button elements
+        this.buttonContainer.addChild(button, this.buttonText);
+        this.buttonContainer.eventMode = 'static'; // Make interactive
+
+        // Add hover effects
+        this.buttonContainer.on('pointerover', () => {
+            button.clear().roundRect(0, 0, this.config.width, this.config.height, this.config.radius)
+                .fill(this.active?this.config.hoverColor:this.config.fillColor);
+            this.buttonText.style.fill = this.active? this.config.fillColor : this.config.textColor;
+        });
+
+        // remover hover effect
+        this.buttonContainer.on('pointerout', () => {
+            button.clear().roundRect(0, 0, this.config.width, this.config.height, this.config.radius)
+                .fill(this.config.fillColor);
+            this.buttonText.style.fill = this.config.textColor
+        });
+
+        // Add click handler
+        this.buttonContainer.on('pointerdown', async () => {
+            if(!this.active){return}
+            for (const cb of this.#ClickObservers) {
+                cb()
+            }
+        });
+
+        if (container){
+            container.addChild(this.buttonContainer)
+            return
+        }
+
+        this.app.stage.addChild(this.buttonContainer)
+    }
+
+    setActive(active){
+        this.active = active
+    }
+
+    setText(content){
+        this.buttonText.text = content
+        this.scaleTextToFit()
+    }
+
+    scaleTextToFit() {
+        this.#scaleTextToFit(this.buttonText,this.config.width,this.config.height)
+    }
+
+    #scaleTextToFit(text, w, h) {
+        // Reduce font size until text fits vertically
+        while (text.height > (h * 6 / 10) && text.style.fontSize > 4) { // 70 = rect height - padding
+            text.style.fontSize--;
+        }
+    }
+
+    setPosition(x,y) {
+        this.buttonContainer.position.set(x, y);
     }
 }

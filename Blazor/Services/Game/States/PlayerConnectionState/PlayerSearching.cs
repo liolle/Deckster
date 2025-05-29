@@ -46,9 +46,10 @@ public class PlayerSearching : PlayerConnectionState
         if (context is null || connectionManager is null) { return false; }
         Player player = context.Player;
 
-        await connectionManager.SearchingSemaphore.WaitAsync();
+        int randomId = Random.Shared.Next(1000,10000);
+        await connectionManager.SearchingSemaphore.WaitAsync(randomId);
         connectionManager.SearchingPoll.Remove(player);
-        connectionManager.SearchingSemaphore.Release();
+        connectionManager.SearchingSemaphore.Release(randomId);
 
         context.TransitionTo(new PlayerLobby());
         return true;

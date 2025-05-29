@@ -45,9 +45,10 @@ public class BoardManager : IBoardManager, IDisposable
 
     private async Task Ready(string playerId)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await MatchSemaphore.WaitAsync();
+            await MatchSemaphore.WaitAsync(randomId);
             MatchMapping.TryGetValue(playerId, out string? gameId);
             
             if (gameId is null){return;}
@@ -58,30 +59,32 @@ public class BoardManager : IBoardManager, IDisposable
         }
         finally
         {
-            MatchSemaphore.Release();
+            MatchSemaphore.Release(randomId);
         }
     }
 
     public async Task RegisterGame(GameContext context)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await MatchSemaphore.WaitAsync();
+            await MatchSemaphore.WaitAsync(randomId);
             MatchPoll.Add(context.Match.Id,context);
             MatchMapping.Add(context.Match.Players[0].Id,context.Match.Id);
             MatchMapping.Add(context.Match.Players[1].Id,context.Match.Id);
         }
         finally
         {
-            MatchSemaphore.Release();
+            MatchSemaphore.Release(randomId);
         }
     }
 
     public async Task DeleteGame(string matchId)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await MatchSemaphore.WaitAsync();
+            await MatchSemaphore.WaitAsync(randomId);
             GameContext context = MatchPoll.FirstOrDefault(val => val.Key == matchId).Value;
             MatchPoll.Remove(matchId);
             
@@ -90,46 +93,49 @@ public class BoardManager : IBoardManager, IDisposable
         }
         finally
         {
-            MatchSemaphore.Release();
+            MatchSemaphore.Release(randomId);
         }
     }
 
     public async Task<GameMatch?> GetPlayerMatch(string playerId)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await MatchSemaphore.WaitAsync();
+            await MatchSemaphore.WaitAsync(randomId);
             string gameId = MatchMapping.FirstOrDefault(val=> val.Key == playerId).Value;
             if (string.IsNullOrEmpty(gameId)) {return null;} 
             return MatchPoll.FirstOrDefault(val => val.Key == gameId).Value.Match;
         }
         finally
         {
-            MatchSemaphore.Release();
+            MatchSemaphore.Release(randomId);
         }
     }
 
     private async Task<bool> IsUniqueCall(string key)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await CallsKeysSemaphore.WaitAsync();
+            await CallsKeysSemaphore.WaitAsync(randomId);
             if (CallsKeys.Contains(key)){return false;}
             CallsKeys.Add(key);
             return true;
         }
         finally
         {
-            CallsKeysSemaphore.Release();
+            CallsKeysSemaphore.Release(randomId);
         }
     }
 
     private async void ResetCallsKeys(string key)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         await Task.Delay(50 + Random.Shared.Next(0,50));
-        await CallsKeysSemaphore.WaitAsync();
+        await CallsKeysSemaphore.WaitAsync(randomId);
         CallsKeys.Remove(key);
-        CallsKeysSemaphore.Release();
+        CallsKeysSemaphore.Release(randomId);
     }
 
     public void Dispose()

@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using Blazor.services.game.state;
+
 namespace Blazor.models;
 
 public class GameMatch
@@ -17,6 +20,7 @@ public class GameMatch
         NextToPlay = -1;
     }
 
+
     private string GenerateId()
     {
         string gui = Guid.NewGuid().ToString().Replace("-","");
@@ -26,7 +30,28 @@ public class GameMatch
 
 public record Player
 {
-    public string Id { get; init; } = "";
-    public string ConnectionId { get; init; } = "";
+    [JsonIgnore]
+    public PlayerConnectionContext? Context { get; private set; }
+
+    public string Id { get; set; } = "";
+
+    public string ConnectionId
+    {
+        get
+        {
+            if (Context is null)
+            {
+                return "";
+            }
+            return Context.ConnectionId;
+        }
+    } 
+
     public string NickName { get; set; } = "";
+
+    public void SetContext( PlayerConnectionContext context )
+    {
+        Context = context;
+    }
+   
 }

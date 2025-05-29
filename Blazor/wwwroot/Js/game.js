@@ -58,10 +58,14 @@ export  class GameClient {
         let join = this.#JoinGame.bind(this)
         let game_change = this.#GameHasChanged.bind(this)
         let leave = this.#LeaveGame.bind(this)
+        let OnGameTurnTick = this.#OnGameTurnTick.bind(this)
+        let OnGamePlayerTurn = this.#OnGamePlayerTurn.bind(this)
         
         conn.on("Join_game", join);
         conn.on("game_has_changed", game_change);
         conn.on("leave_game", leave);
+        conn.on("GameTurnTick",OnGameTurnTick)
+        conn.on("GamePlayerTurn",OnGamePlayerTurn)
 
         this.#clearHubListenersCb.push(()=>{
             conn.off("Join_game", join)
@@ -74,6 +78,23 @@ export  class GameClient {
         this.#clearHubListenersCb.push(()=>{
             conn.off("leave_game", leave)
         })
+        
+        this.#clearHubListenersCb.push(()=>{
+            conn.off("GameTurnTick", OnGameTurnTick)
+        })
+
+        this.#clearHubListenersCb.push(()=>{
+            conn.off("GamePlayerTurn", OnGamePlayerTurn)
+        })
+    }
+    
+    #OnGamePlayerTurn(args){
+        let board = window.GAME_BOARD
+        board.updateTurnButton(args[0])
+    }
+
+    #OnGameTurnTick(args){
+        // Update timer
     }
 
     #JoinGame(match, player){
@@ -97,7 +118,7 @@ export  class GameClient {
             ref.invokeMethodAsync("NotifyLeftGame");
         }
     }
-
+   
     clearListeners (){
         for (const cb in this.#clearHubListenersCb) {
            cb() 
@@ -127,6 +148,5 @@ export  class GameClient {
         if (conn == null) { return }
         return await conn.invoke("GetGameStateAsync")
     }
-    
     
 }

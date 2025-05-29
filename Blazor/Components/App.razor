@@ -29,6 +29,11 @@
     <script type="module" src="Js/board.js"></script>
     <script type="module" src="Js/game.js"></script>
     <script type="module" src="Js/main.js"></script>
+    <script>
+        setTimeout(()=>{
+            window.Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {document.location.reload();}
+        },200)
+    </script>
 </body>
 
 </html>

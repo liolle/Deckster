@@ -8,15 +8,27 @@ public class GamePlayerPlaying : GameState, IDisposable
         if (Context is not null)
         {
             Context.GameClockService.Tick += HandleClockTick;
+            
+            BroadcastMessage("GamePlayerTurn", (p) =>
+            {
+                return [Context.Match.Players[Context.Match.NextToPlay].Id == p.Id];
+            }); 
             Context.GameClockService.Start();
-            Console.WriteLine($"GamePlayerPlaying: [{Context.Match.Id}]\n- {Context.Match.NextToPlay}");
         }
         
     }
 
     private void HandleClockTick(int time)
     {
-        Console.WriteLine($"Player: {Context?.Match.NextToPlay ?? -23} : {GameClockService.FormatSecondsToHHMMSS(time)} left");
+        if (Context is null)
+        {
+            return;
+        }
+        
+        BroadcastMessage("GameTurnTick", (P) =>
+        {
+            return [Context.Match.Players[Context.Match.NextToPlay], time];
+        }); 
         if (Context is not null && time <= 0)
         {
             EndTurn();

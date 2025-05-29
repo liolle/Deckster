@@ -23,28 +23,29 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
     
     public async Task<bool> JoinQueueAsync(Player p)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await SearchingSemaphore.WaitAsync();
+            await SearchingSemaphore.WaitAsync(randomId);
             SearchingPoll.Add(p);
             return true;
         }
         finally
         {
             
-            SearchingSemaphore.Release();
+            SearchingSemaphore.Release(randomId);
         }
     }
     
 
     public async Task FindMatchUp()
     {
+        int randomId = Random.Shared.Next(1000,10000);
         try
         {
-            await SearchingSemaphore.WaitAsync();
+            await SearchingSemaphore.WaitAsync(randomId);
             if (SearchingPoll.Count < 2)
             {
-                SearchingSemaphore.Release();
                 return;
             }
             Random random = new();
@@ -66,17 +67,17 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
         }
         finally
         {
-            
-            SearchingSemaphore.Release();
+            SearchingSemaphore.Release(randomId);
         }
     }
 
     private async Task CreateMatch(Player playerId1, Player playerId2)
     {
-        await PlayerPollSemaphore.WaitAsync();
+        int randomId = Random.Shared.Next(1000,10000);
+        await PlayerPollSemaphore.WaitAsync(randomId);
         PlayerPoll.TryGetValue(playerId1.Id, out PlayerConnectionContext? p1Context);
         PlayerPoll.TryGetValue(playerId2.Id, out PlayerConnectionContext? p2Context);
-        PlayerPollSemaphore.Release();
+        PlayerPollSemaphore.Release(randomId);
 
         if (p1Context is null || p2Context is null)
         {
@@ -98,8 +99,9 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
 
     public async Task EndGame(GameMatch match)
     {
+        int randomId = Random.Shared.Next(1000,10000);
         await boardManager.DeleteGame(match.Id);
-        await PlayerPollSemaphore.WaitAsync();
+        await PlayerPollSemaphore.WaitAsync(randomId);
         try { 
             PlayerPoll.TryGetValue(match.Players[0].Id, out PlayerConnectionContext? contextP1); 
             PlayerPoll.TryGetValue(match.Players[1].Id, out PlayerConnectionContext? contextP2);
@@ -114,21 +116,28 @@ public class ConnectionManager(BoardManager boardManager) : IConnectionManager,I
         }
         finally
         {
-            PlayerPollSemaphore.Release();
+            PlayerPollSemaphore.Release(randomId);
         }
     }
 
     public async Task<string> GetPlayerState(string playerId)
     {
-        await PlayerPollSemaphore.WaitAsync();
-        PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context) ;
-        if (context is null)
+        int randomId = Random.Shared.Next(1000,10000);
+        try
         {
-            return "";
+            await PlayerPollSemaphore.WaitAsync(randomId);
+            PlayerPoll.TryGetValue(playerId, out PlayerConnectionContext? context) ;
+            if (context is null)
+            {
+                return "";
+            }
+            return nameof(context.State);
         }
-        PlayerPollSemaphore.Release();
-
-        return nameof(context.State);
+        finally
+        {
+            
+            PlayerPollSemaphore.Release(randomId);
+        }
     }
 
     public void Dispose()

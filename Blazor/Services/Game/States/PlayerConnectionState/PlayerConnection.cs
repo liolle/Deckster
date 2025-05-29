@@ -9,14 +9,17 @@ public class PlayerConnectionContext
     public GameContext? GameContext { get; private set; } 
     private readonly ConnectionManager _connectionManager;
     public IHubContext<GameHub> Hub;
+    public string ConnectionId { get; set; } = "";
 
-    public Player Player { get; set; }
+    public Player Player { get; init; }
     public Type Type => State.GetType();
 
-    public PlayerConnectionContext(PlayerConnectionState state, Player player, ConnectionManager connectionManager, IHubContext<GameHub> clients)
+    public PlayerConnectionContext(PlayerConnectionState state, Player player,string connectionId, ConnectionManager connectionManager, IHubContext<GameHub> clients)
     {
         _connectionManager = connectionManager;
         Player = player;
+        ConnectionId = connectionId;
+        Player.SetContext(this);
         Hub = clients;
         TransitionTo(state);
     }
@@ -61,7 +64,7 @@ public class PlayerConnectionContext
 
         TransitionTo(new PlayerLobby());
         await Task.Delay(100);
-        await Hub.Clients.Client(Player.ConnectionId).SendAsync("leave_game");
+        await Hub.Clients.Client(ConnectionId).SendAsync("leave_game");
         Console.WriteLine($"Player {Player} left the game");
     }
 }

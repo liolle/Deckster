@@ -43,26 +43,25 @@ public class OwnedSemaphore : IDisposable
         _name = name;
     }
 
-    public async Task WaitAsync()
-    {
-            await _semaphore.WaitAsync();
-            int id = Environment.CurrentManagedThreadId;    
-            lock (_owners)
-            {
-                _owners.Add(id);
-            }
 
-    }
-
-    public void Release()
+    public async Task WaitAsync(int randomId)
     {
-        
-        int id = Environment.CurrentManagedThreadId;    
+        await _semaphore.WaitAsync();
+        //Console.WriteLine($"Waiting: {randomId}: {_name}");
         lock (_owners)
         {
-            if (!_owners.Contains(id)) { return; }
+            _owners.Add(randomId);
+        }
+    }
+     
+    public void Release(int randomId)
+    {
+        //Console.WriteLine($"Releasing: {randomId}: {_name}");
+        lock (_owners)
+        {
+            if (!_owners.Contains(randomId)) { return; }
             _semaphore.Release();
-            _owners.Remove(id);
+            _owners.Remove(randomId);
         }
     }
 

@@ -51,8 +51,10 @@ public partial class Game
         if (!firstRender){return;}
         if (MatchService is null) { return; }
         
+        GameMatch? m = await MatchService.GetGameState();
+        if(m is null){return;}
         {
-            await SetPlayer();
+            SetPlayer(m);
             if (Board is null || Me is null) { return; }
             await Board.InitAsync("game-board-container");
             await Board.DrawBoard(Me);
@@ -60,20 +62,18 @@ public partial class Game
         }
     }
 
-    private async Task SetPlayer()
+    private void SetPlayer(GameMatch match)
     {
-        if (MatchService is null) { return; }
-        GameMatch? m = await MatchService.GetGameState();
-        if (m is null || string.IsNullOrEmpty(_myId)){return;}
-        if (m.Players[0].Id == _myId)
+        if ( string.IsNullOrEmpty(_myId)){return;}
+        if (match.Players[0].Id == _myId)
         {
-            Me = m.Players[0];
-            Opponent = m.Players[1];
+            Me = match.Players[0];
+            Opponent = match.Players[1];
         }
         else
         {
-            Opponent = m.Players[0];
-            Me = m.Players[1];
+            Opponent = match.Players[0];
+            Me = match.Players[1];
         } 
     }
 

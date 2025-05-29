@@ -5,7 +5,7 @@ namespace Blazor.services.game.state;
 
 public class GameContext
 {
-    const int TurnTimeLimit = 60;
+    const int TurnTimeLimit = 10;
     public GameState State { get; private set; }
     public GameMatch Match { get; }
     private readonly BoardManager _boardManager;
@@ -93,5 +93,40 @@ public abstract class GameState
         }
         
         return Context.Match.Players[idx.Value].Id == playerId;
+    }
+
+    /*
+    protected void BroadcastMessage(string type, params object[] args)
+    {
+        if (Context is null || Clients is null)
+        {
+            return;
+        }
+
+        IHubContext<GameHub>? hub = Clients;
+
+        foreach (Player p in  Context.Match.Players)
+        {
+            hub.Clients.Clients(p.ConnectionId)
+                .SendAsync(type, args);
+        }
+       
+    }
+    */
+    protected void BroadcastMessage(string type, Func<Player, object[]> callback)
+    {
+        if (Context is null || Clients is null)
+        {
+            return;
+        }
+
+        IHubContext<GameHub>? hub = Clients;
+
+        foreach (Player p in  Context.Match.Players)
+        {
+            hub.Clients.Clients(p.ConnectionId)
+                .SendAsync(type, callback(p));
+        }
+       
     }
 }
