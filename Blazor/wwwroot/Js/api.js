@@ -1,4 +1,4 @@
-class APIRequest {
+export class APIRequest {
     static URL = "http://localhost:5002"
 
     // Cookie should be set on successful login 
@@ -51,11 +51,3 @@ class APIRequest {
         };
     }
 }
-
-window.setURL = (url) => {
-    APIRequest.URL = url
-}
-
-window.logout = () => APIRequest.logout();
-window.login = (username, password) => APIRequest.login(username, password);
-window.register = (username, password, email, nickname) => APIRequest.register(username, password, email, nickname); 
