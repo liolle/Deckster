@@ -50,7 +50,7 @@ public partial class Home : ComponentBase, IDisposable
         await FetchUserDecks();
         if (DeckList.Count < 1)
         {
-            ToastService?.Add(new CToast(TOAST_TYPE.WARNING,"You have no deck ready",0));
+            ToastService?.Add(new CToast(ToastType.WARNING,"You have no deck ready",0));
             return;
         }
         

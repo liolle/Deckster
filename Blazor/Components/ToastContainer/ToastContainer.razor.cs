@@ -9,14 +9,14 @@ public partial class ToastContainer : ComponentBase
     public List<CToast> ToastList { get; set; } = [];
 
     [Inject]
-    ToastService? _toast { get; set; }
+    ToastService? Toast { get; set; }
 
     protected override void OnInitialized()
     {
-        if (_toast is null) { return; }
-        _toast.AddToast += Add;
-        _toast.RemoveToast += Remove;
-        ToastList = _toast.ToastList;
+        if (Toast is null) { return; }
+        Toast.OnToastAdded += Add;
+        Toast.OnToastRemoved += Remove;
+        ToastList = Toast.ToastList;
     }
 
     private void Add(CToast toast)
@@ -28,16 +28,11 @@ public partial class ToastContainer : ComponentBase
     {
         StateHasChanged();
     }
-
-    protected override void OnParametersSet()
-    {
-
-    }
-
+   
     public void Dispose()
     {
-        if (_toast is null) { return; }
-        _toast.AddToast -= Add;
-        _toast.RemoveToast -= Remove;
+        if (Toast is null) { return; }
+        Toast.OnToastAdded -= Add;
+        Toast.OnToastRemoved -= Remove;
     }
 }

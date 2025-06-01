@@ -20,14 +20,6 @@ public static class Utils
         }
         return default;
     }
-
-    public static int? ExtractIntFromClaim(IEnumerable<Claim> claims, string type)
-    {
-        string? idStr = claims.FirstOrDefault(val => val.Type == type)?.Value;
-        if (idStr is null || !int.TryParse(idStr, out int id)) { return null; }
-        return id;
-    }
-
 }
 
 public class OwnedSemaphore : IDisposable
@@ -42,7 +34,6 @@ public class OwnedSemaphore : IDisposable
         _owners = new HashSet<object>();
         _name = name;
     }
-
 
     public async Task WaitAsync(int randomId)
     {

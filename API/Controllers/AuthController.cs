@@ -49,9 +49,14 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
     {
       this.validModelOrThrow();
 
-      string token_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
+      string tokenName = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
       string domain = configuration["DOMAIN"] ?? throw new MissingConfigException("DOMAIN");
-      string expiry = configuration["JWT_EXPIRY"] ?? throw new MissingConfigException("JWT_EXPIRY");
+      string expiryStr = configuration["JWT_EXPIRY"] ?? throw new MissingConfigException("JWT_EXPIRY");
+      
+      if (!double.TryParse(expiryStr, out double expiry))
+      {
+        throw new MalformedConfiguration("JWT_EXPIRY");
+      }
 
       QueryResult<string> result = auth.Execute(query);
 
@@ -71,10 +76,10 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
         Domain = $"{domain}",
         Secure = true,
         SameSite = SameSiteMode.None,
-        Expires = DateTime.UtcNow.AddMinutes(60)
+        Expires = DateTime.UtcNow.AddMinutes(expiry)
       };
 
-      Response.Cookies.Append(token_name, result.Result, cookieOptions);
+      Response.Cookies.Append(tokenName, result.Result, cookieOptions);
 
       return IApiOutput.Response(null);
     }
@@ -91,7 +96,7 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
   {
     try
     {
-      string token_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
+      string tokenName = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
       string domain = configuration["DOMAIN"] ?? throw new MissingConfigException("DOMAIN");
 
       CookieOptions cookieOptions = new()
@@ -103,7 +108,7 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
         Expires = DateTime.Now.AddDays(-1)
       };
 
-      Response.Cookies.Append(token_name, string.Empty, cookieOptions);
+      Response.Cookies.Append(tokenName, string.Empty, cookieOptions);
 
       return IApiOutput.Response(null);
     }
@@ -131,10 +136,8 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : C
         {
           throw result.Exception;
         }
-
         return IApiOutput.Response(result.ErrorMessage);
       }
-
       return IApiOutput.Response(null);
     }
     catch (Exception e)

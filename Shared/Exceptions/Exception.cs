@@ -1,18 +1,18 @@
 namespace Shared.exceptions;
 
-public class MissingConfigException(string config_key) : Exception($"Missing configuration:\n- {config_key}\n")
+public class MissingConfigException(string configKey) : Exception($"Missing configuration:\n- {configKey}\n");
+
+public class MalformedConfiguration(string configKey) : Exception($"Malformed configuration:\n- {configKey}\n");
+
+public class DuplicateFieldException(string fieldName) : Exception($"Unavailable field:\n- {fieldName}")
 {
+  public string Field { get; init; } = fieldName;
 }
 
-public class DuplicateFieldException(string field_name) : Exception($"Unavailable field:\n- {field_name}")
-{
-  public string Field { get; init; } = field_name;
-}
 
-
-public class UnknownFieldException(string field_name) : Exception($"Unknown field:\n- {field_name}")
+public class UnknownFieldException(string fieldName) : Exception($"Unknown field:\n- {fieldName}")
 {
-  public string Field { get; init; } = field_name;
+  public string Field { get; init; } = fieldName;
 }
 
 public class InvalidRequestModelException<T>(T errors) : Exception($"Invalid Model")
@@ -25,16 +25,11 @@ public class NotFoundElementException(string key) : Exception($"Not found elemen
   public string Key { get; init; } = key;
 }
 
-public class InvalidCredException() : Exception("Invalid Connection Credentials")
-{
-}
+public class InvalidCredException() : Exception("Invalid Connection Credentials");
 
-public class UnAuthorizeActionException(string message) : Exception(message)
-{
-}
+public class UnAuthorizeActionException(string message) : Exception(message);
 
 public class InvalidHeaderException(string key) : Exception($"Invalid Header\n - {key}")
 {
   public string Key { get; init; } = key;
 }
-

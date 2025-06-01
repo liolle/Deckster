@@ -28,11 +28,11 @@ public partial class AddCard : ComponentBase
 
         if (!string.IsNullOrEmpty(error_msg))
         {
-            _toast?.Add(new CToast(TOAST_TYPE.ERROR, error_msg, 5000));
+            _toast?.Add(new CToast(ToastType.ERROR, error_msg, 5000));
             Sending = false;
             return;
         }
-        _toast?.Add(new CToast(TOAST_TYPE.SUCCESS, "Card Added successfully", 3000));
+        _toast?.Add(new CToast(ToastType.SUCCESS, "Card Added successfully", 3000));
         Model.Reset();
         Sending = false;
     }

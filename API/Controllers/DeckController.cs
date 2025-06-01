@@ -26,17 +26,14 @@ public class DeckController(ICardService cards) : ControllerBase
   [Description("Create a deck")]
   public IActionResult AddDeck([FromBody] AddDeckCommand model)
   {
-
     try
     {
       this.validModelOrThrow();
 
-      string account_id = User.FindFirst("AccountId")?.Value ?? "";
-      DeckEntity deck = DeckEntity.Create(account_id, model.Name);
-      model.AccountId = account_id;
+      string accountId = User.FindFirst("AccountId")?.Value ?? "";
+      DeckEntity deck = DeckEntity.Create(accountId, model.Name);
+      model.AccountId = accountId;
       model.DeckId = deck.Id;
-
-
 
       CommandResult result = cards.Execute(model);
 
@@ -52,7 +49,6 @@ public class DeckController(ICardService cards) : ControllerBase
     }
     catch (Exception e)
     {
-
       return IApiOutput.ResponseError(e);
     }
   }
@@ -65,9 +61,9 @@ public class DeckController(ICardService cards) : ControllerBase
   {
     try
     {
-      string account_id = User.FindFirst("AccountId")?.Value ?? "";
+      string accountId = User.FindFirst("AccountId")?.Value ?? "";
 
-      UserDecksQuery q = new(account_id)
+      UserDecksQuery q = new(accountId)
       {
         State = state ?? ""
       };
@@ -97,8 +93,8 @@ public class DeckController(ICardService cards) : ControllerBase
     try
     {
       DeleteDeckCommand command = new(deckId);
-      string account_id = User.FindFirst("AccountId")?.Value ?? "";
-      command.AccountId = account_id;
+      string accountId = User.FindFirst("AccountId")?.Value ?? "";
+      command.AccountId = accountId;
 
       CommandResult result = cards.Execute(command);
 
@@ -161,9 +157,9 @@ public class DeckController(ICardService cards) : ControllerBase
         throw new InvalidRequestModelException<List<string>>(errors);
       }
 
-      string account_id = User.FindFirst("AccountId")?.Value ?? "";
-      model.AccountId = account_id;
-      CommandResult permissionResult = cards.Execute(new GetDeckPermission(model.DeckId, account_id));
+      string accountId = User.FindFirst("AccountId")?.Value ?? "";
+      model.AccountId = accountId;
+      CommandResult permissionResult = cards.Execute(new GetDeckPermission(model.DeckId, accountId));
       CommandResult res = cards.Execute(new DeleteDeckCardsCommand(model.DeckId));
 
       if (!permissionResult.IsSuccess)
@@ -186,5 +182,4 @@ public class DeckController(ICardService cards) : ControllerBase
       return IApiOutput.ResponseError(e);
     }
   }
-
 }

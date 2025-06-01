@@ -1,4 +1,4 @@
-@if (Image is not null)
+@if (_image is not null)
 {
     <div class="out-layer">
         @if (Quantity > 0)
@@ -12,7 +12,7 @@
         }
 
         <div class="card-container">
-            <img src="@Image">
+            <img src="@_image">
             <div class="marker card-cost">
                 <span>@CCard.Cost</span>
             </div>

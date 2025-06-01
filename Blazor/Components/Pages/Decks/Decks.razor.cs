@@ -134,11 +134,11 @@ public partial class Decks : ComponentBase
 
         if (!string.IsNullOrEmpty(error))
         {
-            _toast?.Add(new CToast(TOAST_TYPE.ERROR, error, 0));
+            _toast?.Add(new CToast(ToastType.ERROR, error, 0));
             SubmittingDeck = false;
             return;
         }
-        _toast?.Add(new CToast(TOAST_TYPE.SUCCESS, "Deck add successfully", 4000));
+        _toast?.Add(new CToast(ToastType.SUCCESS, "Deck add successfully", 4000));
         Model.Reset();
 
         await FetchUserDecks();
@@ -170,7 +170,7 @@ public partial class Decks : ComponentBase
 
             foreach (string item in errs)
             {
-                _toast?.Add(new CToast(TOAST_TYPE.ERROR, item, 0));
+                _toast?.Add(new CToast(ToastType.ERROR, item, 0));
             }
 
             return;
@@ -180,12 +180,12 @@ public partial class Decks : ComponentBase
 
         if (!string.IsNullOrEmpty(error))
         {
-            _toast?.Add(new CToast(TOAST_TYPE.ERROR, error, 0));
+            _toast?.Add(new CToast(ToastType.ERROR, error, 0));
             return;
 
         }
 
-        _toast?.Add(new CToast(TOAST_TYPE.SUCCESS, "Deck updated successfully", 4000));
+        _toast?.Add(new CToast(ToastType.SUCCESS, "Deck updated successfully", 4000));
     }
 
     private void HandleCardClick(MouseEventArgs e, Card c)

@@ -6,7 +6,7 @@ namespace Blazor.Components.TCard;
 public partial class TCard : ComponentBase
 {
     [Inject]
-    IConfiguration? config { get; set; }
+    IConfiguration? Config { get; set; }
 
     [Parameter, EditorRequired]
     public Card CCard { get; set; } = null!;
@@ -14,14 +14,14 @@ public partial class TCard : ComponentBase
     [Parameter]
     public int Quantity { get; set; } = 0;
 
-    private string FILE_SERVER = "";
-    private string DEFAULT_CARD = "";
-    string? Image;
+    private string _fileServer = "";
+    private string _defaultCard = "";
+    private string? _image;
 
     protected override async Task OnInitializedAsync()
     {
-        FILE_SERVER = config?["FILE_SERVER"] ?? throw new Exception("Missing configuration FILE_SERVER");
-        DEFAULT_CARD = config?["DEFAULT_CARD"] ?? throw new Exception("Missing configuration DEFAULT_CARD");
+        _fileServer = Config?["FILE_SERVER"] ?? throw new Exception("Missing configuration FILE_SERVER");
+        _defaultCard = Config?["DEFAULT_CARD"] ?? throw new Exception("Missing configuration DEFAULT_CARD");
         await UpdateImage();
     }
 
@@ -33,12 +33,12 @@ public partial class TCard : ComponentBase
 
     private async Task UpdateImage()
     {
-        Image = $"{FILE_SERVER}/{CCard.Image}";
+        _image = $"{_fileServer}/{CCard.Image}";
 
-        bool exist = await ImageLinkChecker.ImageExistsAsync(Image);
+        bool exist = await ImageLinkChecker.ImageExistsAsync(_image);
         if (!exist)
         {
-            Image = Image = $"{FILE_SERVER}/{DEFAULT_CARD}";
+            _image = _image = $"{_fileServer}/{_defaultCard}";
         }
     }
 

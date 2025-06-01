@@ -1,7 +1,8 @@
 @using Blazor.services
+@using Blazor.Components.Toast
 <div class="toast-message-container">
     @foreach (CToast t in ToastList)
     {
-        <Toast _toast="t" />
+        <Toast ctoast="t" />
     }
 </div>

@@ -28,7 +28,7 @@ builder.Services.AddDataProtection()
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        string jwt_key = configuration["JWT_KEY"] ?? throw new MissingConfigException("JWT_KEY");
+        string jwtKey = configuration["JWT_KEY"] ?? throw new MissingConfigException("JWT_KEY");
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -38,7 +38,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = configuration["JWT_ISSUER"],
             ValidAudience = configuration["JWT_AUDIENCE"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt_key))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
 
         // extract token from cookies and place it into the Authorization header.
@@ -46,17 +46,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnMessageReceived = context =>
             {
-                string jwt_name = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
-                if (context.Request.Cookies.ContainsKey(jwt_name))
+                string jwtName = configuration["AUTH_TOKEN_NAME"] ?? throw new MissingConfigException("AUTH_TOKEN_NAME");
+                if (context.Request.Cookies.ContainsKey(jwtName))
                 {
-                    context.Token = context.Request.Cookies[jwt_name];
+                    context.Token = context.Request.Cookies[jwtName];
                 }
                 return Task.CompletedTask;
             }
         };
     });
 
-string front_host = configuration["FRONT_HOST"] ?? throw new MissingConfigException("FRONT_HOST");
+string frontHost = configuration["FRONT_HOST"] ?? throw new MissingConfigException("FRONT_HOST");
 
 // Cors
 builder.Services.AddCors(options =>
@@ -64,7 +64,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowCredentials", policy =>
     {
         policy
-        .WithOrigins([front_host, "https://localhost:7257"])
+        .WithOrigins([frontHost, "https://localhost:7257"])
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();

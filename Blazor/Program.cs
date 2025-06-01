@@ -14,19 +14,19 @@ Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
-string SHARED_KEYS = configuration["SHARED_KEYS"] ?? throw new MissingConfigException("SHARED_KEYS");
-string HUB_ENDPOINT = configuration["HUB_ENDPOINT"] ?? throw new MissingConfigException("HUB_ENDPOINT");
-string API_URL = configuration["API_URL"] ?? throw new MissingConfigException("API_URL");
+string sharedKeys = configuration["SHARED_KEYS"] ?? throw new MissingConfigException("SHARED_KEYS");
+string hubEndpoint = configuration["HUB_ENDPOINT"] ?? throw new MissingConfigException("HUB_ENDPOINT");
+string apiUrl = configuration["API_URL"] ?? throw new MissingConfigException("API_URL");
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddDataProtection()
-    .SetApplicationName("deckster").PersistKeysToFileSystem(new DirectoryInfo(SHARED_KEYS));
+    .SetApplicationName("deckster").PersistKeysToFileSystem(new DirectoryInfo(sharedKeys));
 
 builder.Services.AddHttpClient("main_api", client =>
 {
-    client.BaseAddress = new Uri(API_URL);
+    client.BaseAddress = new Uri(apiUrl);
 })
 .ConfigurePrimaryHttpMessageHandler(() =>
 {
@@ -70,6 +70,6 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapHub<GameHub>($"/{HUB_ENDPOINT}");
+app.MapHub<GameHub>($"/{hubEndpoint}");
 
 app.Run();

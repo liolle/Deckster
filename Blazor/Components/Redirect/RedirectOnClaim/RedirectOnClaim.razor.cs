@@ -41,7 +41,7 @@ public partial class RedirectOnClaim : ComponentBase
 
         if (!IsValid)
         {
-            handleRedirect(RedirectOnFailure);
+            HandleRedirect(RedirectOnFailure);
             return;
         }
 
@@ -51,7 +51,7 @@ public partial class RedirectOnClaim : ComponentBase
         }
     }
 
-    private void handleRedirect(string url)
+    private void HandleRedirect(string url)
     {
         Match matcher = Regex.Match(navigation?.Uri ?? "", $@"(https|http):\/\/[a-zA-Z0-9.:]*({url}[^\/]*$)");
 

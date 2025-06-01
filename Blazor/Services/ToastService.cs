@@ -1,6 +1,6 @@
 namespace Blazor.services;
 
-public enum TOAST_TYPE
+public enum ToastType
 {
     SUCCESS,
     INFO,
@@ -8,9 +8,9 @@ public enum TOAST_TYPE
     WARNING
 }
 
-public class CToast(TOAST_TYPE type, string content, int timeout)
+public class CToast(ToastType type, string content, int timeout)
 {
-    public TOAST_TYPE Type { get; } = type;
+    public ToastType Type { get; } = type;
     public string Content { get; } = content;
     public int Timeout { get; } = timeout;
 }
@@ -18,23 +18,20 @@ public class CToast(TOAST_TYPE type, string content, int timeout)
 public class ToastService
 {
     public List<CToast> ToastList { get; } = [];
-    public event Action<CToast>? AddToast;
-    public event Action<CToast>? RemoveToast;
+    public event Action<CToast>? OnToastAdded;
+    public event Action<CToast>? OnToastRemoved;
 
     public void Add(CToast toast)
     {
-        if (AddToast is null) { return; }
+        if (OnToastAdded is null) { return; }
         ToastList.Add(toast);
-        AddToast.Invoke(toast);
+        OnToastAdded.Invoke(toast);
     }
-
 
     public void Remove(CToast toast)
     {
-        if (RemoveToast is null) { return; }
+        if (OnToastRemoved is null) { return; }
         ToastList.Remove(toast);
-        RemoveToast.Invoke(toast);
+        OnToastRemoved.Invoke(toast);
     }
 }
-
-

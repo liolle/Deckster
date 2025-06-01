@@ -6,30 +6,24 @@ namespace Blazor.Components.Toast;
 
 public partial class Toast : ComponentBase
 {
-
   [Parameter, EditorRequired]
-  public required CToast _toast { get; set; }
+  public required CToast ctoast { get; set; }
 
-  [Inject]
-  ToastService? _toast_service { get; set; }
+  [Inject] 
+  private ToastService? toastService { get; set; }
 
   protected override async Task OnInitializedAsync()
   {
-    if (_toast is null || _toast.Timeout == 0) { return; }
+    if (ctoast.Timeout == 0) { return; }
 
-    await Task.Delay(_toast.Timeout);
+    await Task.Delay(ctoast.Timeout);
     Remove();
   }
 
   private void Remove()
   {
-    if (_toast_service is null) { return; }
-    _toast_service.Remove(_toast);
+    if (toastService is null) { return; }
+    toastService.Remove(ctoast);
     StateHasChanged();
-  }
-
-  public void Dispose()
-  {
-
   }
 }
