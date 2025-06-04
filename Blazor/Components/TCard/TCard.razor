@@ -3,7 +3,6 @@
     <div class="out-layer">
         @if (Quantity > 0)
         {
-
             <div class="card-counter @MaxedStatus()">
                 <span class="num">@Quantity</span>
                 <span>/</span>
@@ -13,15 +12,6 @@
 
         <div class="card-container">
             <img src="@_image">
-            <div class="marker card-cost">
-                <span>@CCard.Cost</span>
-            </div>
-            <div class="marker card-strength">
-                <span>@CCard.Strength</span>
-            </div>
-            <div class="marker card-defense">
-                <span>@CCard.Defense</span>
-            </div>
         </div>
     </div>
 }
