@@ -89,8 +89,14 @@ public partial class Loading : ComponentBase, IDisposable
     }
   }
 
+  // may need to re-think this if more protected pages are needed
   private void HandleGameState(string state)
   {
+    Match matcher = Regex.Match(Navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/([a-zA-Z0-9]*)[^\/]*$");
+    string loc = matcher.Groups[2].Value;
+    
+    
+    // page, player state, 
     switch (state)
     {
       case nameof(PlayerLobby):
@@ -99,7 +105,15 @@ public partial class Loading : ComponentBase, IDisposable
           MatchService.State = MatchState.lobby;
         }
 
-        Navigate("/");
+        if (loc == "game")
+        {
+          Navigate("/");
+        }
+        else
+        {
+          Navigate(loc);
+        }
+        
         break;
       case nameof(PlayerInGame):
         if (MatchService is not null)
@@ -115,7 +129,7 @@ public partial class Loading : ComponentBase, IDisposable
         {
           MatchService.State = MatchState.lobby;
         }
-        Navigate("/");
+        Navigate(loc);
         break;
     }
   }
@@ -150,6 +164,7 @@ public partial class Loading : ComponentBase, IDisposable
     Match matcher = Regex.Match(Navigation?.Uri ?? "", @"(https|http):\/\/[a-zA-Z0-9.:]*\/([a-zA-Z0-9]*)[^\/]*$");
     string loc = matcher.Groups[2].Value;
     StopLoading();
+    Console.WriteLine($"{loc}:{location}");
     Resolved = true;
     if (location == $"/{loc}")
     {
